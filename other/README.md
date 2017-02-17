@@ -10,7 +10,7 @@ jq-1.5.tar.gz
 Debian/Ubuntu系统：
 ``` bash
 apt-get install -y build-essential
-wget --no-check-certificate -N "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/jq-1.5.tar.gz"
+wget --no-check-certificate -N "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/jq-1.5.tar.gz"
 tar -xzf jq-1.5.tar.gz && cd jq-1.5
 ./configure --disable-maintainer-mode && make && make install
 ldconfig
