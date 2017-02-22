@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6/Debian/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 1.2.6
+#	Version: 1.2.7
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
@@ -72,7 +72,7 @@ Language(){
 		Word_serverspeeder="锐速"
 	
 		Info_switch_single_port_mode="你确定要切换模式为 ${Word_single_port} ?[y/N]"
-		Info_switch_multi_port_mode="你确定要切换模式为 Word_multi_port ?[y/N]"
+		Info_switch_multi_port_mode="你确定要切换模式为 ${Word_multi_port} ?[y/N]"
 		Info_input_port="请输入ShadowsocksR ${Word_port} [1-65535]"
 		Info_input_pass="请输入ShadowsocksR ${Word_pass}"
 		Info_input_method="请输入数字 来选择ShadowsocksR ${Word_method}"
@@ -648,7 +648,7 @@ setUser(){
 	[[ "${ssprotocol_param}" = "0(${Word_unlimited})" ]] && ssprotocol_param=""
 }
 ss_link_qr(){
-	SSbase64=`echo -n "${method}:${user_password}@${ip}:${user_port}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
+	SSbase64=`echo -n "${method}:${password}@${ip}:${port}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
 	SSurl="ss://"${SSbase64}
 	SSQRcode="http://pan.baidu.com/share/qrcode?w=300&h=300&url="${SSurl}
 	ss_link="${Word_ss_like} : ${Green_font_prefix}${SSurl}${Font_color_suffix} \n${Word_ss_qr_code} : ${Green_font_prefix}${SSQRcode}${Font_color_suffix}"
@@ -658,6 +658,23 @@ ssr_link_qr(){
 	SSRobfs=`echo ${obfs} | sed 's/_compatible//g'`
 	SSRPWDbase64=`echo -n "${password}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
 	SSRbase64=`echo -n "${ip}:${port}:${SSRprotocol}:${method}:${SSRobfs}:${SSRPWDbase64}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
+	SSRurl="ssr://"${SSRbase64}
+	SSRQRcode="http://pan.baidu.com/share/qrcode?w=300&h=300&url="${SSRurl}
+	ssr_link="${Word_ssr_like} : ${Green_font_prefix}${SSRurl}${Font_color_suffix} \n${Word_ssr_qr_code} : ${Green_font_prefix}${SSRQRcode}${Font_color_suffix} \n "
+}
+ss_link_qr_1(){
+	SSbase64=`echo -n "${method}:${user_password}@${ip}:${user_port}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
+	#echo -e "${user_port}" && echo -e "${user_password}" && echo -e "${SSbase64}"
+	SSurl="ss://"${SSbase64}
+	SSQRcode="http://pan.baidu.com/share/qrcode?w=300&h=300&url="${SSurl}
+	ss_link="${Word_ss_like} : ${Green_font_prefix}${SSurl}${Font_color_suffix} \n${Word_ss_qr_code} : ${Green_font_prefix}${SSQRcode}${Font_color_suffix}"
+}
+ssr_link_qr_1(){
+	SSRprotocol=`echo ${protocol} | sed 's/_compatible//g'`
+	SSRobfs=`echo ${obfs} | sed 's/_compatible//g'`
+	SSRPWDbase64=`echo -n "${user_password}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
+	SSRbase64=`echo -n "${ip}:${user_port}:${SSRprotocol}:${method}:${SSRobfs}:${SSRPWDbase64}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
+	#echo -e "${user_port}" && echo -e "${user_password}" && echo -e "${SSRbase64}"
 	SSRurl="ssr://"${SSRbase64}
 	SSRQRcode="http://pan.baidu.com/share/qrcode?w=300&h=300&url="${SSRurl}
 	ssr_link="${Word_ssr_like} : ${Green_font_prefix}${SSRurl}${Font_color_suffix} \n${Word_ssr_qr_code} : ${Green_font_prefix}${SSRQRcode}${Font_color_suffix} \n "
@@ -751,19 +768,19 @@ viewUser(){
 			do
 				user_port=`jq '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
 				user_password=`jq '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $2}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
-				user_id=$[$user_id+1]	
-			
+				user_id=$[$user_id+1]
+					#echo -e ${user_port} && echo -e ${user_password} && echo -e ${user_id}
 				SSprotocol=`echo ${protocol} | awk -F "_" '{print $NF}'`
 				SSobfs=`echo ${obfs} | awk -F "_" '{print $NF}'`
 				if [[ ${protocol} = "origin" ]]; then
 					if [[ ${obfs} = "plain" ]]; then
-						ss_link_qr
+						ss_link_qr_1
 						ssr_link=""
 					else
 						if [[ ${SSobfs} != "compatible" ]]; then
 							ss_link=""
 						else
-							ss_link_qr
+							ss_link_qr_1
 						fi
 					fi
 				else
@@ -772,16 +789,16 @@ viewUser(){
 					else
 						if [[ ${SSobfs} != "compatible" ]]; then
 							if [[ ${SSobfs} = "plain" ]]; then
-								ss_link_qr
+								ss_link_qr_1
 							else
 								ss_link=""
 							fi
 						else
-							ss_link_qr
+							ss_link_qr_1
 						fi
 					fi
 				fi
-				ssr_link_qr
+				ssr_link_qr_1
 				echo -e " ——————————${Green_font_prefix} ${Word_user} ${user_id} ${Font_color_suffix} ——————————"
 				echo -e " ${Word_port}\t    : ${Green_font_prefix}${user_port}${Font_color_suffix}"
 				echo -e " ${Word_pass}\t    : ${Green_font_prefix}${user_password}${Font_color_suffix}"
@@ -799,13 +816,13 @@ viewUser(){
 				SSobfs=`echo ${obfs} | awk -F "_" '{print $NF}'`
 				if [[ ${protocol} = "origin" ]]; then
 					if [[ ${obfs} = "plain" ]]; then
-						ss_link_qr
+						ss_link_qr_1
 						ssr_link=""
 					else
 						if [[ ${SSobfs} != "compatible" ]]; then
 							ss_link=""
 						else
-							ss_link_qr
+							ss_link_qr_1
 						fi
 					fi
 				else
@@ -814,16 +831,16 @@ viewUser(){
 					else
 						if [[ ${SSobfs} != "compatible" ]]; then
 							if [[ ${SSobfs} = "plain" ]]; then
-								ss_link_qr
+								ss_link_qr_1
 							else
 								ss_link=""
 							fi
 						else
-							ss_link_qr
+							ss_link_qr_1
 						fi
 					fi
 				fi
-				ssr_link_qr
+				ssr_link_qr_1
 				echo -e " —————————— ${Green_font_prefix} ${Word_user} ${user_id} ${Font_color_suffix} ——————————"
 				echo -e " ${Word_port}\t    : ${Green_font_prefix}${user_port}${Font_color_suffix}"
 				echo -e " ${Word_pass}\t    : ${Green_font_prefix}${user_password}${Font_color_suffix}"
@@ -1113,7 +1130,7 @@ Port_mode_switching(){
 		echo
 		echo -e "	${Word_current_mode}: ${Green_font_prefix} ${Word_single_port} ${Font_color_suffix}"
 		echo
-		echo -e "${Info_switch_single_port_mode}"
+		echo -e "${Info_switch_multi_port_mode}"
 		echo
 		read -p "(${Word_default}: n):" mode_yn
 		[[ -z ${mode_yn} ]] && mode_yn="n"
@@ -1153,7 +1170,7 @@ EOF
 		echo
 		echo -e "	${Word_current_mode}: ${Green_font_prefix} ${Word_multi_port} ${Font_color_suffix}"
 		echo
-		echo -e "${Info_switch_multi_port_mode}"
+		echo -e "${Info_switch_single_port_mode}"
 		echo
 		read -p "(${Word_default}: n):" mode_yn
 		[[ -z ${mode_yn} ]] && mode_yn="n"
