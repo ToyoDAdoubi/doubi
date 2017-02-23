@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: iptables Port forwarding
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-20/
 #=================================================
@@ -69,21 +69,21 @@ addiptables(){
 # 判断是否安装iptables
 	check_iptables
 # 设置本地监听端口
-	read -p "请输入 iptables 的 本地监听端口 [1-65535](支持端口段: 2333-6666): " iptablesport
+	read -p "请输入 iptables 的 本地监听端口 [1-65535] (支持端口段: 2333-6666): " iptablesport
 	[[ -z "${iptablesport}" ]] && echo "取消..." && exit 1
+# 设置本地 IP
+	read -p "请输入 本服务器的 公网IP (回车默认: 自动检测):" ip
+	if [[ -z "${ip}" ]]; then
+		ip=`curl -m 10 -s http://members.3322.org/dyndns/getip`
+		[[ -z "${ip}" ]] && echo "无法检测到本服务器的公网IP，取消..." && exit 1
+	fi
 # 设置欲转发端口
-	echo -e "请输入 iptables 欲转发的 端口 [1-65535](支持端口段: 2333-6666): "
+	echo -e "请输入 iptables 欲转发的 端口 [1-65535] (支持端口段: 2333-6666): "
 	read -p "(默认端口: ${iptablesport})" iptablesport1
 	[[ -z "${iptablesport1}" ]] && iptablesport1=${iptablesport}
 # 设置欲转发 IP
 	read -p "请输入 iptables 欲转发的 IP:" iptablesip
 	[[ -z "${iptablesip}" ]] && echo "取消..." && exit 1
-# 设置本地 IP
-	ip=`curl -m 10 -s http://members.3322.org/dyndns/getip`
-	if [[ -z $ip ]]; then
-		read -p "无法检测到本服务器的公网IP，请输入本服务器的 公网IP:" ip
-		[[ -z "${ip}" ]] && echo "取消..." && exit 1
-	fi
 #设置 转发类型
 	echo "请输入数字 来选择 iptables 转发类型:"
 	echo "1. TCP"
@@ -106,11 +106,11 @@ addiptables(){
 	echo "——————————————————————————————"
 	echo "      请检查 iptables 端口转发规则配置是否有误 !"
 	echo
-	echo -e "	本地监听端口 : \033[41;37m ${iptablesport} \033[0m"
-	echo -e "	欲转发端口    : \033[41;37m ${iptablesport1} \033[0m"
-	echo -e "	欲转发 IP : \033[41;37m ${iptablesip} \033[0m"
-	echo -e "	公网    IP : \033[41;37m ${ip} \033[0m"
-	echo -e "	转发类型 : \033[41;37m ${iptablestype} \033[0m"
+	echo -e "	本地监听端口 : \033[32m${iptablesport}\033[0m"
+	echo -e "	公网    IP       : \033[32m${ip}\033[0m"
+	echo -e "	欲转发端口    : \033[32m${iptablesport1}\033[0m"
+	echo -e "	欲转发 IP       : \033[32m${iptablesip}\033[0m"
+	echo -e "	转发类型       : \033[32m${iptablestype}\033[0m"
 	echo "——————————————————————————————"
 	echo
 	read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
@@ -122,7 +122,7 @@ addiptables(){
 	
 	if [ ${iptablestype} = "TCP" ]; then
 		iptables -t nat -A PREROUTING -p tcp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-		iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}
+		iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source "${ip}"
 		sleep 1s
 # 系统判断
 		check_sys
@@ -142,7 +142,7 @@ iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} 
 		service iptables restart
 	elif [ ${iptablestype} = "UDP" ]; then
 		iptables -t nat -A PREROUTING -p udp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-		iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}
+		iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source "${ip}"
 		sleep 1s
 # 系统判断
 		check_sys
@@ -163,8 +163,8 @@ iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} 
 	elif [ ${iptablestype} = "TCP+UDP" ]; then
 		iptables -t nat -A PREROUTING -p tcp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
 		iptables -t nat -A PREROUTING -p udp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-		iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}
-		iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}
+		iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source "${ip}"
+		iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source "${ip}"
 		sleep 1s
 # 系统判断
 		check_sys
@@ -193,12 +193,12 @@ iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} 
 	echo "——————————————————————————————"
 	echo "	iptables 端口转发规则配置完成 !"
 	echo
-	echo -e "	本地 IP : \033[41;37m ${ip} \033[0m"
-	echo -e "	本地监听端口 : \033[41;37m ${iptablesport} \033[0m"
+	echo -e "	公网 IP           : \033[32m${ip}\033[0m"
+	echo -e "	本地监听端口 : \033[32m${iptablesport}\033[0m"
 	echo
-	echo -e "	欲转发 IP : \033[41;37m ${iptablesip} \033[0m"
-	echo -e "	欲转发端口 : \033[41;37m ${iptablesport1} \033[0m"
-	echo -e "	转发类型 : \033[41;37m ${iptablestype} \033[0m"
+	echo -e "	欲转发 IP      : \033[32m${iptablesip}\033[0m"
+	echo -e "	欲转发端口   : \033[32m${iptablesport1}\033[0m"
+	echo -e "	转发类型      : \033[32m${iptablestype}\033[0m"
 	echo "——————————————————————————————"
 	echo
 }
