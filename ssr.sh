@@ -5,14 +5,14 @@ export PATH
 #=================================================
 #	System Required: CentOS 6/Debian/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 1.2.7
+#	Version: 1.2.8
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
 #ssr_pid="/var/run/shadowsocks.pid"
 ssr_file="/etc/shadowsocksr"
-ssr_ss_file="/etc/shadowsocksr/shadowsocks/"
+ssr_ss_file="/etc/shadowsocksr/shadowsocks"
 config_file="/etc/shadowsocksr/config.json"
 config_user_file="/etc/shadowsocksr/user-config.json"
 Libsodiumr_file="/root/libsodium"
@@ -883,48 +883,54 @@ rc.local_ss_set(){
 #添加开机启动
 	if [[ ${release} = "centos" ]]; then
 		chmod +x /etc/rc.d/rc.local
-		sed -i '/cd \/etc\/shadowsocksr\/shadowsocks\//d' /etc/rc.d/rc.local
-		sed -i '/nohup python server.py a >> ssserver.log 2>&1 &/d' /etc/rc.d/rc.local
-		echo -e "cd ${ssr_ss_file}" >> /etc/rc.d/rc.local
-		echo -e "nohup python server.py a >> ssserver.log 2>&1 &" >> /etc/rc.d/rc.local
+		#sed -i '/cd \/etc\/shadowsocksr\/shadowsocks\//d' /etc/rc.d/rc.local
+		#sed -i '/nohup python server.py a >> ssserver.log 2>&1 &/d' /etc/rc.d/rc.local
+		sed -i '/shadowsocksr/d' /etc/rc.d/rc.local
+		sed -i '/python server.py/d' /etc/rc.d/rc.local
+		echo -e "cd ${ssr_ss_file} && nohup python server.py a >> ssserver.log 2>&1 &" >> /etc/rc.d/rc.local
 	else
 		chmod +x /etc/rc.local
 		sed -i '$d' /etc/rc.local
-		sed -i '/cd \/etc\/shadowsocksr\/shadowsocks\//d' /etc/rc.local
-		sed -i '/nohup python server.py a >> ssserver.log 2>&1 &/d' /etc/rc.local
-		echo -e "cd ${ssr_ss_file}" >> /etc/rc.local
-		echo -e "nohup python server.py a >> ssserver.log 2>&1 &" >> /etc/rc.local
+		#sed -i '/cd \/etc\/shadowsocksr\/shadowsocks\//d' /etc/rc.local
+		#sed -i '/nohup python server.py a >> ssserver.log 2>&1 &/d' /etc/rc.local
+		sed -i '/shadowsocksr/d' /etc/rc.local
+		sed -i '/python server.py/d' /etc/rc.local
+		echo -e "cd ${ssr_ss_file} && nohup python server.py a >> ssserver.log 2>&1 &" >> /etc/rc.local
 		echo -e "exit 0" >> /etc/rc.local
 	fi
 }
 rc.local_ss_del(){
 	if [[ ${release} = "centos" ]]; then
-		sed -i '/cd \/etc\/shadowsocksr\/shadowsocks\//d' /etc/rc.d/rc.local
-		sed -i '/nohup python server.py a >> ssserver.log 2>&1 &/d' /etc/rc.d/rc.local
+		#sed -i '/cd \/etc\/shadowsocksr\/shadowsocks\//d' /etc/rc.d/rc.local
+		#sed -i '/nohup python server.py a >> ssserver.log 2>&1 &/d' /etc/rc.d/rc.local
+		sed -i '/shadowsocksr/d' /etc/rc.d/rc.local
+		sed -i '/python server.py/d' /etc/rc.d/rc.local
 	else
-		sed -i '/cd \/etc\/shadowsocksr\/shadowsocks\//d' /etc/rc.local
-		sed -i '/nohup python server.py a >> ssserver.log 2>&1 &/d' /etc/rc.local
+		#sed -i '/cd \/etc\/shadowsocksr\/shadowsocks\//d' /etc/rc.local
+		#sed -i '/nohup python server.py a >> ssserver.log 2>&1 &/d' /etc/rc.local
+		sed -i '/shadowsocksr/d' /etc/rc.local
+		sed -i '/python server.py/d' /etc/rc.local
 	fi
 }
 rc.local_serverspeed_set(){
 #添加开机启动
 	if [[ ${release} = "centos" ]]; then
 		chmod +x /etc/rc.d/rc.local
-		sed -i '/\/serverspeeder\/bin\/serverSpeeder.sh start/d' /etc/rc.d/rc.local
+		sed -i '/serverspeeder/d' /etc/rc.d/rc.local
 		echo -e "/serverspeeder/bin/serverSpeeder.sh start" >> /etc/rc.d/rc.local
 	else
 		chmod +x /etc/rc.local
 		sed -i '$d' /etc/rc.local
-		sed -i '/\/serverspeeder\/bin\/serverSpeeder.sh start/d' /etc/rc.local
+		sed -i '/serverspeeder/d' /etc/rc.local
 		echo -e "/serverspeeder/bin/serverSpeeder.sh start" >> /etc/rc.local
 		echo -e "exit 0" >> /etc/rc.local
 	fi
 }
 rc.local_serverspeed_del(){
 	if [[ ${release} = "centos" ]]; then
-		sed -i '/\/serverspeeder\/bin\/serverSpeeder.sh start/d' /etc/rc.d/rc.local
+		sed -i '/serverspeeder/d' /etc/rc.d/rc.local
 	else
-		sed -i '/\/serverspeeder\/bin\/serverSpeeder.sh start/d' /etc/rc.local
+		sed -i '/serverspeeder/d' /etc/rc.local
 	fi
 }
 iptables_add(){
@@ -1440,9 +1446,9 @@ RestartSSR(){
 }
 #查看 ShadowsocksR 日志
 TailSSR(){
-	[[ ! -e ${ssr_ss_file}"ssserver.log" ]] && echo -e "${Error_no_log_found}" && exit 1
+	[[ ! -e ${ssr_ss_file}"/ssserver.log" ]] && echo -e "${Error_no_log_found}" && exit 1
 	echo && echo -e "${Prompt_log}" && echo
-	tail -f ${ssr_ss_file}"ssserver.log"
+	tail -f ${ssr_ss_file}"/ssserver.log"
 }
 #查看 ShadowsocksR 状态
 StatusSSR(){
