@@ -43,7 +43,7 @@ check_ver(){
 	
 	if [ ${ct_ver_now} != ${ct_ver_new} ]; then
 		echo -e "\033[42;37m [信息] \033[0m 发现 Cloud Torrent 已有新版本 [ ${ct_ver_new} ] !"
-		read -p "是否更新 ? [Y/n] :" yn1
+		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn1
 		[ -z "${yn1}" ] && yn1="y"
 		if [[ $yn1 == [Yy] ]]; then
 			# 停止CT
@@ -95,7 +95,7 @@ check_sys
 	mkdir ${file}
 	mkdir ${dl_file}
 	cd ${file}
-	read -p "请输入要安装的 Cloud Torrent 版本号，回车则自动获取最新版本 [ 格式 x.x.xx ] :" ct_ver
+	stty erase '^H' && read -p "请输入要安装的 Cloud Torrent 版本号，回车则自动获取最新版本 [ 格式 x.x.xx ] :" ct_ver
 	[ -z "${ct_ver}" ] && ct_ver=`curl -m 10 -s "https://github.com/jpillora/cloud-torrent/releases/latest" | perl -e 'while($_=<>){ /\/tag\/(.*)\">redirected/; print $1;}'`
 	if [ ${bit} == "x86_64" ]; then
 		wget -N -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_ver}/cloud-torrent_linux_amd64.gz"
@@ -124,7 +124,7 @@ startct(){
 	while true
 		do
 		echo -e "请输入 Cloud Torrent 监听端口 [1-65535]"
-		read -p "(默认端口: 8000):" ctport
+		stty erase '^H' && read -p "(默认端口: 8000):" ctport
 		[ -z "$ctport" ] && ctport="8000"
 		expr ${ctport} + 0 &>/dev/null
 		if [ $? -eq 0 ]; then
@@ -142,11 +142,11 @@ startct(){
 			echo "输入错误, 请输入正确的端口。"
 		fi
 		done
-	read -p "是否设置 用户名和密码 ? [Y/n] :" yn
+	stty erase '^H' && read -p "是否设置 用户名和密码 ? [Y/n] :" yn
 	[ -z "${yn}" ] && yn="y"
 		if [[ $yn == [Yy] ]]; then
 			echo "请输入用户名"
-			read -p "(默认用户名: user):" ctuser
+			stty erase '^H' && read -p "(默认用户名: user):" ctuser
 			[ -z "${ctuser}" ] && ctuser="user"
 			echo
 			echo "========================"
@@ -155,7 +155,7 @@ startct(){
 			echo
 	
 			echo "请输入用户名的密码"
-			read -p "(默认密码: doub.io):" ctpasswd
+			stty erase '^H' && read -p "(默认密码: doub.io):" ctpasswd
 			[ -z "${ctpasswd}" ] && ctpasswd="doub.io"
 			echo
 			echo "========================"
@@ -234,7 +234,7 @@ autoct(){
 		else
 			echo "Cloud Torrent 正在运行，是否停止 ? (y/N)"
 			echo
-			read -p "(默认: n):" autoyn
+			stty erase '^H' && read -p "(默认: n):" autoyn
 			[ -z ${autoyn} ] && autoyn="n"
 			if [[ ${autoyn} == [Yy] ]]; then
 				stopct
@@ -247,7 +247,7 @@ uninstallct(){
 	[ ! -e ${file} ] && echo -e "\033[41;37m [错误] \033[0m Cloud Torrent 没有安装，请检查 !" && exit 1
 	echo "确定要卸载 Cloud Torrent ? (y/N)"
 	echo
-	read -p "(默认: n):" unyn
+	stty erase '^H' && read -p "(默认: n):" unyn
 	[ -z ${unyn} ] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		PID=`ps -ef | grep cloud-torrent | grep -v grep | awk '{print $2}'`

@@ -89,8 +89,8 @@ del_deb(){
 del_deb_over(){
 	del_deb
 	update-grub
-	read -p "需要重启VPS后，才能开启BBR，是否现在重启 ? [Y/n] :" yn
 	echo -e "\033[42;37m[注意]\033[0m 重启VPS后，请重新运行脚本开启BBR \033[42;37m bash bbr.sh start \033[0m"
+	stty erase '^H' && read -p "需要重启VPS后，才能开启BBR，是否现在重启 ? [Y/n] :" yn
 	[ -z "${yn}" ] && yn="y"
 		if [[ $yn == [Yy] ]]; then
 		echo -e "\033[41;37m[信息]\033[0m VPS 重启中..."
@@ -193,7 +193,7 @@ stopbbr(){
 	sysctl -p
 	sleep 1s
 	
-	read -p "需要重启VPS后，才能彻底停止BBR，是否现在重启 ? [Y/n] :" yn
+	stty erase '^H' && read -p "需要重启VPS后，才能彻底停止BBR，是否现在重启 ? [Y/n] :" yn
 	[ -z "${yn}" ] && yn="y"
 		if [[ $yn == [Yy] ]]; then
 		echo -e "\033[41;37m[信息]\033[0m VPS 重启中..."

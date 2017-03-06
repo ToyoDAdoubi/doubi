@@ -78,7 +78,7 @@ addSocat(){
 	while true
 	do
 		echo -e "请输入 Socat 的 本地监听端口 [1-65535]"
-		read -p "(默认端口: 23333):" Socatport
+		stty erase '^H' && read -p "(默认端口: 23333):" Socatport
 		[[ -z "$Socatport" ]] && Socatport="23333"
 		expr ${Socatport} + 0 &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -100,7 +100,7 @@ addSocat(){
 	while true
 	do
 		echo -e "请输入 Socat 欲转发的 端口 [1-65535]"
-		read -p "(默认端口: ${Socatport}):" Socatport1
+		stty erase '^H' && read -p "(默认端口: ${Socatport}):" Socatport1
 		[[ -z "$Socatport1" ]] && Socatport1=${Socatport}
 		expr ${Socatport1} + 0 &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -119,7 +119,7 @@ addSocat(){
 		fi
 	done
 # 设置欲转发 IP
-	read -p "请输入 Socat 欲转发的 IP:" socatip
+	stty erase '^H' && read -p "请输入 Socat 欲转发的 IP:" socatip
 	[[ -z "${socatip}" ]] && echo "取消..." && exit 1
 	echo
 	echo "——————————————————————————————"
@@ -132,7 +132,7 @@ addSocat(){
 	echo "2. UDP"
 	echo "3. TCP+UDP"
 	echo
-	read -p "(默认: TCP+UDP):" socattype_num
+	stty erase '^H' && read -p "(默认: TCP+UDP):" socattype_num
 	[ -z "${socattype_num}" ] && socattype_num="3"
 	if [ ${socattype_num} = "1" ]; then
 		socattype="TCP"
@@ -154,7 +154,7 @@ addSocat(){
 	echo -e "	转发类型 : \033[41;37m ${socattype} \033[0m"
 	echo "——————————————————————————————"
 	echo
-	read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
+	stty erase '^H' && read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
 	
 	if [ ${socattype} = "TCP" ]; then
 		nohup socat TCP4-LISTEN:${Socatport},reuseaddr,fork TCP4:${socatip}:${Socatport1} >> ${socat_log_file} 2>&1 &
@@ -286,7 +286,7 @@ delSocat(){
 	do
 	# 列出 Socat
 	listSocat
-	read -p "请输入数字 来选择要终止的 Socat 进程:" stopsocat
+	stty erase '^H' && read -p "请输入数字 来选择要终止的 Socat 进程:" stopsocat
 	[[ -z "${stopsocat}" ]] && stopsocat="0"
 	expr ${stopsocat} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -347,7 +347,7 @@ uninstallSocat(){
 
 	printf "确定要卸载 Socat ? (y/N)"
 	printf "\n"
-	read -p "(默认: n):" unyn
+	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_sys

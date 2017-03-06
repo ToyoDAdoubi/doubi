@@ -438,7 +438,7 @@ set_port_pass(){
 	while true
 	do
 	echo -e "${Info_input_port}"
-	read -p "(${Word_default}: 2333):" ssport
+	stty erase '^H' && read -p "(${Word_default}: 2333):" ssport
 	[[ -z "$ssport" ]] && ssport="2333"
 	expr ${ssport} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -454,7 +454,7 @@ set_port_pass(){
 	done
 	#设置密码
 	echo "${Info_input_pass}:"
-	read -p "(${Word_default}: doub.io):" sspwd
+	stty erase '^H' && read -p "(${Word_default}: doub.io):" sspwd
 	[[ -z "${sspwd}" ]] && sspwd="doub.io"
 	echo && echo ${Separator_1} && echo -e "	${Word_pass} : ${Green_font_prefix}${sspwd}${Font_color_suffix}" && echo ${Separator_1} && echo
 }
@@ -472,7 +472,7 @@ set_others(){
 	echo " 8. chacha20-ietf"
 	echo -e "${Prompt_method_libsodium}"
 	echo
-	read -p "(${Word_default}: 2. aes-128-ctr):" ssmethod
+	stty erase '^H' && read -p "(${Word_default}: 2. aes-128-ctr):" ssmethod
 	[[ -z "${ssmethod}" ]] && ssmethod="2"
 	if [[ ${ssmethod} == "1" ]]; then
 		ssmethod="rc4-md5"
@@ -501,7 +501,7 @@ set_others(){
 	echo " 3. auth_aes128_md5"
 	echo " 4. auth_aes128_sha1"
 	echo
-	read -p "(${Word_default}: 2. auth_sha1_v4):" ssprotocol
+	stty erase '^H' && read -p "(${Word_default}: 2. auth_sha1_v4):" ssprotocol
 	[[ -z "${ssprotocol}" ]] && ssprotocol="2"
 	if [[ ${ssprotocol} == "1" ]]; then
 		ssprotocol="origin"
@@ -523,7 +523,7 @@ set_others(){
 	echo " 4. random_head"
 	echo " 5. tls1.2_ticket_auth"
 	echo
-	read -p "(${Word_default}: 5. tls1.2_ticket_auth):" ssobfs
+	stty erase '^H' && read -p "(${Word_default}: 5. tls1.2_ticket_auth):" ssobfs
 	[[ -z "${ssobfs}" ]] && ssobfs="5"
 	if [[ ${ssobfs} == "1" ]]; then
 		ssobfs="plain"
@@ -543,24 +543,24 @@ set_others(){
 	if [[ ${ssprotocol} != "origin" ]]; then
 		if [[ ${ssobfs} != "plain" ]]; then
 			if [[ ${ssprotocol} == "verify_sha1" ]] || [[ ${ssprotocol} == "auth_sha1_v2" ]]  || [[ ${ssprotocol} == "auth_sha1_v4" ]]; then
-				read -p "${Info_protocol_obfs_compatible}" yn1
+				stty erase '^H' && read -p "${Info_protocol_obfs_compatible}" yn1
 				[[ -z "${yn1}" ]] && yn1="y"
 				[[ $yn1 == [Yy] ]] && ssobfs=${ssobfs}"_compatible" && ssprotocol=${ssprotocol}"_compatible"
 			else
-				read -p "${Info_obfs_compatible}" yn1
+				stty erase '^H' && read -p "${Info_obfs_compatible}" yn1
 				[[ -z "${yn1}" ]] && yn1="y"
 				[[ $yn1 == [Yy] ]] && ssobfs=${ssobfs}"_compatible"
 			fi
 		else
 			if [[ ${ssprotocol} == "verify_sha1" ]] || [[ ${ssprotocol} == "auth_sha1_v2" ]]  || [[ ${ssprotocol} == "auth_sha1_v4" ]]; then
-				read -p "${Info_protocol_compatible}" yn1
+				stty erase '^H' && read -p "${Info_protocol_compatible}" yn1
 				[[ -z "${yn1}" ]] && yn1="y"
 				[[ $yn1 == [Yy] ]] && ssprotocol=${ssprotocol}"_compatible"
 			fi
 		fi
 	else
 		if [[ ${ssobfs} != "plain" ]]; then
-			read -p "${Info_obfs_compatible}" yn1
+			stty erase '^H' && read -p "${Info_obfs_compatible}" yn1
 			[[ -z "${yn1}" ]] && yn1="y"
 			[[ $yn1 == [Yy] ]] && ssobfs=${ssobfs}"_compatible"
 		fi
@@ -571,7 +571,7 @@ set_others(){
 		echo
 		echo -e "${Info_input_number_of_devices}"
 		echo -e "${Prompt_number_of_devices}"
-		read -p "(${Word_default}: ${Word_unlimited}):" ssprotocol_param
+		stty erase '^H' && read -p "(${Word_default}: ${Word_unlimited}):" ssprotocol_param
 		[[ -z "$ssprotocol_param" ]] && ssprotocol_param="" && break
 		expr ${ssprotocol_param} + 0 &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -592,7 +592,7 @@ set_others(){
 	echo
 	echo -e "${Info_input_single_threaded_speed_limit}"
 	echo -e "${Prompt_input_single_threaded_speed_limit}"
-	read -p "(${Word_default}: ${Word_unlimited}):" ssspeed_limit_per_con
+	stty erase '^H' && read -p "(${Word_default}: ${Word_unlimited}):" ssspeed_limit_per_con
 	[[ -z "$ssspeed_limit_per_con" ]] && ssspeed_limit_per_con=0 && break
 	expr ${ssspeed_limit_per_con} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -612,7 +612,7 @@ set_others(){
 	echo
 	echo -e "${Info_total_port_speed_limit}"
 	echo -e "${Prompt_total_port_speed_limit}"
-	read -p "(${Word_default}: ${Word_unlimited}):" ssspeed_limit_per_user
+	stty erase '^H' && read -p "(${Word_default}: ${Word_unlimited}):" ssspeed_limit_per_user
 	[[ -z "$ssspeed_limit_per_user" ]] && ssspeed_limit_per_user=0 && break
 	expr ${ssspeed_limit_per_user} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -644,7 +644,7 @@ setUser(){
 	echo -e " ${Word_number_of_devices_limit} : ${Green_font_prefix}${ssspeed_limit_per_con} KB/S${Font_color_suffix}"
 	echo -e " ${Word_port_total_speed_limit} : ${Green_font_prefix}${ssspeed_limit_per_user} KB/S${Font_color_suffix}"
 	echo ${Separator_1} && echo
-	read -p "${Prompt_any_key}" var
+	stty erase '^H' && read -p "${Prompt_any_key}" var
 	[[ "${ssprotocol_param}" = "0(${Word_unlimited})" ]] && ssprotocol_param=""
 }
 ss_link_qr(){
@@ -1086,7 +1086,7 @@ UninstallSSR(){
 	[[ ! -e $config_file ]] && echo -e "${Error_not_install_ssr}" && exit 1
 	echo "${Info_uninstall_ssr}"
 	echo
-	read -p "(${Word_default}: n):" unyn
+	stty erase '^H' && read -p "(${Word_default}: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 #停止ShadowsocksR服务端并删除防火墙规则，删除Shadowsocks文件夹。
@@ -1138,7 +1138,7 @@ Port_mode_switching(){
 		echo
 		echo -e "${Info_switch_multi_port_mode}"
 		echo
-		read -p "(${Word_default}: n):" mode_yn
+		stty erase '^H' && read -p "(${Word_default}: n):" mode_yn
 		[[ -z ${mode_yn} ]] && mode_yn="n"
 		if [[ ${mode_yn} == [Yy] ]]; then
 			port=`jq '.server_port' ${config_user_file}`
@@ -1178,7 +1178,7 @@ EOF
 		echo
 		echo -e "${Info_switch_single_port_mode}"
 		echo
-		read -p "(${Word_default}: n):" mode_yn
+		stty erase '^H' && read -p "(${Word_default}: n):" mode_yn
 		[[ -z ${mode_yn} ]] && mode_yn="n"
 		if [[ ${mode_yn} == [Yy] ]]; then
 			user_total=`jq '.port_password' ${config_user_file} | sed '$d' | sed "1d" | wc -l`
@@ -1263,14 +1263,14 @@ Modify_multi_port_user(){
 	now_mode=`jq '.port_password' ${config_user_file}`
 	[[ "${now_mode}" = "null" ]] && echo -e "${Error_the_current_mode_is_single_port}" && exit 1
 	echo -e "${Info_input_modify_the_type}"
-	read -p "(${Word_default}: ${Word_cancel}):" modify_type
+	stty erase '^H' && read -p "(${Word_default}: ${Word_cancel}):" modify_type
 	[[ -z "${modify_type}" ]] && exit 1
 	if [[ ${modify_type} == "1" ]]; then
 		List_multi_port_user
 		while true
 		do
 		echo -e "${info_input_select_user_id_modified}"
-		read -p "(${Word_default}: ${Word_cancel}):" del_user_num
+		stty erase '^H' && read -p "(${Word_default}: ${Word_cancel}):" del_user_num
 		[[ -z "${del_user_num}" ]] && exit 1
 		expr ${del_user_num} + 0 &>/dev/null
 		if [ $? -eq 0 ]; then
@@ -1312,7 +1312,7 @@ Del_multi_port_user(){
 	while true
 	do
 	echo -e "${Info_input_select_user_id_del}"
-	read -p "(${Word_default}: ${Word_cancel}):" del_user_num
+	stty erase '^H' && read -p "(${Word_default}: ${Word_cancel}):" del_user_num
 	[[ -z "${del_user_num}" ]] && exit 1
 	expr ${del_user_num} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -1407,7 +1407,7 @@ centos_View_user_connection_info(){
 }
 SSR_start(){
 	cd ${ssr_ss_file}
-	nohup python server.py a >> ssserver.log 2>&1 &
+	nohup python server.py a > ssserver.log 2>&1 &
 	sleep 2s
 	PID=`ps -ef |grep -v grep | grep server.py |awk '{print $2}'`
 	if [[ ! -z "${PID}" ]]; then
@@ -1497,7 +1497,7 @@ UninstallServerSpeeder(){
 	[[ ! -e "/serverspeeder" ]] && echo -e "${Error_server_speeder_not_installed}" && exit 1
 	echo "${Info_uninstall_server}"
 	echo
-	read -p "(${Word_default}: n):" unyn
+	stty erase '^H' && read -p "(${Word_default}: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		rm -rf /root/serverspeeder-all.sh
@@ -1519,7 +1519,7 @@ InstallBBR(){
 	echo -e "${Info_install_bbr_0}"
 	echo
 	echo "${Info_install_bbr}"
-	read -p "(${Word_default}: ${Word_cancel}):" unyn
+	stty erase '^H' && read -p "(${Word_default}: ${Word_cancel}):" unyn
 	[[ -z ${unyn} ]] && echo "${Word_canceled}" && exit 1
 	if [[ ${unyn} == [Yy] ]]; then
 		wget -N --no-check-certificate https://softs.pw/Bash/bbr.sh && chmod +x bbr.sh && bash bbr.sh
@@ -1528,7 +1528,7 @@ InstallBBR(){
 SetCrontab_interval(){
 	echo -e "${Info_set_crontab_interval_0}"
 	echo "${Info_input_set_crontab_interval}"
-	read -p "(${Word_default}: ${Info_input_set_crontab_interval_default} ):" crontab_interval
+	stty erase '^H' && read -p "(${Word_default}: ${Info_input_set_crontab_interval_default} ):" crontab_interval
 	[[ -z "${crontab_interval}" ]] && crontab_interval="0 2 * * *"
 	echo
 	echo "——————————————————————————————"
@@ -1560,7 +1560,7 @@ SetCrontab(){
 	fi
 	echo -e "${Info_input_set_cron}"
 	echo
-	read -p "(${Word_default} :${Word_cancel}):" setcron_select
+	stty erase '^H' && read -p "(${Word_default} :${Word_cancel}):" setcron_select
 	[[ -z "${setcron_select}" ]] && exit 1
 	if [[ ${setcron_select} != "1" ]]; then
 		if [[ ${setcron_select} != "2" ]]; then
@@ -1643,7 +1643,7 @@ Client_limit(){
 			echo
 			echo -e "${Info_input_number_of_devices}"
 			echo -e "${Prompt_number_of_devices}"
-			read -p "(${Word_default}: ${Word_unlimited}):" ssprotocol_param
+			stty erase '^H' && read -p "(${Word_default}: ${Word_unlimited}):" ssprotocol_param
 			[[ -z "$ssprotocol_param" ]] && ssprotocol_param="" && break
 			expr ${ssprotocol_param} + 0 &>/dev/null
 			if [[ $? -eq 0 ]]; then
@@ -1675,7 +1675,7 @@ Speed_limit(){
 	echo
 	echo -e "${Info_input_single_threaded_speed_limit}"
 	echo -e "${Prompt_input_single_threaded_speed_limit}"
-	read -p "(${Word_default}: ${Word_unlimited}):" ssspeed_limit_per_con
+	stty erase '^H' && read -p "(${Word_default}: ${Word_unlimited}):" ssspeed_limit_per_con
 	[[ -z "$ssspeed_limit_per_con" ]] && ssspeed_limit_per_con=0 && break
 	expr ${ssspeed_limit_per_con} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -1695,7 +1695,7 @@ Speed_limit(){
 	echo
 	echo -e "${Info_total_port_speed_limit}"
 	echo -e "${Prompt_total_port_speed_limit}"
-	read -p "(${Word_default}: ${Word_unlimited}):" ssspeed_limit_per_user
+	stty erase '^H' && read -p "(${Word_default}: ${Word_unlimited}):" ssspeed_limit_per_user
 	[[ -z "$ssspeed_limit_per_user" ]] && ssspeed_limit_per_user=0 && break
 	expr ${ssspeed_limit_per_user} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -1718,7 +1718,7 @@ Switch_language(){
 	if [[ ! -e "${PWD}/lang_en" ]]; then
 		echo -e "${Prompt_switch_language_english}"
 		echo && echo -e "${Info_switch_language_english}"
-		read -p "(${Word_default}: ${Word_cancel}):" unyn
+		stty erase '^H' && read -p "(${Word_default}: ${Word_cancel}):" unyn
 		[[ -z ${unyn} ]] && echo "${Word_canceled}" && exit 1
 		if [[ ${unyn} == [Yy] ]]; then
 			echo "lang_en" > "${PWD}/lang_en"
@@ -1727,7 +1727,7 @@ Switch_language(){
 	else
 		echo -e "${Prompt_switch_language_chinese}"
 		echo && echo -e "${Info_switch_language_chinese}"
-		read -p "(${Word_default}: ${Word_cancel}):" unyn
+		stty erase '^H' && read -p "(${Word_default}: ${Word_cancel}):" unyn
 		[[ -z ${unyn} ]] && echo "${Word_canceled}" && exit 1
 		if [[ ${unyn} == [Yy] ]]; then
 			rm -rf "${PWD}/lang_en"
@@ -1760,7 +1760,7 @@ else
 	echo -e "${Menu_status_3}"
 fi
 echo
-read -p "${Menu_prompt_2}" num
+stty erase '^H' && read -p "${Menu_prompt_2}" num
 
 case "$num" in
 	1)

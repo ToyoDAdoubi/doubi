@@ -71,10 +71,10 @@ setHaProxy(){
 # 判断是否安装HaProxy
 	check_HaProxy
 # 设置本地监听端口
-	read -p "请输入 HaProxy 的 本地监听端口(转发端口) [1-65535](支持端口段: 2333-6666): " HaProxyport
+	stty erase '^H' && read -p "请输入 HaProxy 的 本地监听端口(转发端口) [1-65535](支持端口段: 2333-6666): " HaProxyport
 	[[ -z "${HaProxyport}" ]] && echo "取消..." && exit 1
 # 设置欲转发 IP
-	read -p "请输入 HaProxy 欲转发的 IP:" HaProxyip
+	stty erase '^H' && read -p "请输入 HaProxy 欲转发的 IP:" HaProxyip
 	[[ -z "${HaProxyip}" ]] && echo "取消..." && exit 1
 #最后确认
 	echo
@@ -85,7 +85,7 @@ setHaProxy(){
 	echo -e "	欲转发 IP : \033[41;37m ${HaProxyip} \033[0m"
 	echo "——————————————————————————————"
 	echo
-	read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
+	stty erase '^H' && read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
 	
 	HaProxy_port_1=`cat ${HaProxy_cfg_file} | sed -n "13p" | cut -c 12-23 | grep "-"`
 	HaProxy_port=`cat ${HaProxy_cfg_file} | sed -n "13p" | cut -c 12-23`
@@ -249,7 +249,7 @@ uninstallHaProxy(){
 
 	printf "确定要卸载 HaProxy ? (y/N)"
 	printf "\n"
-	read -p "(默认: n):" unyn
+	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_sys

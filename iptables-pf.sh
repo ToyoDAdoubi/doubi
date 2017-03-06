@@ -69,20 +69,20 @@ addiptables(){
 # 判断是否安装iptables
 	check_iptables
 # 设置本地监听端口
-	read -p "请输入 iptables 的 本地监听端口 [1-65535] (支持端口段: 2333-6666): " iptablesport
+	stty erase '^H' && read -p "请输入 iptables 的 本地监听端口 [1-65535] (支持端口段: 2333-6666): " iptablesport
 	[[ -z "${iptablesport}" ]] && echo "取消..." && exit 1
 # 设置本地 IP
-	read -p "请输入 本服务器的 公网IP (回车默认: 自动检测):" ip
+	stty erase '^H' && read -p "请输入 本服务器的 公网IP (回车默认: 自动检测):" ip
 	if [[ -z "${ip}" ]]; then
 		ip=`curl -m 10 -s http://members.3322.org/dyndns/getip`
 		[[ -z "${ip}" ]] && echo "无法检测到本服务器的公网IP，取消..." && exit 1
 	fi
 # 设置欲转发端口
 	echo -e "请输入 iptables 欲转发的 端口 [1-65535] (支持端口段: 2333-6666): "
-	read -p "(默认端口: ${iptablesport})" iptablesport1
+	stty erase '^H' && read -p "(默认端口: ${iptablesport})" iptablesport1
 	[[ -z "${iptablesport1}" ]] && iptablesport1=${iptablesport}
 # 设置欲转发 IP
-	read -p "请输入 iptables 欲转发的 IP:" iptablesip
+	stty erase '^H' && read -p "请输入 iptables 欲转发的 IP:" iptablesip
 	[[ -z "${iptablesip}" ]] && echo "取消..." && exit 1
 #设置 转发类型
 	echo "请输入数字 来选择 iptables 转发类型:"
@@ -90,7 +90,7 @@ addiptables(){
 	echo "2. UDP"
 	echo "3. TCP+UDP"
 	echo
-	read -p "(默认: TCP+UDP):" iptablestype_num
+	stty erase '^H' && read -p "(默认: TCP+UDP):" iptablestype_num
 	[ -z "${iptablestype_num}" ] && iptablestype_num="3"
 	if [ ${iptablestype_num} = "1" ]; then
 		iptablestype="TCP"
@@ -113,7 +113,7 @@ addiptables(){
 	echo -e "	转发类型       : \033[32m${iptablestype}\033[0m"
 	echo "——————————————————————————————"
 	echo
-	read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
+	stty erase '^H' && read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
 	
 	echo 1 > /proc/sys/net/ipv4/ip_forward
 	
@@ -233,7 +233,7 @@ deliptables(){
 	do
 	# 列出 iptables
 	listiptables
-	read -p "请输入数字 来选择要删除的 iptables 端口转发规则:" stopiptables
+	stty erase '^H' && read -p "请输入数字 来选择要删除的 iptables 端口转发规则:" stopiptables
 	[[ -z "${stopiptables}" ]] && stopiptables="0"
 	expr ${stopiptables} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -309,7 +309,7 @@ uninstalliptables(){
 
 	printf "确定要清空 iptables 所有端口转发规则 ? (y/N)"
 	printf "\n"
-	read -p "(默认: n):" unyn
+	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		iptables_total=`iptables -t nat -vnL PREROUTING | wc -l`

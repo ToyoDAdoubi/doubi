@@ -124,7 +124,7 @@ startps(){
 	while true
 	do
 	echo -e "请输入 Peerflix Server 监听端口 [1-65535]"
-	read -p "(默认端口: 9000):" PORT
+	stty erase '^H' && read -p "(默认端口: 9000):" PORT
 	[ -z "$PORT" ] && PORT="9000"
 	expr ${PORT} + 0 &>/dev/null
 	if [ $? -eq 0 ]; then
@@ -215,7 +215,7 @@ autops(){
 		else
 			printf "Peerflix Server 正在运行，是否停止 ? (y/N)"
 			printf "\n"
-			read -p "(默认: n):" autoyn
+			stty erase '^H' && read -p "(默认: n):" autoyn
 			[ -z ${autoyn} ] && autoyn="n"
 			if [[ ${autoyn} == [Yy] ]]; then
 				stopps
@@ -232,7 +232,7 @@ uninstallps(){
 
 	printf "确定要卸载 Peerflix Server ? (y/N)"
 	printf "\n"
-	read -p "(默认: n):" unyn
+	stty erase '^H' && read -p "(默认: n):" unyn
 	[ -z ${unyn} ] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		PID=`ps -ef | grep peerflix-server | grep -v grep | awk '{print $2}'`
