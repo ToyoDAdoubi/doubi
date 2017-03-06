@@ -4,9 +4,10 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: PipeSocks
-#       Version: 1.0.0
+#       Version: 1.0.1
 #       Author: Toyo
 #       Blog: https://doub.io/pipesocks-jc1/
+#       Github: https://github.com/pipesocks/install
 #=================================================
 pipes_file="/usr/local/pipesocks"
 pipes_ver="/usr/local/pipesocks/ver.txt"
@@ -38,15 +39,15 @@ check_installed_status(){
 }
 check_new_ver(){
 	#pipes_new_ver=`curl -m 10 -s "https://pipesocks.github.io/js/index.js" | sed -n "15p" | awk -F ": " '{print $NF}' | sed 's/"//g;s/,//g'`
-	pipes_new_ver=`curl -m 10 -s "https://github.com/pipesocks/pipesocks/releases/latest" | perl -e 'while($_=<>){ /\/tag\/(.*)\">redirected/; print $1;}'`
+	pipes_new_ver=`wget -qO- https://github.com/pipesocks/pipesocks/releases/latest | grep "<title>" | perl -e 'while($_=<>){ /Release pipesocks (.*) · pipesocks/; print $1;}'`
 	[[ -z ${pipes_new_ver} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} PipeSocks 最新版本获取失败 !" && exit 1
 }
 check_ver_comparison(){
 	pipes_now_ver=`cat ${pipes_ver}`
 	if [[ ${pipes_now_ver} != "" ]]; then
 		if [[ ${pipes_now_ver} != ${pipes_new_ver} ]]; then
-			echo -e "${Info_font_prefix}[信息]${Font_suffix} 发现 PipeSocks 已有新版本 [ v${pipes_new_ver} ] !"
-			read -p "是否更新 ? [Y/n] :" yn
+			echo -e "${Info_font_prefix}[信息]${Font_suffix} 发现 PipeSocks 已有新版本 [v${pipes_new_ver}] !"
+			stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
 			[[ -z "${yn}" ]] && yn="y"
 			if [[ $yn == [Yy] ]]; then
 				PID=`ps -ef|grep "pipesocks"|grep -v "grep"|awk '{print $2}'|sed -n "2p"` && [[ ! -z $PID ]] && kill -9 ${PID}
@@ -55,11 +56,11 @@ check_ver_comparison(){
 				Start_pipes
 			fi
 		else
-			echo -e "${Info_font_prefix}[信息]${Font_suffix} 当前 PipeSocks 已是最新版本 [ v${pipes_new_ver} ] !" && exit 1
+			echo -e "${Info_font_prefix}[信息]${Font_suffix} 当前 PipeSocks 已是最新版本 [v${pipes_new_ver}] !" && exit 1
 		fi
 	else
 		echo "${pipes_new_ver}" > ${pipes_ver}
-		echo -e "${Info_font_prefix}[信息]${Font_suffix} 当前 PipeSocks 已是最新版本 [ v${pipes_new_ver} ] !" && exit 1
+		echo -e "${Info_font_prefix}[信息]${Font_suffix} 当前 PipeSocks 已是最新版本 [v${pipes_new_ver}] !" && exit 1
 	fi
 }
 Download_pipes(){
@@ -103,7 +104,7 @@ Set_user_pipes(){
 	while true
 		do
 		echo -e "请输入 PipeSocks 本地监听端口 [1-65535]"
-		read -p "(默认: 2333):" pipes_port
+		stty erase '^H' && read -p "(默认: 2333):" pipes_port
 		[[ -z "$pipes_port" ]] && pipes_port="2333"
 		expr ${pipes_port} + 0 &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -120,7 +121,7 @@ Set_user_pipes(){
 		fi
 	done
 	echo "请输入 PipeSocks 密码"
-	read -p "(默认: doub.io):" pipes_passwd
+	stty erase '^H' && read -p "(默认: doub.io):" pipes_passwd
 	[[ -z "${pipes_passwd}" ]] && pipes_passwd="doub.io"
 	echo && echo "————————————————————"
 	echo -e "	密码 : ${Info_font_prefix}${pipes_passwd}${Font_suffix}"
@@ -211,7 +212,7 @@ Log_pipes(){
 Uninstall_pipes(){
 	check_installed_status
 	echo "确定要卸载 PipeSocks ? [y/N]" && echo
-	read -p "(默认: n):" unyn
+	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		PID=`ps -ef|grep "pipesocks"|grep -v "grep"|awk '{print $2}'|sed -n "2p"`
@@ -248,7 +249,7 @@ else
 	echo -e " 当前状态: ${Error_font_prefix}未安装${Font_suffix}"
 fi
 echo
-read -p " 请输入数字 [1-9]:" num
+stty erase '^H' && read -p " 请输入数字 [1-9]:" num
 case "$num" in
 	1)
 	Install_pipes
