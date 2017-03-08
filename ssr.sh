@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6/Debian/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 1.2.8
+#	Version: 1.2.9
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
@@ -650,7 +650,7 @@ setUser(){
 ss_link_qr(){
 	SSbase64=`echo -n "${method}:${password}@${ip}:${port}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
 	SSurl="ss://"${SSbase64}
-	SSQRcode="http://pan.baidu.com/share/qrcode?w=300&h=300&url="${SSurl}
+	SSQRcode="http://doub.pw/qr/qr.php?text="${SSurl}
 	ss_link="${Word_ss_like} : ${Green_font_prefix}${SSurl}${Font_color_suffix} \n${Word_ss_qr_code} : ${Green_font_prefix}${SSQRcode}${Font_color_suffix}"
 }
 ssr_link_qr(){
@@ -659,14 +659,14 @@ ssr_link_qr(){
 	SSRPWDbase64=`echo -n "${password}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
 	SSRbase64=`echo -n "${ip}:${port}:${SSRprotocol}:${method}:${SSRobfs}:${SSRPWDbase64}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
 	SSRurl="ssr://"${SSRbase64}
-	SSRQRcode="http://pan.baidu.com/share/qrcode?w=300&h=300&url="${SSRurl}
+	SSRQRcode="http://doub.pw/qr/qr.php?text="${SSRurl}
 	ssr_link="${Word_ssr_like} : ${Green_font_prefix}${SSRurl}${Font_color_suffix} \n${Word_ssr_qr_code} : ${Green_font_prefix}${SSRQRcode}${Font_color_suffix} \n "
 }
 ss_link_qr_1(){
 	SSbase64=`echo -n "${method}:${user_password}@${ip}:${user_port}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
 	#echo -e "${user_port}" && echo -e "${user_password}" && echo -e "${SSbase64}"
 	SSurl="ss://"${SSbase64}
-	SSQRcode="http://pan.baidu.com/share/qrcode?w=300&h=300&url="${SSurl}
+	SSQRcode="http://doub.pw/qr/qr.php?text="${SSurl}
 	ss_link="${Word_ss_like} : ${Green_font_prefix}${SSurl}${Font_color_suffix} \n${Word_ss_qr_code} : ${Green_font_prefix}${SSQRcode}${Font_color_suffix}"
 }
 ssr_link_qr_1(){
@@ -676,7 +676,7 @@ ssr_link_qr_1(){
 	SSRbase64=`echo -n "${ip}:${user_port}:${SSRprotocol}:${method}:${SSRobfs}:${SSRPWDbase64}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
 	#echo -e "${user_port}" && echo -e "${user_password}" && echo -e "${SSRbase64}"
 	SSRurl="ssr://"${SSRbase64}
-	SSRQRcode="http://pan.baidu.com/share/qrcode?w=300&h=300&url="${SSRurl}
+	SSRQRcode="http://doub.pw/qr/qr.php?text="${SSRurl}
 	ssr_link="${Word_ssr_like} : ${Green_font_prefix}${SSRurl}${Font_color_suffix} \n${Word_ssr_qr_code} : ${Green_font_prefix}${SSRQRcode}${Font_color_suffix} \n "
 }
 #显示用户账号信息
