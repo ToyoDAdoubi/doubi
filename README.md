@@ -50,6 +50,20 @@ pipes.sh
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/pipes.sh && chmod +x pipes.sh && bash pipes.sh
 ```
 
+caddy_install.sh
+======
+
+- 脚本说明: Caddy 一键安装脚本
+- 系统支持: CentOS6+ / Debian7+ / Ubuntu14+
+- 使用方法: https://doub.io/
+
+### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh && chmod +x caddy_install.sh && bash caddy_install.sh
+# 卸载命令：
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh && chmod +x caddy_install.sh && caddy_install.sh uninstall
+```
+
 cloudt.sh
 ======
 
