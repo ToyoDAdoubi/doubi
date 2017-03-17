@@ -49,7 +49,8 @@ check_pid(){
 	PID=`ps -ef |grep -v grep | grep server.py |awk '{print $2}'`
 }
 SSR_installation_status(){
-	[[ ! -e ${config_user_file} ]] && echo -e "${Error} 没有安装 ShadowsocksR，请检查 !" && exit 1
+	[[ ! -e ${config_user_file} ]] && echo -e "${Error} 没有发现 ShadowsocksR 配置文件，请检查 !" && exit 1
+	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有发现 ShadowsocksR 文件夹，请检查 !" && exit 1
 }
 Server_Speeder_installation_status(){
 	[[ ! -e ${Server_Speeder_file} ]] && echo -e "${Error} 没有安装 锐速(Server Speeder)，请检查 !" && exit 1
@@ -529,7 +530,7 @@ Download_SSR(){
 	cd "/usr/local"
 	#git config --global http.sslVerify false
 	env GIT_SSL_NO_VERIFY=true git clone -b manyuser https://github.com/shadowsocksr/shadowsocksr.git
-	[[ ! -e ${config_file} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
+	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
 	mkdir ${config_folder}
 	[[ ! -e ${config_folder} ]] && echo -e "${Error} ShadowsocksR配置文件的文件夹 建立失败 !" && exit 1
 	echo -e "${Info} ShadowsocksR服务端 下载完成 !"
@@ -579,7 +580,8 @@ Installation_dependency(){
 	cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 }
 Install_SSR(){
-	[[ -e ${config_user_file} ]] && echo -e "${Error} ShadowsocksR已安装，请检查 !" && exit 1
+	[[ -e ${config_folder} ]] && echo -e "${Error} ShadowsocksR 已安装，请检查 !" && exit 1
+	[[ -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR 已安装，请检查 !" && exit 1
 	Set_config_all
 	Installation_dependency
 	Download_SSR
@@ -598,7 +600,7 @@ Update_SSR(){
 	Restart_SSR
 }
 Uninstall_SSR(){
-	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR 没有安装，请检查 !" && exit 1
+	[[ ! -e ${config_user_file} ]] && [[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有安装 ShadowsocksR，请检查 !" && exit 1
 	echo "确定要 卸载ShadowsocksR？[y/N]" && echo
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
