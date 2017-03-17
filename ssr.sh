@@ -105,7 +105,7 @@ Get_IP(){
 	[[ -z "$ip" ]] && ip="VPS_IP"
 }
 Get_User(){
-	[[ ! -s ${jq_file} ]] && echo -e "${Error} JQ解析器 不存在，请检查 !" && exit 1
+	[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 不存在，请检查 !" && exit 1
 	port=`${jq_file} '.server_port' ${config_user_file}`
 	password=`${jq_file} '.password' ${config_user_file} | sed 's/^.//;s/.$//'`
 	method=`${jq_file} '.method' ${config_user_file} | sed 's/^.//;s/.$//'`
@@ -554,12 +554,12 @@ Service_SSR(){
 # 安装 JQ解析器
 JQ_install(){
 	if [[ ! -e ${jq_file} ]]; then
-		if [[ ${bit} = "386" ]]; then
-			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux32" -O ${jq_file}
-		else
+		if [[ ${bit} = "x86_64" ]]; then
 			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -O ${jq_file}
+		else
+			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux32" -O ${jq_file}
 		fi
-		[[ ! -s ${jq_file} ]] && echo -e "${Error} JQ解析器 下载失败，请检查 !" && exit 1
+		[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 下载失败，请检查 !" && exit 1
 		chmod +x ${jq_file}
 		echo -e "${Info} JQ解析器 安装完成，继续..." 
 	else
