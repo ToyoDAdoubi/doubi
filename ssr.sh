@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.0
+#	Version: 2.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
@@ -490,7 +490,7 @@ Write_configuration_many(){
     "method": "${ssr_method}",
     "protocol": "${ssr_protocol}",
     "protocol_param": "${ssr_protocol_param}",
-    "obfs": "${ssr_obfs}}",
+    "obfs": "${ssr_obfs}",
     "obfs_param": "",
     "speed_limit_per_con": ${ssr_speed_limit_per_con},
     "speed_limit_per_user": ${ssr_speed_limit_per_user},
