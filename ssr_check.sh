@@ -5,13 +5,16 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR Port-IP Check
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #=================================================
 # ——————————————————————————————
 IP_threshold=3
 # IP阈值
-Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
+Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m"
+Yellow_font_prefix="\033[33m" && Purple_font_prefix="\033[35m"
+Sky_blue_font_prefix="\033[36m" && Blue_font_prefix="\033[34m"
+Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
@@ -68,7 +71,8 @@ check_threshold_centos(){
 		port_check=`echo ${port} |awk '{print $'"$integer"'}'`
 		ip_check=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep "${port_check}" | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u`
 		ip_num=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep "${port_check}" | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u |wc -l`
-		[[ ${ip_num} -ge ${IP_threshold} ]] && echo -e "${Info} 端口: ${port_check} ,IP总数: ${ip_num} ,IP: $(echo ${ip_check})"
+		ip_check=`echo ${ip_check}|sed 's/ / | /g'`
+		[[ ${ip_num} -ge ${IP_threshold} ]] && echo -e " 端口: ${Red_font_prefix}${port_check}${Font_color_suffix} ,IP总数: ${Red_font_prefix}${ip_num}${Font_color_suffix} ,IP: ${Sky_blue_font_prefix}$(echo ${ip_check})${Font_color_suffix}"
 	done
 }
 check_threshold_debian(){
@@ -77,7 +81,8 @@ check_threshold_debian(){
 		port_check=`echo ${port} |awk '{print $'"$integer"'}'`
 		ip_check=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |grep "${port_check}" |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u`
 		ip_num=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |grep "${port_check}" |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |wc -l`
-		[[ ${ip_num} -ge ${IP_threshold} ]] && echo -e "${Info} 端口: ${port_check} ,IP总数: ${ip_num} ,IP: $(echo ${ip_check})"
+		ip_check=`echo ${ip_check}|sed 's/ / | /g'`
+		[[ ${ip_num} -ge ${IP_threshold} ]] && echo -e " 端口: ${Red_font_prefix}${port_check}${Font_color_suffix} ,IP总数: ${Red_font_prefix}${ip_num}${Font_color_suffix} ,IP: ${Sky_blue_font_prefix}$(echo ${ip_check})${Font_color_suffix}"
 	done
 }
 c_ssr(){
@@ -96,12 +101,12 @@ a_ssr(){
 	if [[ ${release} == "centos" ]]; then
 		scan_port_centos
 		scan_ip_centos
-		echo -e "当前链接的端口共 ${port_num} ,当前链接的IP共 ${ip_num}"
+		echo -e "当前链接的端口共 ${Red_font_prefix}${port_num}${Font_color_suffix} ,当前链接的IP共 ${Red_font_prefix}${ip_num}${Font_color_suffix} \n"
 		check_threshold_centos
 	else
 		scan_port_debian
 		scan_ip_debian
-		echo -e "当前链接的端口共 ${port_num} ,当前链接的IP共 ${ip_num}"
+		echo -e "当前链接的端口共 ${Red_font_prefix}${port_num}${Font_color_suffix} ,当前链接的IP共 ${Red_font_prefix}${ip_num}${Font_color_suffix} \n"
 		check_threshold_debian
 	fi
 	
