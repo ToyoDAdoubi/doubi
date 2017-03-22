@@ -15,7 +15,7 @@ key_word=(Subject HELO SMTP
     "torrent" ".torrent" "peer_id=" "announce"
     "info_hash" "get_peers" "find_node"
     "BitTorrent" "announce_peer"
-    "BitTorrent protocol" "announce.php?passkey=")
+    "announce.php?passkey=")
 
 v4iptables=`which iptables 2>/dev/null`
 v6iptables=`which ip6tables 2>/dev/null`
