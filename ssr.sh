@@ -580,8 +580,8 @@ Installation_dependency(){
 	cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 }
 Install_SSR(){
-	[[ -e ${config_folder} ]] && echo -e "${Error} ShadowsocksR 已安装，请检查 !" && exit 1
-	[[ -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR 已安装，请检查 !" && exit 1
+	[[ -e ${config_folder} ]] && echo -e "${Error} ShadowsocksR 配置文件已存在，请检查 !" && exit 1
+	[[ -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR 文件夹已存在，请检查(如安装失败或者存在旧版本，请先卸载) !" && exit 1
 	Set_config_all
 	Installation_dependency
 	Download_SSR
