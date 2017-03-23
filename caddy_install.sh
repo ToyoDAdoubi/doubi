@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: Caddy Install
-#       Version: 1.0.0
+#       Version: 1.0.1
 #       Author: Toyo
 #       Blog: https://doub.io/
 #=================================================
@@ -34,25 +34,25 @@ check_sys(){
 check_installed_status(){
 	[[ ! -e ${caddy_file} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 没有安装，请检查 !" && exit 1
 }
-check_new_ver(){
+#check_new_ver(){
 	#caddy_new_ver=`curl -m 10 -s "https://github.com/mholt/caddy/releases/latest" | perl -e 'while($_=<>){ /\/tag\/(.*)\">redirected/; print $1;}'`
-	caddy_new_ver=`wget -qO- https://github.com/mholt/caddy/releases/latest | grep "<title>" | perl -e 'while($_=<>){ /Release (.*) · mholt\/caddy/; print $1;}'`
-	[[ -z ${caddy_new_ver} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 最新版本获取失败 !" && exit 1
-}
+	#caddy_new_ver=`wget -qO- https://github.com/mholt/caddy/releases/latest | grep "<title>" | perl -e 'while($_=<>){ /Release (.*) · mholt\/caddy/; print $1;}'`
+	#[[ -z ${caddy_new_ver} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 最新版本获取失败 !" && exit 1
+#}
 Download_caddy(){
 	mkdir "${caddy_file}" && cd "${caddy_file}"
+	[[ -e "caddy_linux*.tar.gz" ]] && rm -rf "caddy_linux*.tar.gz"
 	if [[ ${bit} == "386" ]]; then
-		wget -N "https://github.com/mholt/caddy/releases/download/v${caddy_new_ver}/caddy_linux_386.tar.gz" && caddy_bit="caddy_linux_386"
+		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/build?os=linux&arch=386&features=${extension}" && caddy_bit="caddy_linux_386"
 	elif [[ ${bit} == "x86_64" ]]; then
-		wget -N "https://github.com/mholt/caddy/releases/download/v${caddy_new_ver}/caddy_linux_amd64.tar.gz" && caddy_bit="caddy_linux_amd64"
+		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/build?os=linux&arch=amd64&features=${extension}" && caddy_bit="caddy_linux_amd64"
 	else
 		echo -e "${Error_font_prefix}[错误]${Font_suffix} 不支持 ${bit} !" && exit 1
 	fi
-	[[ ! -e ${caddy_bit}.tar.gz ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 下载失败 !" && exit 1
-	tar zxf ${caddy_bit}.tar.gz && rm -rf ${caddy_bit}.tar.gz && mv ${caddy_bit} caddy
+	[[ ! -e "caddy_linux.tar.gz" ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 下载失败 !" && exit 1
+	tar zxf "caddy_linux.tar.gz" && rm -rf "caddy_linux.tar.gz"
 	[[ ! -e ${caddy_file}"/caddy" ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 解压失败或压缩文件错误 !" && exit 1
 	chmod +x caddy
-	echo "${caddy_new_ver}" > ${caddy_ver_file}
 }
 Service_caddy(){
 	if [[ ${release} = "centos" ]]; then
@@ -73,10 +73,9 @@ Service_caddy(){
 install_caddy(){
 	[[ -e ${caddy_file} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} 检测到 Caddy 已安装，如需继续，请先卸载 !" && exit 1
 	check_sys
-	check_new_ver
 	Download_caddy
 	Service_caddy
-	echo && echo -e "Caddy 配置文件：${caddy_conf_file}
+	echo && echo -e " Caddy 配置文件：${caddy_conf_file}
 	${Info_font_prefix}[信息]${Font_suffix} Caddy 安装完成！" && echo
 }
 uninstall_caddy(){
@@ -102,6 +101,7 @@ uninstall_caddy(){
 	fi
 }
 action=$1
+extension=$2
 [[ -z $1 ]] && action=install
 case "$action" in
     install|uninstall)
@@ -109,6 +109,6 @@ case "$action" in
     ;;
     *)
     echo "输入错误 !"
-    echo "用法: {install|uninstall}"
+    echo "用法: {install | uninstall}"
     ;;
 esac
