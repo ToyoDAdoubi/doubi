@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.1
+#	Version: 2.0.2
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
@@ -409,28 +409,28 @@ Set_config_all(){
 }
 # 修改 配置信息
 Modify_config_port(){
-	sed -i 's/"server_port": '$(echo ${port})'/"server_port": '$(echo ${ssr_port})'/g' ${config_user_file}
+	sed -i 's/"server_port": '"$(echo ${port})"'/"server_port": '"$(echo ${ssr_port})"'/g' ${config_user_file}
 }
 Modify_config_password(){
-	sed -i 's/"password": "'$(echo ${password})'"/"password": "'$(echo ${ssr_password})'"/g' ${config_user_file}
+	sed -i 's/"password": "'"$(echo ${password})"'"/"password": "'"$(echo ${ssr_password})"'"/g' ${config_user_file}
 }
 Modify_config_method(){
-	sed -i 's/"method": "'$(echo ${method})'"/"method": "'$(echo ${ssr_method})'"/g' ${config_user_file}
+	sed -i 's/"method": "'"$(echo ${method})"'"/"method": "'"$(echo ${ssr_method})"'"/g' ${config_user_file}
 }
 Modify_config_protocol(){
-	sed -i 's/"protocol": "'$(echo ${protocol})'"/"protocol": "'$(echo ${ssr_protocol})'"/g' ${config_user_file}
+	sed -i 's/"protocol": "'"$(echo ${protocol})"'"/"protocol": "'"$(echo ${ssr_protocol})"'"/g' ${config_user_file}
 }
 Modify_config_obfs(){
-	sed -i 's/"obfs": "'$(echo ${obfs})'"/"obfs": "'$(echo ${ssr_obfs})'"/g' ${config_user_file}
+	sed -i 's/"obfs": "'"$(echo ${obfs})"'"/"obfs": "'"$(echo ${ssr_obfs})"'"/g' ${config_user_file}
 }
 Modify_config_protocol_param(){
-	sed -i 's/"protocol_param": "'$(echo ${protocol_param})'"/"protocol_param": "'$(echo ${ssr_protocol_param})'"/g' ${config_user_file}
+	sed -i 's/"protocol_param": "'"$(echo ${protocol_param})"'"/"protocol_param": "'"$(echo ${ssr_protocol_param})"'"/g' ${config_user_file}
 }
 Modify_config_speed_limit_per_con(){
-	sed -i 's/"speed_limit_per_con": '$(echo ${speed_limit_per_con})'/"speed_limit_per_con": '$(echo ${ssr_speed_limit_per_con})'/g' ${config_user_file}
+	sed -i 's/"speed_limit_per_con": '"$(echo ${speed_limit_per_con})"'/"speed_limit_per_con": '"$(echo ${ssr_speed_limit_per_con})"'/g' ${config_user_file}
 }
 Modify_config_speed_limit_per_user(){
-	sed -i 's/"speed_limit_per_user": '$(echo ${speed_limit_per_user})'/"speed_limit_per_user": '$(echo ${ssr_speed_limit_per_user})'/g' ${config_user_file}
+	sed -i 's/"speed_limit_per_user": '"$(echo ${speed_limit_per_user})"'/"speed_limit_per_user": '"$(echo ${ssr_speed_limit_per_user})"'/g' ${config_user_file}
 }
 Modify_config_all(){
 	Modify_config_port
@@ -443,10 +443,10 @@ Modify_config_all(){
 	Modify_config_speed_limit_per_user
 }
 Modify_config_port_many(){
-	sed -i 's/"'$(echo ${port})'":/"'$(echo ${ssr_port})'":/g' ${config_user_file}
+	sed -i 's/"'"$(echo ${port})"'":/"'"$(echo ${ssr_port})"'":/g' ${config_user_file}
 }
 Modify_config_password_many(){
-	sed -i 's/"'$(echo ${password})'"/"'$(echo ${ssr_password})'"/g' ${config_user_file}
+	sed -i 's/"'"$(echo ${password})"'"/"'"$(echo ${ssr_password})"'"/g' ${config_user_file}
 }
 # 写入 配置信息
 Write_configuration(){
@@ -830,7 +830,6 @@ List_multi_port_user(){
 	do
 		user_port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
 		user_password=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $2}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
-		user_id=$[$user_id+1]
 		user_list_all=${user_list_all}"端口: "${user_port}" 密码: "${user_password}"\n"
 	done
 	echo && echo -e "用户总数 ${Green_font_prefix}"${user_total}"${Font_color_suffix}"
