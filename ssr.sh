@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.2
+#	Version: 2.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
@@ -17,7 +17,7 @@ config_folder="/etc/shadowsocksr"
 config_user_file="${config_folder}/user-config.json"
 ssr_log_file="${ssr_ss_file}/ssserver.log"
 Libsodiumr_file="/usr/local/lib/libsodium.so"
-Libsodiumr_ver="1.0.11"
+Libsodiumr_ver_backup="1.0.12"
 Server_Speeder_file="/serverspeeder/bin/serverSpeeder.sh"
 BBR_file="${PWD}/bbr.sh"
 jq_file="${ssr_folder}/jq"
@@ -583,15 +583,25 @@ Installation_dependency(){
 Install_SSR(){
 	[[ -e ${config_user_file} ]] && echo -e "${Error} ShadowsocksR 配置文件已存在，请检查( 如安装失败或者存在旧版本，请先卸载 ) !" && exit 1
 	[[ -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR 文件夹已存在，请检查( 如安装失败或者存在旧版本，请先卸载 ) !" && exit 1
+	echo -e "${Info} 开始设置 ShadowsocksR账号配置..."
 	Set_config_all
+	echo -e "${Info} 开始安装/配置 ShadowsocksR依赖..."
 	Installation_dependency
+	echo -e "${Info} 开始下载/安装 ShadowsocksR文件..."
 	Download_SSR
+	echo -e "${Info} 开始下载/安装 ShadowsocksR服务脚本(init)..."
 	Service_SSR
+	echo -e "${Info} 开始下载/安装 JSNO解析器 JQ..."
 	JQ_install
+	echo -e "${Info} 开始写入 ShadowsocksR配置文件..."
 	Write_configuration
+	echo -e "${Info} 开始设置 iptables防火墙..."
 	Set_iptables
+	echo -e "${Info} 开始添加 iptables防火墙规则..."
 	Add_iptables
+	echo -e "${Info} 开始保存 iptables防火墙规则..."
 	Save_iptables
+	echo -e "${Info} 所有步骤 安装完毕，开始启动 ShadowsocksR服务端..."
 	Start_SSR
 }
 Update_SSR(){
@@ -630,9 +640,16 @@ Uninstall_SSR(){
 		echo && echo " 卸载已取消..." && echo
 	fi
 }
+Check_Libsodium_ver(){
+	echo -e "${Info} 开始获取 libsodium 最新版本..."
+	Libsodiumr_ver=`wget -qO- https://github.com/jedisct1/libsodium/releases/latest | grep "<title>" | perl -e 'while($_=<>){ /Release (.*) · jedisct1/; print $1;}'`
+	[[ -z ${Libsodiumr_ver} ]] && Libsodiumr_ver=${Libsodiumr_ver_backup}
+	echo -e "${Info} libsodium 最新版本为 ${Green_font_prefix}${Libsodiumr_ver}${Font_color_suffix} !"
+}
 Install_Libsodium(){
 	[[ -e ${Libsodiumr_file} ]] && echo -e "${Error} libsodium 已安装 !" && exit 1
 	echo -e "${Info} libsodium 未安装，开始安装..."
+	Check_Libsodium_ver
 	if [[ ${release} == "centos" ]]; then
 		yum update
 		yum -y groupinstall "Development Tools"
