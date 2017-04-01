@@ -42,12 +42,12 @@ View_User(){
 	if [[ -z ${user} ]]; then
 		clear && echo "————————————————" && echo
 		echo -e " 你的 Cloud Torrent 信息 :" && echo
-		echo -e " 地址\t: ${Info_font_prefix}http://${ip}:${ct_port}${Font_suffix}"
+		echo -e " 地址\t: ${Info_font_prefix}http://${ip}:${port}${Font_suffix}"
 		echo && echo "————————————————"
 	else
 		clear && echo "————————————————" && echo
 		echo -e " 你的 Cloud Torrent 信息 :" && echo
-		echo -e " 地址\t: ${Info_font_prefix}http://${ip}:${ct_port}${Font_suffix}"
+		echo -e " 地址\t: ${Info_font_prefix}http://${ip}:${port}${Font_suffix}"
 		echo -e " 用户\t: ${Info_font_prefix}${user}${Font_suffix}"
 		echo -e " 密码\t: ${Info_font_prefix}${passwd}${Font_suffix}"
 		echo && echo "————————————————"
@@ -56,11 +56,11 @@ View_User(){
 do_start(){
 	check_running
 	if [[ $? -eq 0 ]]; then
-		echo -e "${Inof}$NAME (PID ${PID}) 正在运行..." && exit 0
+		echo -e "${Info}$NAME (PID ${PID}) 正在运行..." && exit 0
 	else
 		read_config
 		cd ${FILE}
-		echo -e "${Inof}$NAME 启动中..."
+		echo -e "${Info}$NAME 启动中..."
 		if [[ -z ${user} ]]; then
 			./cloud-torrent -p ${port} -l >> ct.log 2>&1 &
 		else
@@ -69,7 +69,7 @@ do_start(){
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
-			echo -e "${Inof}$NAME 启动成功 !"
+			echo -e "${Info}$NAME 启动成功 !"
 			View_User
 		else
 			echo -e "${Error} $NAME 启动失败 !"
@@ -82,12 +82,12 @@ do_stop(){
 		kill -9 ${PID}
 		RETVAL=$?
 		if [[ $RETVAL -eq 0 ]]; then
-			echo -e "${Inof}$NAME 停止成功 !"
+			echo -e "${Info}$NAME 停止成功 !"
 		else
 			echo -e "${Error} $NAME 停止失败 !"
 		fi
 	else
-		echo -e "${Inof}$NAME 未运行"
+		echo -e "${Info}$NAME 未运行"
 		RETVAL=1
 	fi
 }
@@ -96,9 +96,9 @@ do_status(){
 	if [[ $? -eq 0 ]]; then
 		Read_config
 		View_User
-		echo -e "${Inof}$NAME (PID ${PID}) 正在运行..."
+		echo -e "${Info}$NAME (PID ${PID}) 正在运行..."
 	else
-		echo -e "${Inof}$NAME 未运行 !"
+		echo -e "${Info}$NAME 未运行 !"
 		RETVAL=1
 	fi
 }
