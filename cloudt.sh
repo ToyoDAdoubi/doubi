@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Cloud Torrent
-#	Version: 1.1.0
+#	Version: 1.1.1
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-12/
 #=================================================
@@ -48,7 +48,7 @@ check_pid(){
 	PID=`ps -ef | grep cloud-torrent | grep -v grep | awk '{print $2}'`
 }
 check_new_ver(){
-	ct_new_ver=`wget -qO- https://github.com/jpillora/cloud-torrent/releases/latest | grep "<title>" | perl -e 'while($_=<>){ /Release (.*) · jpillora/; print $1;}'`
+	ct_new_ver=`wget --no-check-certificate -qO- https://github.com/jpillora/cloud-torrent/releases/latest | grep "<title>" | perl -e 'while($_=<>){ /Release (.*) · jpillora/; print $1;}'`
 	if [[ -z ${ct_new_ver} ]]; then
 		echo -e "${Error} Cloud Torrent 最新版本获取失败，请手动获取最新版本号[ https://github.com/jpillora/cloud-torrent/releases ]"
 		stty erase '^H' && read -p "请输入版本号 [ 格式 x.x.xx , 如 0.8.16 ] :" ct_new_ver
@@ -78,15 +78,15 @@ check_ver_comparison(){
 Download_ct(){
 	cd ${file}
 	if [ ${bit} == "x86_64" ]; then
-		wget -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_amd64.gz"
+		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_amd64.gz"
 	elif [ ${bit} == "i386" ]; then
-		wget -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_386.gz"
+		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_386.gz"
 	else
 		echo -e "${Error} 不支持 ${bit} !" && exit 1
 	fi
 	[[ ! -e "cloud-torrent.gz" ]] && echo -e "${Error} Cloud Torrent 下载失败 !" && exit 1
 	gzip -d cloud-torrent.gz
-	[[ ! -e ${ct_file} ]] && echo -e "${Error} Cloud Torrent 解压失败 !" && exit 1
+	[[ ! -e ${ct_file} ]] && echo -e "${Error} Cloud Torrent 解压失败(可能是 压缩包损坏 或者 没有安装 Gzip) !" && exit 1
 	rm -rf cloud-torrent.gz
 	chmod +x cloud-torrent
 	echo "${ct_new_ver}" > ct_ver.txt
