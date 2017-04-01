@@ -17,7 +17,7 @@ BIN="${FILE}/cloud-torrent"
 CONFIG="${FILE}/cloud-torrent.json"
 CONF="${FILE}/cloud-torrent.conf"
 
-Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
+Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 RETVAL=0
@@ -56,11 +56,11 @@ View_User(){
 do_start(){
 	check_running
 	if [[ $? -eq 0 ]]; then
-		echo -e "${Info}$NAME (PID ${PID}) 正在运行..." && exit 0
+		echo -e "${Info} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
 		read_config
 		cd ${FILE}
-		echo -e "${Info}$NAME 启动中..."
+		echo -e "${Info} $NAME 启动中..."
 		if [[ -z ${user} ]]; then
 			./cloud-torrent -p ${port} -l >> ct.log 2>&1 &
 		else
@@ -69,7 +69,7 @@ do_start(){
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
-			echo -e "${Info}$NAME 启动成功 !"
+			echo -e "${Info} $NAME 启动成功 !"
 			View_User
 		else
 			echo -e "${Error} $NAME 启动失败 !"
@@ -82,12 +82,12 @@ do_stop(){
 		kill -9 ${PID}
 		RETVAL=$?
 		if [[ $RETVAL -eq 0 ]]; then
-			echo -e "${Info}$NAME 停止成功 !"
+			echo -e "${Info} $NAME 停止成功 !"
 		else
 			echo -e "${Error} $NAME 停止失败 !"
 		fi
 	else
-		echo -e "${Info}$NAME 未运行"
+		echo -e "${Info} $NAME 未运行"
 		RETVAL=1
 	fi
 }
@@ -96,9 +96,9 @@ do_status(){
 	if [[ $? -eq 0 ]]; then
 		Read_config
 		View_User
-		echo -e "${Info}$NAME (PID ${PID}) 正在运行..."
+		echo -e "${Info} $NAME (PID ${PID}) 正在运行..."
 	else
-		echo -e "${Info}$NAME 未运行 !"
+		echo -e "${Info} $NAME 未运行 !"
 		RETVAL=1
 	fi
 }
