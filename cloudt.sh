@@ -228,7 +228,7 @@ Start_ct(){
 Stop_ct(){
 	check_installed_status
 	check_pid
-	[[ ! -z ${PID} ]] && echo -e "${Error} Cloud Torrent 正在运行，请检查 !" && exit 1
+	[[ -z ${PID} ]] && echo -e "${Error} Cloud Torrent 没有运行，请检查 !" && exit 1
 	service cloudt stop
 }
 Restart_ct(){
