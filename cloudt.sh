@@ -50,8 +50,8 @@ check_pid(){
 check_new_ver(){
 	ct_new_ver=`wget -qO- https://github.com/jpillora/cloud-torrent/releases/latest | grep "<title>" | perl -e 'while($_=<>){ /Release (.*) · jpillora/; print $1;}'`
 	if [[ -z ${ct_new_ver} ]]; then
-		echo -e "${Error} Cloud Torrent 最新版本获取失败，请手动输入版本号"
-		stty erase '^H' && read -p "${Error} Cloud Torrent 最新版本获取失败，请手动输入最新版本号 [ 格式 x.x.xx , 如 0.8.16 ] :" ct_new_ver
+		echo -e "${Error} Cloud Torrent 最新版本获取失败，请手动获取最新版本号[ https://github.com/jpillora/cloud-torrent/releases ]"
+		stty erase '^H' && read -p "请输入版本号 [ 格式 x.x.xx , 如 0.8.16 ] :" ct_new_ver
 		[[ -z "${ct_new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 Cloud Torrent 最新版本为 ${ct_new_ver}"
