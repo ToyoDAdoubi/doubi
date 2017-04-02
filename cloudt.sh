@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Cloud Torrent
-#	Version: 1.1.1
+#	Version: 1.1.2
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-12/
 #=================================================
@@ -80,6 +80,8 @@ Download_ct(){
 	if [ ${bit} == "x86_64" ]; then
 		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_amd64.gz"
 	elif [ ${bit} == "i386" ]; then
+		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_386.gz"
+	elif [ ${bit} == "i686" ]; then
 		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_386.gz"
 	else
 		echo -e "${Error} 不支持 ${bit} !" && exit 1
