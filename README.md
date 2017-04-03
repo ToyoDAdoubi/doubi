@@ -66,7 +66,7 @@ caddy_install.sh
 
 - 脚本说明: Caddy 一键安装脚本
 - 系统支持: CentOS6+ / Debian7+ / Ubuntu14+
-- 使用方法: https://doub.io/
+- 使用方法: https://doub.io/shell-jc1
 
 ### 下载安装:
 ``` bash
