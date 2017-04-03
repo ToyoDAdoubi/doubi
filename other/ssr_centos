@@ -38,6 +38,7 @@ do_start(){
 		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
 		cd ${FOLDER}
+		ulimit -n 512000
 		nohup python "$BIN" -c "$CONF" a > ssserver.log 2>&1 &
 		RETVAL=$?
 		if [[ $RETVAL -eq 0 ]]; then
