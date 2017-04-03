@@ -6,7 +6,7 @@ export PATH
 #       Description: Caddy Install
 #       Version: 1.0.2
 #       Author: Toyo
-#       Blog: https://doub.io/
+#       Blog: https://doub.io/shell-jc1/
 #=================================================
 caddy_file="/usr/local/caddy"
 caddy_ver_file="/usr/local/caddy/ver.txt"
