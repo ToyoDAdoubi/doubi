@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: Caddy Install
-#       Version: 1.0.1
+#       Version: 1.0.2
 #       Author: Toyo
 #       Blog: https://doub.io/
 #=================================================
@@ -42,7 +42,9 @@ check_installed_status(){
 Download_caddy(){
 	mkdir "${caddy_file}" && cd "${caddy_file}"
 	[[ -e "caddy_linux*.tar.gz" ]] && rm -rf "caddy_linux*.tar.gz"
-	if [[ ${bit} == "386" ]]; then
+	if [[ ${bit} == "i386" ]]; then
+		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/build?os=linux&arch=386&features=${extension}" && caddy_bit="caddy_linux_386"
+	elif [[ ${bit} == "i686" ]]; then
 		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/build?os=linux&arch=386&features=${extension}" && caddy_bit="caddy_linux_386"
 	elif [[ ${bit} == "x86_64" ]]; then
 		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/build?os=linux&arch=amd64&features=${extension}" && caddy_bit="caddy_linux_amd64"
