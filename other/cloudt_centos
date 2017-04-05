@@ -96,7 +96,7 @@ do_stop(){
 do_status(){
 	check_running
 	if [[ $? -eq 0 ]]; then
-		Read_config
+		read_config
 		View_User
 		echo -e "${Info} $NAME (PID ${PID}) 正在运行..."
 	else
