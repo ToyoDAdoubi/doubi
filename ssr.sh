@@ -10,6 +10,7 @@ export PATH
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
+sh_ver="2.0.3"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -1060,7 +1061,7 @@ Configure_BBR(){
  ${Green_font_prefix}4.${Font_color_suffix} 查看 BBR 状态" && echo
 echo -e "${Green_font_prefix} [安装前 请注意] ${Font_color_suffix}
 1. 安装开启BBR，需要更换内核，存在更换失败等风险(重启后无法开机)
-2. 本脚本仅支持 Debian / Ubuntu 系统更换内核，OpenVZ虚拟化 不支持更换内核
+2. 本脚本仅支持 Debian / Ubuntu 系统更换内核，OpenVZ和Docker 不支持更换内核
 3. Debian 更换内核过程中会提示 [ 是否终止卸载内核 ] ，请选择 ${Green_font_prefix} NO ${Font_color_suffix}
 4. 安装BBR并重启服务器后，需要重新运行脚本 启动BBR" && echo
 	stty erase '^H' && read -p "(默认: 取消):" bbr_num
@@ -1133,7 +1134,8 @@ menu_status(){
 }
 check_sys
 [[ ${release} != "debian" ]] && [[ ${release} != "ubuntu" ]] && [[ ${release} != "centos" ]] && echo -e "${Error} 本脚本不支持当前系统 ${release} !" && exit 1
-echo -e "  请输入一个数字来选择菜单选项
+echo -e "  ShadowsocksR 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+  ---- Toyo | doub.io/ss-jc42 ----
 
   ${Green_font_prefix}1.${Font_color_suffix} 安装 ShadowsocksR
   ${Green_font_prefix}2.${Font_color_suffix} 更新 ShadowsocksR
@@ -1142,7 +1144,7 @@ echo -e "  请输入一个数字来选择菜单选项
 ————————————
   ${Green_font_prefix}5.${Font_color_suffix} 查看 账号信息
   ${Green_font_prefix}6.${Font_color_suffix} 显示 连接信息
-  ${Green_font_prefix}7.${Font_color_suffix} 修改 用户配置
+  ${Green_font_prefix}7.${Font_color_suffix} 设置 用户配置
   ${Green_font_prefix}8.${Font_color_suffix} 手动 修改配置
   ${Green_font_prefix}9.${Font_color_suffix} 切换 端口模式
 ————————————
