@@ -23,7 +23,7 @@ Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 RETVAL=0
 
 check_running(){
-	PID=`ps -ef |grep "${NAME_BIN}" |grep -v "grep" |grep -v "init.d" |grep -v "service" |awk '{print $2}'`
+	PID=`ps -ef |grep "${NAME_BIN}" |grep -v "grep" | grep -v ".sh"| grep -v "init.d" |grep -v "service" |awk '{print $2}'`
 	if [[ ! -z ${PID} ]]; then
 		return 0
 	else
@@ -32,11 +32,11 @@ check_running(){
 }
 read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} Brook 配置文件不存在 !" && exit 1
-	port=`cat ${brook_conf}|grep "port"|awk -F "=" '{print $NF}'`
-	passwd=`cat ${brook_conf}|grep "passwd"|awk -F "=" '{print $NF}'`
-	timeout=`cat ${brook_conf}|grep "timeout"|awk -F "=" '{print $NF}'`
-	deadline=`cat ${brook_conf}|grep "deadline"|awk -F "=" '{print $NF}'`
-	music=`cat ${brook_conf}|grep "music"|awk -F "=" '{print $NF}'`
+	port=`cat ${CONF}|grep "port"|awk -F "=" '{print $NF}'`
+	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
+	timeout=`cat ${CONF}|grep "timeout"|awk -F "=" '{print $NF}'`
+	deadline=`cat ${CONF}|grep "deadline"|awk -F "=" '{print $NF}'`
+	music=`cat ${CONF}|grep "music"|awk -F "=" '{print $NF}'`
 }
 View_User(){
 	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
