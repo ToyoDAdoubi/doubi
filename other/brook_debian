@@ -39,6 +39,7 @@ read_config(){
 View_User(){
 	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
 	[[ -z ${ip} ]] && ip="VPS_IP"
+	[[ -z ${music} ]] && music="无 (客户端留空)"
 	clear && echo "————————————————" && echo
 	echo -e " Brook 信息 :" && echo
 	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
