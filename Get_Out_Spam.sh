@@ -17,12 +17,12 @@
 smpt_port="25,26,465,587"
 pop_port="109,110,995"
 imap_port="143,218,220,993"
-other_port="24,50,57,105,106,158,209,587,1109,24554,60177,60179"
+other_port="24,50,57,105,106,158,209,1109,24554,60177,60179"
 key_word=(Subject HELO SMTP
     "torrent" ".torrent" "peer_id=" "announce"
     "info_hash" "get_peers" "find_node"
     "BitTorrent" "announce_peer"
-    "announce.php?passkey=")
+    "BitTorrent protocol" "announce.php?passkey=")
 
 v4iptables=`which iptables 2>/dev/null`
 v6iptables=`which ip6tables 2>/dev/null`
