@@ -40,8 +40,9 @@ do_start(){
 		cd ${FOLDER}
 		ulimit -n 512000
 		nohup python "$BIN" -c "$CONF" a > ssserver.log 2>&1 &
-		RETVAL=$?
-		if [[ $RETVAL -eq 0 ]]; then
+		sleep 2s
+		check_running
+		if [[ $? -eq 0 ]]; then
 			echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME 启动成功 !"
 		else
 			echo -e "${Error_font_prefix}[错误]${Font_suffix} $NAME 启动失败 !"
