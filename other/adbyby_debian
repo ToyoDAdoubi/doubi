@@ -61,7 +61,7 @@ do_stop(){
 do_status(){
 	check_running
 	if [[ $? -eq 0 ]]; then
-		echo -e "${Info} $NAME (PID ${PID}) 正在运行..."
+		echo -e "${Info} $NAME (PID $(echo ${PID})) 正在运行..."
 	else
 		echo -e "${Info} $NAME 未运行 !"
 		RETVAL=1
