@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.3
+#	Version: 2.0.4
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.3"
+sh_ver="2.0.4"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -677,19 +677,19 @@ debian_View_user_connection_info(){
 		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |wc -l`
 		user_port=`${jq_file} '.server_port' ${config_user_file}`
 		user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |grep "${user_port}" |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u`
-		user_IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |grep "${user_port}" |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |wc -l`
+		user_IP_total=`echo -e "${user_IP}"|wc -l`
 		user_list_all="端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix}"
 		echo -e ${user_list_all}
 	else
-		now_mode="${Word_multi_port}" && user_total=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | wc -l`
+		now_mode="${Word_multi_port}" && user_total=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' | wc -l`
 		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |wc -l`
 		user_list_all=""
 		for((integer = ${user_total}; integer >= 1; integer--))
 		do
-			user_port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
-			user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |grep "${user_port}" |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u`
-			user_IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |grep "${user_port}" |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |wc -l`
+			user_port=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' |awk -F ":" '{print $1}' |sed -n "${integer}p" |perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
+			user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |grep "${user_port}" |awk -F ":" '{print $1}' |sort -u`
+			user_IP_total=`echo -e "${user_IP}"|wc -l`
 			user_list_all=${user_list_all}"端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		done
 		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix} ，用户总数: ${Green_font_prefix} "${user_total}" ${Font_color_suffix} ，链接IP总数: ${Green_font_prefix} "${IP_total}" ${Font_color_suffix} "
@@ -699,23 +699,23 @@ debian_View_user_connection_info(){
 centos_View_user_connection_info(){
 	if [[ "${now_mode}" = "null" ]]; then
 		now_mode="单端口" && user_total="1"
-		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' | grep '::ffff:' |awk '{print $4}' |sort -u |wc -l`
+		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep '::ffff:' |awk '{print $4}' |sort -u |wc -l`
 		user_port=`${jq_file} '.server_port' ${config_user_file}`
 		user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep "${user_port}" | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u`
-		user_IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep "${user_port}" | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u |wc -l`
+		user_IP_total=`echo -e "${user_IP}"|wc -l`
 		user_list_all="端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix}"
 		echo -e ${user_list_all}
 	else
-		now_mode="多端口" && user_total=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | wc -l`
+		now_mode="多端口" && user_total=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' | wc -l`
 		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' | grep '::ffff:' |awk '{print $4}' |sort -u |wc -l`
 		user_list_all=""
 		user_id=0
 		for((integer = 1; integer <= ${user_total}; integer++))
 		do
-			user_port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
-			user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep "${user_port}" | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u`
-			user_IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep "${user_port}" | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u |wc -l`
+			user_port=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' |awk -F ":" '{print $1}' |sed -n "${integer}p" |perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
+			user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep '::ffff:' |awk '{print $5}' |grep "${user_port}" |awk -F ":" '{print $4}' |sort -u`
+			user_IP_total=`echo -e "${user_IP}"|wc -l`
 			user_id=$[$user_id+1]
 			user_list_all=${user_list_all}"端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		done
@@ -1098,18 +1098,29 @@ Status_BBR(){
 # 其他功能
 Other_functions(){
 	echo && echo -e "你要做什么？
-  ${Green_font_prefix}1.${Font_color_suffix} 防火墙iptables 封禁 BT/PT/SPAM" && echo
+  ${Green_font_prefix}1.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
+  ${Green_font_prefix}2.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)" && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${other_num} == "1" ]]; then
 		BanBTPTSPAM
+	elif [[ ${bbr_num} == "2" ]]; then
+		UnBanBTPTSPAM
 	else
-		echo -e "${Error} 请输入正确的数字(1-1)" && exit 1
+		echo -e "${Error} 请输入正确的数字(1-2)" && exit 1
 	fi
 }
 # 封禁 BT PT SPAM
 BanBTPTSPAM(){
-	wget -4qO- raw.githubusercontent.com/ToyoDAdoubi/doubi/master/Get_Out_Spam.sh | bash
+	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/Get_Out_Spam.sh && chmod +x Get_Out_Spam.sh && bash Get_Out_Spam.sh add
+	rm -rf Get_Out_Spam.sh
+	Save_iptables
+	iptables -L -n
+}
+# 解封 BT PT SPAM
+UnBanBTPTSPAM(){
+	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/Get_Out_Spam.sh && chmod +x Get_Out_Spam.sh && bash Get_Out_Spam.sh del
+	rm -rf Get_Out_Spam.sh
 	Save_iptables
 	iptables -L -n
 }
