@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.4
+#	Version: 2.0.5
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.4"
+sh_ver="2.0.5"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -677,7 +677,12 @@ debian_View_user_connection_info(){
 		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |wc -l`
 		user_port=`${jq_file} '.server_port' ${config_user_file}`
 		user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |grep "${user_port}" |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u`
-		user_IP_total=`echo -e "${user_IP}"|wc -l`
+		if [[ -z ${user_IP} ]]; then
+			user_IP_total="0"
+		else
+			user_IP_total=`echo -e "${user_IP}"|wc -l`
+			user_IP=`echo ${user_IP}|sed 's/ / | /g'`
+		fi
 		user_list_all="端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix}"
 		echo -e ${user_list_all}
@@ -689,7 +694,12 @@ debian_View_user_connection_info(){
 		do
 			user_port=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' |awk -F ":" '{print $1}' |sed -n "${integer}p" |perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
 			user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |grep "${user_port}" |awk -F ":" '{print $1}' |sort -u`
-			user_IP_total=`echo -e "${user_IP}"|wc -l`
+			if [[ -z ${user_IP} ]]; then
+				user_IP_total="0"
+			else
+				user_IP_total=`echo -e "${user_IP}"|wc -l`
+				user_IP=`echo ${user_IP}|sed 's/ / | /g'`
+			fi
 			user_list_all=${user_list_all}"端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		done
 		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix} ，用户总数: ${Green_font_prefix} "${user_total}" ${Font_color_suffix} ，链接IP总数: ${Green_font_prefix} "${IP_total}" ${Font_color_suffix} "
@@ -702,7 +712,12 @@ centos_View_user_connection_info(){
 		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep '::ffff:' |awk '{print $4}' |sort -u |wc -l`
 		user_port=`${jq_file} '.server_port' ${config_user_file}`
 		user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep "${user_port}" | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u`
-		user_IP_total=`echo -e "${user_IP}"|wc -l`
+		if [[ -z ${user_IP} ]]; then
+			user_IP_total="0"
+		else
+			user_IP_total=`echo -e "${user_IP}"|wc -l`
+			user_IP=`echo ${user_IP}|sed 's/ / | /g'`
+		fi
 		user_list_all="端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix}"
 		echo -e ${user_list_all}
@@ -710,13 +725,16 @@ centos_View_user_connection_info(){
 		now_mode="多端口" && user_total=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' | wc -l`
 		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' | grep '::ffff:' |awk '{print $4}' |sort -u |wc -l`
 		user_list_all=""
-		user_id=0
 		for((integer = 1; integer <= ${user_total}; integer++))
 		do
 			user_port=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' |awk -F ":" '{print $1}' |sed -n "${integer}p" |perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
 			user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep '::ffff:' |awk '{print $5}' |grep "${user_port}" |awk -F ":" '{print $4}' |sort -u`
-			user_IP_total=`echo -e "${user_IP}"|wc -l`
-			user_id=$[$user_id+1]
+			if [[ -z ${user_IP} ]]; then
+				user_IP_total="0"
+			else
+				user_IP_total=`echo -e "${user_IP}"|wc -l`
+				user_IP=`echo ${user_IP}|sed 's/ / | /g'`
+			fi
 			user_list_all=${user_list_all}"端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		done
 		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix} ，用户总数: ${Green_font_prefix} "${user_total}" ${Font_color_suffix} ，链接IP总数: ${Green_font_prefix} "${IP_total}" ${Font_color_suffix} "
