@@ -1125,7 +1125,7 @@ Other_functions(){
 	elif [[ ${bbr_num} == "2" ]]; then
 		UnBanBTPTSPAM
 	else
-		echo -e "${Error} 请输入正确的数字(1-2)" && exit 1
+		echo -e "${Error} 请输入正确的数字 [1-2]" && exit 1
 	fi
 }
 # 封禁 BT PT SPAM
@@ -1135,7 +1135,7 @@ BanBTPTSPAM(){
 }
 # 解封 BT PT SPAM
 UnBanBTPTSPAM(){
-	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
+	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
 	rm -rf banall.sh
 }
 # 显示 菜单状态
