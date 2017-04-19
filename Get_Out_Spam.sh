@@ -70,7 +70,7 @@ add_iptables(){
 		for i in ${smpt_port} ${pop_port} ${imap_port} ${other_port}; do tcp_port_DROP $v4iptables $i && udp_port_DROP $v4iptables $i; done
 		save_rules && iptables -L -n && echo -e "${Info} iptables 防火墙 封禁BT PT SPAM(垃圾邮件)规则添加成功 !"
 	else
-		echo "[Error] 没有找到 iptables !"
+		echo -e "${Error} 没有找到 iptables !"
 	fi
 }
 # 删除
@@ -84,7 +84,7 @@ del_iptables(){
 		for i in ${smpt_port} ${pop_port} ${imap_port} ${other_port}; do del_tcp_port_DROP $v4iptables $i && del_udp_port_DROP $v4iptables $i; done
 		save_rules && iptables -L -n && echo -e "${Info} iptables 防火墙 封禁BT PT SPAM(垃圾邮件)规则删除成功 !"
 	else
-		echo "${Error} 没有找到 iptables !"
+		echo -e "${Error} 没有找到 iptables !"
 	fi
 }
 action=$1
@@ -97,6 +97,6 @@ case "$action" in
 	del_iptables
 	;;
 	*)
-	echo "${Error} 用法: { add | del }"
+	echo -e "${Error} 用法: { add | del }"
 	;;
 esac
