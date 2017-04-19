@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.6
+#	Version: 2.0.7
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.6"
+sh_ver="2.0.7"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -1122,7 +1122,7 @@ Other_functions(){
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${other_num} == "1" ]]; then
 		BanBTPTSPAM
-	elif [[ ${bbr_num} == "2" ]]; then
+	elif [[ ${other_num} == "2" ]]; then
 		UnBanBTPTSPAM
 	else
 		echo -e "${Error} 请输入正确的数字 [1-2]" && exit 1
