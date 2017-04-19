@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: iptables 封禁 BT、PT、SPAM（垃圾邮件）和自定义端口、关键词
-#       Version: 1.0.0
+#       Version: 1.0.1
 #       Blog: https://doub.io/shell-jc2/
 #=================================================
 
@@ -334,7 +334,7 @@ Ban_KEY_WORDS(){
 	ENTER_Ban_KEY_WORDS
 	Set_KEY_WORDS
 	View_ALL
-	echo -e "${Info} 已封禁端口 ${KEY_WORDS} !"
+	echo -e "${Info} 已封禁关键词 ${KEY_WORDS} !"
 }
 UnBan_PORT(){
 	s="D"
@@ -352,7 +352,17 @@ UnBan_KEY_WORDS(){
 	ENTER_UnBan_KEY_WORDS
 	Set_KEY_WORDS
 	View_ALL
-	echo -e "${Info} 已解封端口 ${KEY_WORDS} !"
+	echo -e "${Info} 已解封关键词 ${KEY_WORDS} !"
+}
+UnBan_KEY_WORDS_ALL(){
+	Cat_KEY_WORDS
+	[[ -z ${Ban_KEY_WORDS_text} ]] && echo -e "${Error} 检测到未封禁任何 关键词，请检查 !" && exit 0
+	for((integer = 1; integer <= ${Ban_KEY_WORDS_num}; integer++))
+		do
+			iptables -t mangle -D OUTPUT 1
+	done
+	View_ALL
+	echo -e "${Info} 已解封所有关键词 !"
 }
 check_iptables(){
 	v4iptables=`iptables -V`
@@ -395,6 +405,7 @@ echo && echo -e "请输入一个数字来选择选项
   ${Green_font_prefix}8.${Font_color_suffix} 解封 BT、PT+SPAM
   ${Green_font_prefix}9.${Font_color_suffix} 解封 自定义  端口
  ${Green_font_prefix}10.${Font_color_suffix} 解封 自定义关键词
+ ${Green_font_prefix}11.${Font_color_suffix} 解封 所有  关键词
 ————————————" && echo
 stty erase '^H' && read -p " 请输入数字 [0-10]:" num
 case "$num" in
@@ -430,6 +441,9 @@ case "$num" in
 	;;
 	10)
 	UnBan_KEY_WORDS
+	;;
+	11)
+	UnBan_KEY_WORDS_ALL
 	;;
 	*)
 	echo "请输入正确数字 [0-10]"
