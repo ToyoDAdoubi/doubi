@@ -185,6 +185,18 @@ adbyby.sh
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/adbyby.sh && chmod +x adbyby.sh && bash adbyby.sh
 ```
 
+ban_iptables.sh
+======
+
+- 脚本说明: iptables 垃圾邮件(SPAM)/BT/PT 一键封禁脚本
+- 系统支持: CentOS6+ / Debian6+ / Ubuntu14+
+- 使用方法: https://doub.io/shell-jc2/
+
+### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh
+```
+
 Get_Out_Spam.sh
 ======
 
