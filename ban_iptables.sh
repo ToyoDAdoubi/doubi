@@ -407,7 +407,7 @@ echo && echo -e "请输入一个数字来选择选项
  ${Green_font_prefix}10.${Font_color_suffix} 解封 自定义关键词
  ${Green_font_prefix}11.${Font_color_suffix} 解封 所有  关键词
 ————————————" && echo
-stty erase '^H' && read -p " 请输入数字 [0-10]:" num
+stty erase '^H' && read -p " 请输入数字 [0-11]:" num
 case "$num" in
 	0)
 	View_ALL
@@ -446,6 +446,6 @@ case "$num" in
 	UnBan_KEY_WORDS_ALL
 	;;
 	*)
-	echo "请输入正确数字 [0-10]"
+	echo "请输入正确数字 [0-11]"
 	;;
 esac
