@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR Port-IP Check
-#	Version: 1.0.1
+#	Version: 1.0.2
 #	Author: Toyo
 #=================================================
 # ——————————————————————————————
@@ -89,9 +89,11 @@ c_ssr(){
 	check_pid
 	if [[ ${release} == "centos" ]]; then
 		scan_port_centos
+		echo -e "当前时间：${Yellow_font_prefix}$(date "+%Y-%m-%d %H:%I:%S %u %Z")${Font_color_suffix}\n"
 		check_threshold_centos
 	else
 		scan_port_debian
+		echo -e "当前时间：${Yellow_font_prefix}$(date "+%Y-%m-%d %H:%I:%S %u %Z")${Font_color_suffix}\n"
 		check_threshold_debian
 	fi
 }
@@ -101,12 +103,12 @@ a_ssr(){
 	if [[ ${release} == "centos" ]]; then
 		scan_port_centos
 		scan_ip_centos
-		echo -e "当前链接的端口共 ${Red_font_prefix}${port_num}${Font_color_suffix} ,当前链接的IP共 ${Red_font_prefix}${ip_num}${Font_color_suffix} \n"
+		echo -e "当前时间：${Yellow_font_prefix}$(date "+%Y-%m-%d %H:%I:%S %u %Z")${Font_color_suffix} ,当前链接的端口共 ${Red_font_prefix}${port_num}${Font_color_suffix} ,当前链接的IP共 ${Red_font_prefix}${ip_num}${Font_color_suffix} \n"
 		check_threshold_centos
 	else
 		scan_port_debian
 		scan_ip_debian
-		echo -e "当前链接的端口共 ${Red_font_prefix}${port_num}${Font_color_suffix} ,当前链接的IP共 ${Red_font_prefix}${ip_num}${Font_color_suffix} \n"
+		echo -e "当前时间：${Yellow_font_prefix}$(date "+%Y-%m-%d %H:%I:%S %u %Z")${Font_color_suffix} ,当前链接的端口共 ${Red_font_prefix}${port_num}${Font_color_suffix} ,当前链接的IP共 ${Red_font_prefix}${ip_num}${Font_color_suffix} \n"
 		check_threshold_debian
 	fi
 	
@@ -122,7 +124,7 @@ case "$action" in
     *)
     echo -e "输入错误 !
  用法: 
- c 检查超过IP阈值的端口
- a 显示出所有端口IP连接信息"
+ c 检查并显示 超过IP阈值的端口
+ a 显示当前 所有端口IP连接信息"
     ;;
 esac
