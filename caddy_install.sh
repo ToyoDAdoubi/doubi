@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: Caddy Install
-#       Version: 1.0.2
+#       Version: 1.0.3
 #       Author: Toyo
 #       Blog: https://doub.io/shell-jc1/
 #=================================================
@@ -42,12 +42,13 @@ check_installed_status(){
 Download_caddy(){
 	mkdir "${caddy_file}" && cd "${caddy_file}"
 	[[ -e "caddy_linux*.tar.gz" ]] && rm -rf "caddy_linux*.tar.gz"
+	[[ ! -z ${extension} ]] && extension_all="?plugins=${extension}"
 	if [[ ${bit} == "i386" ]]; then
-		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/build?os=linux&arch=386&features=${extension}" && caddy_bit="caddy_linux_386"
+		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/linux/386${extension_all}" && caddy_bit="caddy_linux_386"
 	elif [[ ${bit} == "i686" ]]; then
-		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/build?os=linux&arch=386&features=${extension}" && caddy_bit="caddy_linux_386"
+		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/linux/386${extension_all}" && caddy_bit="caddy_linux_386"
 	elif [[ ${bit} == "x86_64" ]]; then
-		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/build?os=linux&arch=amd64&features=${extension}" && caddy_bit="caddy_linux_amd64"
+		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/linux/amd64${extension_all}" && caddy_bit="caddy_linux_amd64"
 	else
 		echo -e "${Error_font_prefix}[错误]${Font_suffix} 不支持 ${bit} !" && exit 1
 	fi
@@ -58,14 +59,14 @@ Download_caddy(){
 }
 Service_caddy(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://softs.pw/Bash/other/caddy_centos -O /etc/init.d/caddy; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/caddy_centos -O /etc/init.d/caddy; then
 			echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/caddy
 		chkconfig --add caddy
 		chkconfig caddy on
 	else
-		if ! wget --no-check-certificate https://softs.pw/Bash/other/caddy_debian -O /etc/init.d/caddy; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/caddy_debian -O /etc/init.d/caddy; then
 			echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/caddy
