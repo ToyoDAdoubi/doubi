@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.7
+#	Version: 2.0.8
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.7"
+sh_ver="2.0.8"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -116,6 +116,7 @@ Get_User(){
 	protocol_param=`${jq_file} '.protocol_param' ${config_user_file} | sed 's/^.//;s/.$//'`
 	speed_limit_per_con=`${jq_file} '.speed_limit_per_con' ${config_user_file}`
 	speed_limit_per_user=`${jq_file} '.speed_limit_per_user' ${config_user_file}`
+	connect_verbose_info=`${jq_file} '.connect_verbose_info' ${config_user_file}`
 }
 ss_link_qr(){
 	SSbase64=`echo -n "${method}:${password}@${ip}:${port}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
@@ -432,6 +433,9 @@ Modify_config_speed_limit_per_con(){
 }
 Modify_config_speed_limit_per_user(){
 	sed -i 's/"speed_limit_per_user": '"$(echo ${speed_limit_per_user})"'/"speed_limit_per_user": '"$(echo ${ssr_speed_limit_per_user})"'/g' ${config_user_file}
+}
+Modify_config_connect_verbose_info(){
+	sed -i 's/"connect_verbose_info": '"$(echo ${connect_verbose_info})"'/"connect_verbose_info": '"$(echo ${ssr_connect_verbose_info})"'/g' ${config_user_file}
 }
 Modify_config_all(){
 	Modify_config_port
@@ -984,21 +988,23 @@ Start_SSR(){
 	SSR_installation_status
 	check_pid
 	[[ ! -z ${PID} ]] && echo -e "${Error} ShadowsocksR 正在运行 !" && exit 1
-	service ssr start
-	View_User
+	/etc/init.d/ssr start
+	check_pid
+	[[ ! -z ${PID} ]] && View_User
 }
 Stop_SSR(){
 	SSR_installation_status
 	check_pid
 	[[ -z ${PID} ]] && echo -e "${Error} ShadowsocksR 未运行 !" && exit 1
-	service ssr stop
+	/etc/init.d/ssr stop
 }
 Restart_SSR(){
 	SSR_installation_status
 	check_pid
-	[[ ! -z ${PID} ]] && service ssr stop
-	service ssr start
-	View_User
+	[[ ! -z ${PID} ]] && /etc/init.d/ssr stop
+	/etc/init.d/ssr start
+	check_pid
+	[[ ! -z ${PID} ]] && View_User
 }
 View_Log(){
 	SSR_installation_status
@@ -1117,15 +1123,19 @@ Status_BBR(){
 Other_functions(){
 	echo && echo -e "你要做什么？
   ${Green_font_prefix}1.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
-  ${Green_font_prefix}2.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)" && echo
+  ${Green_font_prefix}2.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
+  ${Green_font_prefix}3.${Font_color_suffix} 开启/关闭 ShadowsocksR详细日志
+  —— 说明：SSR默认只输出错误日志，开启此项可输出详细的访问日志" && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${other_num} == "1" ]]; then
 		BanBTPTSPAM
 	elif [[ ${other_num} == "2" ]]; then
 		UnBanBTPTSPAM
+	elif [[ ${other_num} == "3" ]]; then
+		Set_config_connect_verbose_info
 	else
-		echo -e "${Error} 请输入正确的数字 [1-2]" && exit 1
+		echo -e "${Error} 请输入正确的数字 [1-3]" && exit 1
 	fi
 }
 # 封禁 BT PT SPAM
@@ -1137,6 +1147,52 @@ BanBTPTSPAM(){
 UnBanBTPTSPAM(){
 	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
 	rm -rf banall.sh
+}
+Set_config_connect_verbose_info(){
+	SSR_installation_status
+	Get_User
+	if [[ ${connect_verbose_info} = "0" ]]; then
+		echo && echo -e "当前日志模式: ${Green_font_prefix}简单模式（只输出错误日志）${Font_color_suffix}" && echo
+		echo -e "确定要切换为 ${Green_font_prefix}详细模式（输出详细连接日志+错误日志）${Font_color_suffix}？[y/N]"
+		stty erase '^H' && read -p "(默认: n):" connect_verbose_info_ny
+		[[ -z "${connect_verbose_info_ny}" ]] && connect_verbose_info_ny="n"
+		if [[ ${connect_verbose_info_ny} == [Yy] ]]; then
+			ssr_connect_verbose_info="1"
+			Modify_config_connect_verbose_info
+			Restart_SSR
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo && echo -e "当前日志模式: ${Green_font_prefix}详细模式（输出详细连接日志+错误日志）${Font_color_suffix}" && echo
+		echo -e "确定要切换为 ${Green_font_prefix}简单模式（只输出错误日志）${Font_color_suffix}？[y/N]"
+		stty erase '^H' && read -p "(默认: n):" connect_verbose_info_ny
+		[[ -z "${connect_verbose_info_ny}" ]] && connect_verbose_info_ny="n"
+		if [[ ${connect_verbose_info_ny} == [Yy] ]]; then
+			ssr_connect_verbose_info="0"
+			Modify_config_connect_verbose_info
+			Restart_SSR
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	fi
+}
+Update_Shell(){
+	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+	sh_new_ver="$(wget --no-check-certificate -qO- raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g')"
+	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" yn
+		[[ -z "${yn}" ]] && yn="y"
+		if [[ ${yn} == [Yy] ]]; then
+			wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh && chmod +x ssr.sh
+			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
+	fi
 }
 # 显示 菜单状态
 menu_status(){
@@ -1182,11 +1238,12 @@ echo -e "  ShadowsocksR 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_
  ${Green_font_prefix}15.${Font_color_suffix} 配置 BBR
 ————————————
  ${Green_font_prefix}16.${Font_color_suffix} 其他功能
+ ${Green_font_prefix}17.${Font_color_suffix} 升级脚本
  
  注意事项： 锐速/BBR 不支持 OpenVZ
  "
 menu_status
-echo && stty erase '^H' && read -p "请输入数字(1-16)：" num
+echo && stty erase '^H' && read -p "请输入数字 [1-17]：" num
 case "$num" in
 	1)
 	Install_SSR
@@ -1236,7 +1293,10 @@ case "$num" in
 	16)
 	Other_functions
 	;;
+	17)
+	Update_Shell
+	;;
 	*)
-	echo -e "${Error} 请输入正确的数字(1-16)"
+	echo -e "${Error} 请输入正确的数字 [1-17]"
 	;;
 esac
