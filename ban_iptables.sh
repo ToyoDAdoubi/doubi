@@ -66,7 +66,7 @@ Cat_KEY_WORDS(){
 		Ban_KEY_WORDS_num=$(echo -e "${Ban_KEY_WORDS_text}"|wc -l)
 		for((integer = 1; integer <= ${Ban_KEY_WORDS_num}; integer++))
 			do
-				Ban_KEY_WORDS_list="${Ban_KEY_WORDS_list}"$(echo -e "${Ban_KEY_WORDS_text}"|sed -n "${integer}p"|perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}')"\n"
+				Ban_KEY_WORDS_list="${Ban_KEY_WORDS_list}"$(echo -e "${Ban_KEY_WORDS_text}"|sed -n "${integer}p"|sed -r 's/.*\"(.+)\".*/\1/')"\n"
 		done
 	else
 		Ban_KEY_WORDS_list=""

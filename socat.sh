@@ -45,8 +45,7 @@ installSocat(){
 # 判断是否安装Socat
 	socat_exist=`socat -h`
 	if [[ ${socat_exist} != "" ]]; then
-		echo -e "\033[41;37m [错误] \033[0m 已经安装Socat，请检查 !"
-		exit 1
+		echo -e "\033[41;37m [错误] \033[0m 已经安装Socat，请检查 !" && exit 1
 	fi
 check_sys
 # 系统判断
@@ -65,8 +64,7 @@ check_sys
 	#判断socat是否安装成功
 	socat_exist=`socat -h`
 	if [[ ${socat_exist} = "" ]]; then
-		echo -e "\033[41;37m [错误] \033[0m 安装Socat失败，请检查 !"
-		exit 1
+		echo -e "\033[41;37m [错误] \033[0m 安装Socat失败，请检查 !" && exit 1
 	else
 		echo -e "\033[42;37m [信息] \033[0m Socat 安装完成 !"
 	fi
@@ -161,8 +159,7 @@ addSocat(){
 		sleep 2s
 		PID=`ps -ef | grep "socat TCP4-LISTEN:${Socatport}" | grep -v grep | awk '{print $2}'`
 		if [[ -z $PID ]]; then
-			echo -e "\033[41;37m [错误] \033[0m Socat TCP 启动失败 !"
-			exit 1
+			echo -e "\033[41;37m [错误] \033[0m Socat TCP 启动失败 !" && exit 1
 		fi
 # 系统判断
 		check_sys
@@ -179,8 +176,7 @@ addSocat(){
 		sleep 2s
 		PID=`ps -ef | grep "socat UDP4-LISTEN:${Socatport}" | grep -v grep | awk '{print $2}'`
 		if [[ -z $PID ]]; then
-			echo -e "\033[41;37m [错误] \033[0m Socat UDP 启动失败 !"
-			exit 1
+			echo -e "\033[41;37m [错误] \033[0m Socat UDP 启动失败 !" && exit 1
 		fi
 # 系统判断
 		check_sys
@@ -262,10 +258,11 @@ listSocat(){
 	socat_list_all=""
 	for((integer = 1; integer <= ${socat_total}; integer++))
 	do
-		socat_type=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh" | awk '{print $9}' | sed -n "${integer}p" | cut -c 1-4`
-		socat_listen=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh" | awk '{print $9}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /LISTEN:(.*),reuseaddr/; print $1;}'`
-		socat_fork=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh" | awk '{print $10}' | sed -n "${integer}p" | cut -c 6-26`
-		socat_pid=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh" | awk '{print $2}' | sed -n "${integer}p"`
+		socat_all=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh"`
+		socat_type=`echo -e "${socat_all}" | awk '{print $9}' | sed -n "${integer}p" | cut -c 1-4`
+		socat_listen=`echo -e "${socat_all}" | awk '{print $9}' | sed -n "${integer}p" | sed -r 's/.*LISTEN:(.+),reuseaddr.*/\1/'`
+		socat_fork=`echo -e "${socat_all}" | awk '{print $10}' | sed -n "${integer}p" | cut -c 6-26`
+		socat_pid=`echo -e "${socat_all}" | awk '{print $2}' | sed -n "${integer}p"`
 		socat_list_all=${socat_list_all}${integer}". 进程PID: "${socat_pid}" 类型: "${socat_type}" 监听端口: "${socat_listen}" 转发IP和端口: "${socat_fork}"\n"
 	done
 	echo
@@ -278,8 +275,7 @@ delSocat(){
 # 判断进程是否存在
 	PID=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh" | awk '{print $2}'`
 	if [[ -z $PID ]]; then
-		echo -e "\033[41;37m [错误] \033[0m 没有发现 Socat 进程运行，请检查 !"
-		exit 1
+		echo -e "\033[41;37m [错误] \033[0m 没有发现 Socat 进程运行，请检查 !" && exit 1
 	fi
 	
 	while true
@@ -299,7 +295,7 @@ delSocat(){
 			#echo ${socat_del_rc4}
 			sed -i "/${socat_del_rc4}/d" /etc/rc.local
 			# 删除防火墙规则
-			socat_listen=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh" | awk '{print $9}' | sed -n "${stopsocat}p" | perl -e 'while($_=<>){ /LISTEN:(.*),reuseaddr/; print $1;}'`
+			socat_listen=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh" | awk '{print $9}' | sed -n "${stopsocat}p" | sed -r 's/.*LISTEN:(.+),reuseaddr.*/\1/'`
 			socat_type=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh" | awk '{print $9}' | sed -n "${stopsocat}p" | cut -c 1-4`
 			if [[ ${socat_type} = "TCP4" ]]; then
 				iptables -D INPUT -p tcp --dport ${socat_listen} -j ACCEPT
@@ -314,20 +310,16 @@ delSocat(){
 			socat_total1=$[ $socat_total - 1 ]
 			socat_total=`ps -ef | grep socat | grep -v grep | grep -v "socat.sh" | wc -l`
 			if [[ ${socat_total} != ${socat_total1} ]]; then
-				echo -e "\033[41;37m [错误] \033[0m Socat 停止失败 !"
-				exit 1
+				echo -e "\033[41;37m [错误] \033[0m Socat 停止失败 !" && exit 1
 			else
-				echo
-				echo "	Socat 已停止 !"
-				echo
+				echo && echo "	Socat 已停止 !" && echo
 			fi
 			break
 		else
 			echo -e "\033[41;37m [错误] \033[0m 请输入正确的数字 !"
 		fi
 	else
-		echo "取消..."
-		exit 1
+		echo "取消..." && exit 1
 	fi
 	done
 }
@@ -335,8 +327,7 @@ delSocat(){
 tailSocat(){
 # 判断日志是否存在
 	if [[ ! -e ${socat_log_file} ]]; then
-		echo -e "\033[41;37m [错误] \033[0m Socat 日志文件不存在 !"
-		exit 1
+		echo -e "\033[41;37m [错误] \033[0m Socat 日志文件不存在 !" && exit 1
 	else
 		tail -f ${socat_log_file}
 	fi
@@ -345,8 +336,7 @@ uninstallSocat(){
 # 检查是否安装
 	check_socat
 
-	printf "确定要卸载 Socat ? (y/N)"
-	printf "\n"
+	echo "确定要卸载 Socat ? [y/N]"
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
@@ -355,22 +345,16 @@ uninstallSocat(){
 		if [[ ${release}  == "centos" ]]; then
 			yum remove socat -y
 		else
-			sudo apt-get remove socat -y
-			sudo apt-get autoremove
+			apt-get remove --purge socat -y
 		fi
 		rm -rf ${socat_file}
 		socat_exist=`socat -h`
 		if [[ ${socat_exist} != "" ]]; then
-			echo -e "\033[41;37m [错误] \033[0m Socat卸载失败，请检查 !"
-			exit 1
+			echo -e "\033[41;37m [错误] \033[0m Socat卸载失败，请检查 !" && exit 1
 		fi
-		echo
-		echo "	Socat 已卸载 !"
-		echo
+		echo && echo "	Socat 已卸载 !" && echo
 	else
-		echo
-		echo "卸载已取消..."
-		echo
+		echo && echo "卸载已取消..." && echo
 	fi
 }
 
