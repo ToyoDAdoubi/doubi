@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.8
+#	Version: 2.0.9
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.8"
+sh_ver="2.0.9"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -204,8 +204,8 @@ View_User(){
 		echo -e " 端口总限速 : ${Green_font_prefix}${speed_limit_per_user} KB/S${Font_color_suffix}" && echo
 		for((integer = ${user_total}; integer >= 1; integer--))
 		do
-			port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
-			password=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $2}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
+			port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | sed -r 's/.*\"(.+)\".*/\1/'`
+			password=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $2}' | sed -n "${integer}p" | sed -r 's/.*\"(.+)\".*/\1/'`
 			ss_ssr_determine
 			echo -e ${Separator_1}
 			echo -e " 端口\t    : ${Green_font_prefix}${port}${Font_color_suffix}"
@@ -630,7 +630,7 @@ Uninstall_SSR(){
 			user_total=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | wc -l`
 			for((integer = 1; integer <= ${user_total}; integer++))
 			do
-				port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
+				port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | sed -r 's/.*\"(.+)\".*/\1/'`
 				Del_iptables
 			done
 		fi
@@ -647,7 +647,7 @@ Uninstall_SSR(){
 }
 Check_Libsodium_ver(){
 	echo -e "${Info} 开始获取 libsodium 最新版本..."
-	Libsodiumr_ver=`wget -qO- https://github.com/jedisct1/libsodium/releases/latest | grep "<title>" | perl -e 'while($_=<>){ /Release (.*) · jedisct1/; print $1;}'`
+	Libsodiumr_ver=`wget -qO- https://github.com/jedisct1/libsodium/releases/latest | grep "<title>" | sed -r 's/.*Release (.+) · jedisct1.*/\1/'`
 	[[ -z ${Libsodiumr_ver} ]] && Libsodiumr_ver=${Libsodiumr_ver_backup}
 	echo -e "${Info} libsodium 最新版本为 ${Green_font_prefix}${Libsodiumr_ver}${Font_color_suffix} !"
 }
@@ -691,12 +691,12 @@ debian_View_user_connection_info(){
 		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix}"
 		echo -e ${user_list_all}
 	else
-		now_mode="${Word_multi_port}" && user_total=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' | wc -l`
+		now_mode="多端口" && user_total=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' | wc -l`
 		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |wc -l`
 		user_list_all=""
 		for((integer = ${user_total}; integer >= 1; integer--))
 		do
-			user_port=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' |awk -F ":" '{print $1}' |sed -n "${integer}p" |perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
+			user_port=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' |awk -F ":" '{print $1}' |sed -n "${integer}p" |sed -r 's/.*\"(.+)\".*/\1/'`
 			user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |grep "${user_port}" |awk -F ":" '{print $1}' |sort -u`
 			if [[ -z ${user_IP} ]]; then
 				user_IP_total="0"
@@ -731,7 +731,7 @@ centos_View_user_connection_info(){
 		user_list_all=""
 		for((integer = 1; integer <= ${user_total}; integer++))
 		do
-			user_port=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' |awk -F ":" '{print $1}' |sed -n "${integer}p" |perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
+			user_port=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' |awk -F ":" '{print $1}' |sed -n "${integer}p" |sed -r 's/.*\"(.+)\".*/\1/'`
 			user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep '::ffff:' |awk '{print $5}' |grep "${user_port}" |awk -F ":" '{print $4}' |sort -u`
 			if [[ -z ${user_IP} ]]; then
 				user_IP_total="0"
@@ -869,8 +869,8 @@ List_multi_port_user(){
 	user_list_all=""
 	for((integer = ${user_total}; integer >= 1; integer--))
 	do
-		user_port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
-		user_password=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $2}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
+		user_port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | sed -r 's/.*\"(.+)\".*/\1/'`
+		user_password=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $2}' | sed -n "${integer}p" | sed -r 's/.*\"(.+)\".*/\1/'`
 		user_list_all=${user_list_all}"端口: "${user_port}" 密码: "${user_password}"\n"
 	done
 	echo && echo -e "用户总数 ${Green_font_prefix}"${user_total}"${Font_color_suffix}"
@@ -895,7 +895,7 @@ Modify_multi_port_user(){
 	del_user=`cat ${config_user_file}|grep "${modify_user_port}"`
 	if [ ! -z ${del_user} ]; then
 		port=${modify_user_port}
-		password=`echo -e ${del_user}|awk -F ":" '{print $NF}'|perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
+		password=`echo -e ${del_user}|awk -F ":" '{print $NF}'|sed -r 's/.*\"(.+)\".*/\1/'`
 		Set_config_port
 		Set_config_password
 		sed -i 's/"'$(echo ${port})'":"'$(echo ${password})'"/"'$(echo ${ssr_port})'":"'$(echo ${ssr_password})'"/g' ${config_user_file}
@@ -972,7 +972,7 @@ Port_mode_switching(){
 			user_total=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | wc -l`
 			for((integer = 1; integer <= ${user_total}; integer++))
 			do
-				port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | perl -e 'while($_=<>){ /\"(.*)\"/; print $1;}'`
+				port=`${jq_file} '.port_password' ${config_user_file} | sed '$d' | sed "1d" | awk -F ":" '{print $1}' | sed -n "${integer}p" | sed -r 's/.*\"(.+)\".*/\1/'`
 				Del_iptables
 			done
 			Set_config_all
@@ -1179,7 +1179,7 @@ Set_config_connect_verbose_info(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver="$(wget --no-check-certificate -qO- raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g')"
+	sh_new_ver=$(wget --no-check-certificate -qO- raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
 		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
 		stty erase '^H' && read -p "(默认: y):" yn
