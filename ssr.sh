@@ -1124,8 +1124,8 @@ Other_functions(){
 	echo && echo -e "你要做什么？
   ${Green_font_prefix}1.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
   ${Green_font_prefix}2.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
-  ${Green_font_prefix}3.${Font_color_suffix} 开启/关闭 ShadowsocksR详细日志
-  —— 说明：SSR默认只输出错误日志，开启此项可输出详细的访问日志" && echo
+  ${Green_font_prefix}3.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
+  —— 说明：SSR默认只输出错误日志，此项可切换为输出详细的访问日志" && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${other_num} == "1" ]]; then
