@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: iptables 封禁 BT、PT、SPAM（垃圾邮件）和自定义端口、关键词
-#       Version: 1.0.1
+#       Version: 1.0.2
 #       Blog: https://doub.io/shell-jc2/
 #=================================================
 
@@ -27,7 +27,7 @@ BitTorrent
 announce_peer
 BitTorrent protocol
 announce.php?passkey=
-bt
+bt.
 magnet:"
 
 check_sys(){
