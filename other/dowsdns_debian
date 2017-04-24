@@ -12,7 +12,7 @@
 
 
 NAME="DowsDNS"
-NAME_BIN="python run.py"
+NAME_BIN="bin/dns.py"
 BIN="/usr/local/dowsDNS"
 CONF="/usr/local/dowsDNS/conf/config.json"
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
@@ -36,14 +36,15 @@ View_dowsdns(){
 	[[ -z ${ip} ]] && ip="VPS_IP"
 	clear && echo "————————————————" && echo
 	echo -e " 请在你的设备中设置DNS服务器为：
- IP : ${Green_font_prefix}${ip}${Font_color_suffix} ,端口 : ${Green_font_prefix}${local_dns_port}${Font_color_suffix}
+ IP : ${Info_font_prefix}${ip}${Font_suffix} ,端口 : ${Info_font_prefix}${local_dns_port}${Font_suffix}
+ 
  注意：如果设备中没有 DNS端口设置选项，那么就只能使用默认的 53 端口"
 	echo && echo "————————————————"
 }
 do_start(){
 	check_running
 	if [[ $? -eq 0 ]]; then
-		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID ${PID}) 正在运行..." && exit 0
+		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID $(echo ${PID})) 正在运行..." && exit 0
 	else
 		cd "${BIN}"
 		nohup python run.py > /dev/null 2>&1 &
@@ -75,7 +76,8 @@ do_stop(){
 do_status(){
 	check_running
 	if [[ $? -eq 0 ]]; then
-		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID ${PID}) 正在运行..."
+		View_dowsdns
+		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID $(echo ${PID})) 正在运行..."
 	else
 		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME 未运行 !"
 		RETVAL=1
