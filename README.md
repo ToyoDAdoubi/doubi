@@ -70,7 +70,19 @@ pipes.sh
 
 ### 下载安装:
 ``` bash
-wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/pipes.sh && chmod +x pipes.sh && bash pipes.sh
+wget -N --no-check-certificate https://raw.githubusercontent.com/pipesocks/install/master/install.sh && mv install.sh pipes.sh && chmod +x pipes.sh && bash pipes.sh
+```
+
+dowsdns.sh
+======
+
+- 脚本说明: DowsDNS 一键安装脚本
+- 系统支持: CentOS7 / Debian7+ / Ubuntu14+
+- 使用方法: https://doub.io/dowsdns-jc3/
+
+### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/dowsdns.sh && chmod +x dowsdns.sh && bash dowsdns.sh
 ```
 
 caddy_install.sh
