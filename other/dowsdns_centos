@@ -14,8 +14,8 @@
 
 NAME="DowsDNS"
 NAME_BIN="python run.py"
-BIN="/usr/local/dowsdns"
-CONF="/usr/local/dowsdns/conf/config.json"
+BIN="/usr/local/dowsDNS"
+CONF="/usr/local/dowsDNS/conf/config.json"
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
 RETVAL=0
 
