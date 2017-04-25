@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: iptables 封禁 BT、PT、SPAM（垃圾邮件）和自定义端口、关键词
-#       Version: 1.0.2
+#       Version: 1.0.3
 #       Blog: https://doub.io/shell-jc2/
 #=================================================
 
@@ -60,8 +60,19 @@ Cat_PORT(){
 	Ban_PORT_list=$(iptables -t filter -L OUTPUT -nvx --line-numbers|grep "REJECT"|awk '{print $13}')
 }
 Cat_KEY_WORDS(){
-	#Ban_KEY_WORDS_list=$(iptables -t mangle -L OUTPUT -nvx --line-numbers|grep "DROP"|awk '{print $13}'|sed 's/\"//g')
-	Ban_KEY_WORDS_text=$(iptables -t mangle -L OUTPUT -nvx --line-numbers|grep "DROP")
+	if [[ ! -z ${v6iptables} ]]; then
+		Ban_KEY_WORDS_v6_text=$(${v6iptables} -t mangle -L OUTPUT -nvx --line-numbers|grep "DROP")
+		if [[ ! -z ${Ban_KEY_WORDS_v6_text} ]]; then
+			Ban_KEY_WORDS_v6_num=$(echo -e "${Ban_KEY_WORDS_v6_text}"|wc -l)
+			for((integer = 1; integer <= ${Ban_KEY_WORDS_v6_num}; integer++))
+				do
+					Ban_KEY_WORDS_v6_list="${Ban_KEY_WORDS_v6_list}"$(echo -e "${Ban_KEY_WORDS_v6_text}"|sed -n "${integer}p"|sed -r 's/.*\"(.+)\".*/\1/')"\n"
+			done
+		else
+			Ban_KEY_WORDS_v6_list=""
+		fi
+	fi
+	Ban_KEY_WORDS_text=$(${v4iptables} -t mangle -L OUTPUT -nvx --line-numbers|grep "DROP")
 	if [[ ! -z ${Ban_KEY_WORDS_text} ]]; then
 		Ban_KEY_WORDS_num=$(echo -e "${Ban_KEY_WORDS_text}"|wc -l)
 		for((integer = 1; integer <= ${Ban_KEY_WORDS_num}; integer++))
@@ -357,9 +368,15 @@ UnBan_KEY_WORDS(){
 UnBan_KEY_WORDS_ALL(){
 	Cat_KEY_WORDS
 	[[ -z ${Ban_KEY_WORDS_text} ]] && echo -e "${Error} 检测到未封禁任何 关键词，请检查 !" && exit 0
+	if [[ ! -z ${v6iptables} ]]; then
+		for((integer = 1; integer <= ${Ban_KEY_WORDS_v6_num}; integer++))
+			do
+				${v6iptables} -t mangle -D OUTPUT 1
+		done
+	fi
 	for((integer = 1; integer <= ${Ban_KEY_WORDS_num}; integer++))
 		do
-			iptables -t mangle -D OUTPUT 1
+			${v4iptables} -t mangle -D OUTPUT 1
 	done
 	View_ALL
 	echo -e "${Info} 已解封所有关键词 !"
