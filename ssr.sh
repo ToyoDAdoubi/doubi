@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.10
+#	Version: 2.0.11
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
@@ -20,6 +20,7 @@ ssr_log_file="${ssr_ss_file}/ssserver.log"
 Libsodiumr_file="/usr/local/lib/libsodium.so"
 Libsodiumr_ver_backup="1.0.12"
 Server_Speeder_file="/serverspeeder/bin/serverSpeeder.sh"
+LotServer_file="/appex/bin/serverSpeeder.sh"
 BBR_file="${PWD}/bbr.sh"
 jq_file="${ssr_folder}/jq"
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
@@ -55,6 +56,9 @@ SSR_installation_status(){
 }
 Server_Speeder_installation_status(){
 	[[ ! -e ${Server_Speeder_file} ]] && echo -e "${Error} 没有安装 锐速(Server Speeder)，请检查 !" && exit 1
+}
+LotServer_installation_status(){
+	[[ ! -e ${LotServer_file} ]] && echo -e "${Error} 没有安装 LotServer，请检查 !" && exit 1
 }
 BBR_installation_status(){
 	if [[ ! -e ${BBR_file} ]]; then
@@ -1021,7 +1025,9 @@ Configure_Server_Speeder(){
  ${Green_font_prefix}3.${Font_color_suffix} 启动 锐速
  ${Green_font_prefix}4.${Font_color_suffix} 停止 锐速
  ${Green_font_prefix}5.${Font_color_suffix} 重启 锐速
- ${Green_font_prefix}6.${Font_color_suffix} 查看 锐速 状态" && echo
+ ${Green_font_prefix}6.${Font_color_suffix} 查看 锐速 状态
+ 
+ 注意： 锐速和LotServer不能同时安装/启动！" && echo
 	stty erase '^H' && read -p "(默认: 取消):" server_speeder_num
 	[[ -z "${server_speeder_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${server_speeder_num} == "1" ]]; then
@@ -1051,13 +1057,13 @@ Install_ServerSpeeder(){
 	[[ -e ${Server_Speeder_file} ]] && echo -e "${Error} 锐速(Server Speeder) 已安装 !" && exit 1
 	cd /root
 	#借用91yun.rog的开心版锐速
-	wget -N --no-check-certificate https://raw.githubusercontent.com/91yun/serverspeeder/master/serverspeeder-all.sh
-	[[ ! -e "serverspeeder-all.sh" ]] && echo -e "${Error} 锐速安装脚本下载失败 !" && exit 1
-	bash serverspeeder-all.sh
+	wget -N --no-check-certificate https://raw.githubusercontent.com/91yun/serverspeeder/master/serverspeeder.sh
+	[[ ! -e "serverspeeder.sh" ]] && echo -e "${Error} 锐速安装脚本下载失败 !" && exit 1
+	bash serverspeeder.sh
 	sleep 2s
 	PID=`ps -ef |grep -v grep |grep "serverspeeder" |awk '{print $2}'`
 	if [[ ! -z ${PID} ]]; then
-		rm -rf /root/serverspeeder-all.sh
+		rm -rf /root/serverspeeder.sh
 		rm -rf /root/91yunserverspeeder
 		rm -rf /root/91yunserverspeeder.tar.gz
 		echo -e "${Info} 锐速(Server Speeder) 安装完成 !" && exit 1
@@ -1075,9 +1081,70 @@ Uninstall_ServerSpeeder(){
 		echo && echo "锐速(Server Speeder) 卸载完成 !" && echo
 	fi
 }
+# LotServer
+Configure_LotServer(){
+	echo && echo -e "你要做什么？
+ ${Green_font_prefix}1.${Font_color_suffix} 安装 LotServer
+ ${Green_font_prefix}2.${Font_color_suffix} 卸载 LotServer
+————————
+ ${Green_font_prefix}3.${Font_color_suffix} 启动 LotServer
+ ${Green_font_prefix}4.${Font_color_suffix} 停止 LotServer
+ ${Green_font_prefix}5.${Font_color_suffix} 重启 LotServer
+ ${Green_font_prefix}6.${Font_color_suffix} 查看 LotServer 状态
+ 
+ 注意： 锐速和LotServer不能同时安装/启动！" && echo
+	stty erase '^H' && read -p "(默认: 取消):" lotserver_num
+	[[ -z "${lotserver_num}" ]] && echo "已取消..." && exit 1
+	if [[ ${lotserver_num} == "1" ]]; then
+		Install_LotServer
+	elif [[ ${lotserver_num} == "2" ]]; then
+		LotServer_installation_status
+		Uninstall_LotServer
+	elif [[ ${lotserver_num} == "3" ]]; then
+		LotServer_installation_status
+		${LotServer_file} start
+		${LotServer_file} status
+	elif [[ ${lotserver_num} == "4" ]]; then
+		LotServer_installation_status
+		${LotServer_file} stop
+	elif [[ ${lotserver_num} == "5" ]]; then
+		LotServer_installation_status
+		${LotServer_file} restart
+		${LotServer_file} status
+	elif [[ ${lotserver_num} == "6" ]]; then
+		LotServer_installation_status
+		${LotServer_file} status
+	else
+		echo -e "${Error} 请输入正确的数字(1-6)" && exit 1
+	fi
+}
+Install_LotServer(){
+	[[ -e ${LotServer_file} ]] && echo -e "${Error} LotServer 已安装 !" && exit 1
+	#Github: https://github.com/0oVicero0/serverSpeeder_Install
+	wget --no-check-certificate -qO /tmp/appex.sh "https://raw.githubusercontent.com/0oVicero0/serverSpeeder_Install/master/appex.sh"
+	[[ ! -e "/tmp/appex.sh" ]] && echo -e "${Error} LotServer 安装脚本下载失败 !" && exit 1
+	bash /tmp/appex.sh 'install'
+	sleep 2s
+	PID=`ps -ef |grep -v grep |grep "appex" |awk '{print $2}'`
+	if [[ ! -z ${PID} ]]; then
+		echo -e "${Info} LotServer 安装完成 !" && exit 1
+	else
+		echo -e "${Error} LotServer 安装失败 !" && exit 1
+	fi
+}
+Uninstall_LotServer(){
+	echo "确定要卸载 LotServer？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
+	if [[ ${unyn} == [Yy] ]]; then
+		wget --no-check-certificate -qO /tmp/appex.sh "https://raw.githubusercontent.com/0oVicero0/serverSpeeder_Install/master/appex.sh" && bash /tmp/appex.sh 'uninstall'
+		echo && echo "LotServer 卸载完成 !" && echo
+	fi
+}
 # BBR
 Configure_BBR(){
-	echo && echo -e "你要做什么？
+	echo && echo -e "  你要做什么？
+	
  ${Green_font_prefix}1.${Font_color_suffix} 安装 BBR
 ————————
  ${Green_font_prefix}2.${Font_color_suffix} 启动 BBR
@@ -1121,21 +1188,34 @@ Status_BBR(){
 }
 # 其他功能
 Other_functions(){
-	echo && echo -e "你要做什么？
-  ${Green_font_prefix}1.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
-  ${Green_font_prefix}2.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
-  ${Green_font_prefix}3.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
-  —— 说明：SSR默认只输出错误日志，此项可切换为输出详细的访问日志" && echo
+	echo && echo -e "  你要做什么？
+	
+  ${Green_font_prefix}1.${Font_color_suffix} 配置 BBR
+  ${Green_font_prefix}2.${Font_color_suffix} 配置 锐速(ServerSpeeder)
+  ${Green_font_prefix}3.${Font_color_suffix} 配置 LotServer(锐速母公司)
+  注意： 锐速/LotServer/BBR 不支持 OpenVZ！
+  注意： 锐速和LotServer不能同时安装/启动！
+————————————
+  ${Green_font_prefix}4.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
+  ${Green_font_prefix}5.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
+  ${Green_font_prefix}6.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
+  ——说明：SSR默认只输出错误日志，此项可切换为输出详细的访问日志" && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${other_num} == "1" ]]; then
-		BanBTPTSPAM
+		Configure_BBR
 	elif [[ ${other_num} == "2" ]]; then
-		UnBanBTPTSPAM
+		Configure_Server_Speeder
 	elif [[ ${other_num} == "3" ]]; then
+		Configure_LotServer
+	elif [[ ${other_num} == "4" ]]; then
+		BanBTPTSPAM
+	elif [[ ${other_num} == "5" ]]; then
+		UnBanBTPTSPAM
+	elif [[ ${other_num} == "6" ]]; then
 		Set_config_connect_verbose_info
 	else
-		echo -e "${Error} 请输入正确的数字 [1-3]" && exit 1
+		echo -e "${Error} 请输入正确的数字 [1-6]" && exit 1
 	fi
 }
 # 封禁 BT PT SPAM
@@ -1235,16 +1315,11 @@ echo -e "  ShadowsocksR 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_
  ${Green_font_prefix}12.${Font_color_suffix} 重启 ShadowsocksR
  ${Green_font_prefix}13.${Font_color_suffix} 查看 ShadowsocksR 日志
 ————————————
- ${Green_font_prefix}14.${Font_color_suffix} 配置 锐速
- ${Green_font_prefix}15.${Font_color_suffix} 配置 BBR
-————————————
- ${Green_font_prefix}16.${Font_color_suffix} 其他功能
- ${Green_font_prefix}17.${Font_color_suffix} 升级脚本
- 
- 注意事项： 锐速/BBR 不支持 OpenVZ
+ ${Green_font_prefix}14.${Font_color_suffix} 其他功能
+ ${Green_font_prefix}15.${Font_color_suffix} 升级脚本
  "
 menu_status
-echo && stty erase '^H' && read -p "请输入数字 [1-17]：" num
+echo && stty erase '^H' && read -p "请输入数字 [1-15]：" num
 case "$num" in
 	1)
 	Install_SSR
@@ -1286,18 +1361,12 @@ case "$num" in
 	View_Log
 	;;
 	14)
-	Configure_Server_Speeder
-	;;
-	15)
-	Configure_BBR
-	;;
-	16)
 	Other_functions
 	;;
-	17)
+	15)
 	Update_Shell
 	;;
 	*)
-	echo -e "${Error} 请输入正确的数字 [1-17]"
+	echo -e "${Error} 请输入正确的数字 [1-15]"
 	;;
 esac
