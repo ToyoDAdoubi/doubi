@@ -10,7 +10,7 @@ export PATH
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.12"
+sh_ver="2.0.10"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -251,7 +251,7 @@ Set_config_password(){
 }
 Set_config_method(){
 	echo -e "请选择要设置的ShadowsocksR账号 加密方式
- ${Green_font_prefix}1.${Font_color_suffix} none
+ ${Green_font_prefix} 1.${Font_color_suffix} none
  
  ${Green_font_prefix} 2.${Font_color_suffix} rc4
  ${Green_font_prefix} 3.${Font_color_suffix} rc4-md5
@@ -1288,7 +1288,7 @@ Set_config_connect_verbose_info(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
+	sh_new_ver=$(wget --no-check-certificate -qO- github.com/ToyoDAdoubi/doubi/blob/master/ssr.sh|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
 		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
