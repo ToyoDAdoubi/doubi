@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: DowsDNS
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/dowsdns-jc3/
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 file="/usr/local/dowsDNS"
 dowsdns_conf="/usr/local/dowsDNS/conf/config.json"
 dowsdns_data="/usr/local/dowsDNS/conf/data.json"
@@ -47,23 +47,25 @@ check_pid(){
 }
 Download_dowsdns(){
 	cd "/usr/local"
-	wget -N --no-check-certificate https://github.com/dowsnature/dowsDNS/archive/master.zip
-	[[ ! -e "master.zip" ]] && echo -e "${Error} DowsDNS 下载失败 !" && exit 1
-	unzip master.zip && rm -rf master.zip
+	dowsDNS_new_ver=$(curl -m 10 -s "https://softs.pw/?dir=%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/dowsDNS/Linux%2BMac"|grep "dowsDNS-v"|tail -1|sed -r 's/.*dowsDNS-v(.+)\.zip.*/\1/')
+	[[ -z ${dowsDNS_new_ver} ]] && echo -e "${Error} 获取最新版本失败 !"
+	wget -N --no-check-certificate "https://softs.pw/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/dowsDNS/Linux%2BMac/dowsDNS-v${dowsDNS_new_ver}.zip"
+	[[ ! -e "dowsDNS-v${dowsDNS_new_ver}.zip" ]] && echo -e "${Error} DowsDNS 下载失败 !" && exit 1
+	unzip dowsDNS-v${dowsDNS_new_ver}.zip && rm -rf dowsDNS-v${dowsDNS_new_ver}.zip
 	[[ ! -e "dowsDNS-master" ]] && echo -e "${Error} DowsDNS 解压失败 !" && exit 1
 	mv dowsDNS-master dowsDNS
 	[[ ! -e "dowsDNS" ]] && echo -e "${Error} DowsDNS 文件夹重命名失败 !" && rm -rf dowsDNS-master && exit 1
 }
 Service_dowsdns(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/dowsdns_centos -O /etc/init.d/dowsdns; then
+		if ! wget --no-check-certificate "https://softs.pw/Bash/other/dowsdns_centos" -O /etc/init.d/dowsdns; then
 			echo -e "${Error} DowsDNS 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/dowsdns
 		chkconfig --add dowsdns
 		chkconfig dowsdns on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/dowsdns_debian -O /etc/init.d/dowsdns; then
+		if ! wget --no-check-certificate "https://softs.pw/Bash/other/dowsdns_debian" -O /etc/init.d/dowsdns; then
 			echo -e "${Error} DowsDNS 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/dowsdns
@@ -351,14 +353,14 @@ post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- raw.githubusercontent.com/ToyoDAdoubi/doubi/master/dowsdns.sh|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
+	sh_new_ver=$(wget --no-check-certificate -qO- softs.pw/Bash/dowsdns.sh|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
 		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
 		stty erase '^H' && read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
-			wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/dowsdns.sh && chmod +x dowsdns.sh
+			wget -N --no-check-certificate "https://softs.pw/Bash/dowsdns.sh" && chmod +x dowsdns.sh
 			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
 		else
 			echo && echo "	已取消..." && echo
