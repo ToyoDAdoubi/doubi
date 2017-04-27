@@ -14,7 +14,7 @@
 
 NAME="ServerStatus Client"
 NAME_BIN="status-client.py"
-SERVER_BIN="/usr/local/ServerStatus/server"
+SERVER_BIN="/usr/local/ServerStatus"
 BIN="/usr/local/ServerStatus/status-client.py"
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
 RETVAL=0
@@ -33,7 +33,7 @@ do_start(){
 		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
 		cd "${SERVER_BIN}"
-		nohup "$BIN" > /tmp/serverstatus_client.log 2>&1 &
+		nohup python "$BIN" > /tmp/serverstatus_client.log 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
