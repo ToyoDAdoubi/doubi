@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 file="/usr/local/ServerStatus"
 web_file="/usr/local/ServerStatus/web"
 server_file="/usr/local/ServerStatus/server"
@@ -120,16 +120,18 @@ Installation_dependency(){
 		if [[ ${release} == "centos" ]]; then
 			yum update
 			if [[ -z ${python_status} ]]; then
-				yum install -y python unzip make vim
+				yum install -y python unzip vim
+				yum groupinstall "Development Tools" -y
 			else
-				yum install -y unzip make vim
+				yum install -y unzip vim
+				yum groupinstall "Development Tools" -y
 			fi
 		else
 			apt-get update
 			if [[ -z ${python_status} ]]; then
-				apt-get install -y python unzip make vim
+				apt-get install -y python unzip vim build-essential
 			else
-				apt-get install -y unzip make vim
+				apt-get install -y unzip vim build-essential
 			fi
 		fi
 	else
@@ -193,7 +195,7 @@ Set_server(){
 Set_server_port(){
 	while true
 		do
-		echo -e "请输入 ServerStatus 服务端中网站要设置的 域名/IP的端口[1-65535]"
+		echo -e "请输入 ServerStatus 服务端中网站要设置的 域名/IP的端口[1-65535]（如果是域名的话，一般建议用 80 端口）"
 		stty erase '^H' && read -p "(默认: 8888):" server_port_s
 		[[ -z "$server_port_s" ]] && server_port_s="8888"
 		expr ${server_port_s} + 0 &>/dev/null
