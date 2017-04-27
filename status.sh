@@ -365,7 +365,6 @@ Add_ServerStatus_server(){
 	sed -i '3i\   "password": "'"${password_s}"'",' ${server_conf}
 	sed -i '3i\   "username": "'"${username_s}"'",' ${server_conf}
 	sed -i '3i\  {' ${server_conf}
-	Restart_ServerStatus_server
 	echo -e "${Info} 添加节点成功 ${Green_font_prefix}[ 节点名称: ${name_s}, 节点用户名: ${username_s}, 节点密码: ${password_s} ]${Font_color_suffix} !"
 }
 Del_ServerStatus_server(){
