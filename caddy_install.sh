@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: Caddy Install
-#       Version: 1.0.3
+#       Version: 1.0.4
 #       Author: Toyo
 #       Blog: https://doub.io/shell-jc1/
 #=================================================
@@ -34,21 +34,16 @@ check_sys(){
 check_installed_status(){
 	[[ ! -e ${caddy_file} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 没有安装，请检查 !" && exit 1
 }
-#check_new_ver(){
-	#caddy_new_ver=`curl -m 10 -s "https://github.com/mholt/caddy/releases/latest" | perl -e 'while($_=<>){ /\/tag\/(.*)\">redirected/; print $1;}'`
-	#caddy_new_ver=`wget -qO- https://github.com/mholt/caddy/releases/latest | grep "<title>" | perl -e 'while($_=<>){ /Release (.*) · mholt\/caddy/; print $1;}'`
-	#[[ -z ${caddy_new_ver} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 最新版本获取失败 !" && exit 1
-#}
 Download_caddy(){
 	mkdir "${caddy_file}" && cd "${caddy_file}"
 	[[ -e "caddy_linux*.tar.gz" ]] && rm -rf "caddy_linux*.tar.gz"
 	[[ ! -z ${extension} ]] && extension_all="?plugins=${extension}"
 	if [[ ${bit} == "i386" ]]; then
-		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/linux/386${extension_all}" && caddy_bit="caddy_linux_386"
+		wget --no-check-certificate -O "caddy_linux.tar.gz" "https://caddyserver.com/download/linux/386${extension_all}" && caddy_bit="caddy_linux_386"
 	elif [[ ${bit} == "i686" ]]; then
-		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/linux/386${extension_all}" && caddy_bit="caddy_linux_386"
+		wget --no-check-certificate -O "caddy_linux.tar.gz" "https://caddyserver.com/download/linux/386${extension_all}" && caddy_bit="caddy_linux_386"
 	elif [[ ${bit} == "x86_64" ]]; then
-		wget -O "caddy_linux.tar.gz" "https://caddyserver.com/download/linux/amd64${extension_all}" && caddy_bit="caddy_linux_amd64"
+		wget --no-check-certificate -O "caddy_linux.tar.gz" "https://caddyserver.com/download/linux/amd64${extension_all}" && caddy_bit="caddy_linux_amd64"
 	else
 		echo -e "${Error_font_prefix}[错误]${Font_suffix} 不支持 ${bit} !" && exit 1
 	fi
@@ -79,7 +74,7 @@ install_caddy(){
 	Download_caddy
 	Service_caddy
 	echo && echo -e " Caddy 配置文件：${caddy_conf_file}
-	${Info_font_prefix}[信息]${Font_suffix} Caddy 安装完成！" && echo
+ ${Info_font_prefix}[信息]${Font_suffix} Caddy 安装完成！" && echo
 }
 uninstall_caddy(){
 	check_installed_status
