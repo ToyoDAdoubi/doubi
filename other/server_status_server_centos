@@ -14,7 +14,7 @@
 
 NAME="ServerStatus Server"
 NAME_BIN="sergate"
-FOLDER="/usr/local/ServerStatus"
+SERVER_BIN="/usr/local/ServerStatus/server"
 WEB_BIN="/usr/local/ServerStatus/web"
 CONF="/usr/local/ServerStatus/server/config.json"
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
@@ -33,8 +33,8 @@ do_start(){
 	if [[ $? -eq 0 ]]; then
 		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
-		cd ${FOLDER}
-		nohup python "./$NAME_BIN" --config="$CONF" --web-dir="$WEB_BIN" > /tmp/serverstatus_server.log 2>&1 &
+		cd "${SERVER_BIN}"
+		nohup "./$NAME_BIN" --config="$CONF" --web-dir="$WEB_BIN" > /tmp/serverstatus_server.log 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
