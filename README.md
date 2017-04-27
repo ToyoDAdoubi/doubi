@@ -173,6 +173,18 @@ iptables-pf.sh
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/iptables-pf.sh && chmod +x iptables-pf.sh && bash iptables-pf.sh
 ```
 
+status.sh
+======
+
+- 脚本说明: ServerStatus 一键安装/管理脚本
+- 系统支持: CentOS6+ / Debian6+ / Ubuntu14+
+- 使用方法: https://doub.io/shell-jc3/
+
+### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/status.sh && chmod +x status.sh && bash status.sh
+```
+
 pythonhttp.sh
 ======
 
