@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.6
+#	Version: 1.0.7
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.6"
+sh_ver="1.0.7"
 file="/usr/local/ServerStatus"
 web_file="/usr/local/ServerStatus/web"
 server_file="/usr/local/ServerStatus/server"
@@ -63,9 +63,14 @@ Download_Server_Status_server(){
 	[[ ! -e "master.zip" ]] && echo -e "${Error} ServerStatus 服务端下载失败 !" && exit 1
 	unzip master.zip && rm -rf master.zip
 	[[ ! -e "ServerStatus-1-master" ]] && echo -e "${Error} ServerStatus 服务端解压失败 !" && exit 1
-	mv ServerStatus-1-master ServerStatus
-	[[ ! -e "ServerStatus" ]] && echo -e "${Error} ServerStatus 服务端文件夹重命名失败 !" && rm -rf ServerStatus-1-master && exit 1
-	cd "ServerStatus/server"
+	if [[ ! -e "${file}" ]]; then
+		mv ServerStatus-1-master ServerStatus
+	else
+		mv ServerStatus-1-master/* "${file}"
+		rm -rf ServerStatus-1-master
+	fi
+	[[ ! -e "${server_file}" ]] && echo -e "${Error} ServerStatus 服务端文件夹重命名失败 !" && rm -rf ServerStatus-1-master && exit 1
+	cd "${server_file}"
 	make
 	[[ ! -e "sergate" ]] && echo -e "${Error} ServerStatus 服务端安装失败 !" && exit 1
 }
@@ -675,7 +680,15 @@ Uninstall_ServerStatus_server(){
 		check_pid_server
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Del_iptables
-		rm -rf ${file} && rm -rf /etc/init.d/status-server
+		if [[ -e "${client_file}" ]]; then
+			cp "${client_file}" "/usr/local/status-client.py"
+			rm -rf "${file}/*"
+			cp "/usr/local/status-client.py" "${client_file}"
+		else
+			rm -rf "${file}"
+		fi
+		rm -rf "/etc/init.d/status-server"
+		/etc/init.d/caddy stop
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del status-server
 		else
