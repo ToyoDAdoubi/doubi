@@ -353,7 +353,7 @@ Set_config_obfs(){
  ${Green_font_prefix}3.${Font_color_suffix} http_post
  ${Green_font_prefix}4.${Font_color_suffix} random_head
  ${Green_font_prefix}5.${Font_color_suffix} tls1.2_ticket_auth
- ${Tip} 如果使用 ShadowsocksR 加速邮箱，请选择 混淆兼容原版或 plain 混淆，然后客户端选择 plain，否则会增加延迟 !" && echo
+ ${Tip} 如果使用 ShadowsocksR 加速游戏，请选择 混淆兼容原版或 plain 混淆，然后客户端选择 plain，否则会增加延迟 !" && echo
 	stty erase '^H' && read -p "(默认: 5. tls1.2_ticket_auth):" ssr_obfs
 	[[ -z "${ssr_obfs}" ]] && ssr_obfs="5"
 	if [[ ${ssr_obfs} == "1" ]]; then
