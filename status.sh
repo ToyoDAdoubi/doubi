@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.3
+#	Version: 1.0.4
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.3"
+sh_ver="1.0.4"
 file="/usr/local/ServerStatus"
 web_file="/usr/local/ServerStatus/web"
 server_file="/usr/local/ServerStatus/server"
@@ -332,7 +332,7 @@ List_ServerStatus_server(){
 	conf_text=$(${jq_file} '.servers' ${server_conf}|${jq_file} ".[]|.username"|sed 's/\"//g')
 	conf_text_total=$(echo -e "${conf_text}"|wc -l)
 	[[ ${conf_text_total} = "0" ]] && echo -e "${Error} 没有发现 一个节点配置，请检查 !" && exit 1
-	conf_text_total_a=$[ $conf_text_total - 1]
+	conf_text_total_a=$(expr $conf_text_total - 1)
 	conf_list_all=""
 	for((integer = 0; integer <= ${conf_text_total_a}; integer++))
 	do
@@ -375,12 +375,12 @@ Del_ServerStatus_server(){
 	[[ -z "${del_server_username}" ]] && echo -e "已取消..." && exit 1
 	del_username=`cat -n ${server_conf}|grep "${del_server_username}"|awk '{print $1}'`
 	if [[ ! -z ${del_username} ]]; then
-		del_username_min=$[ $del_username - 1 ]
-		del_username_max=$[ $del_username + 7 ]
+		del_username_min=$(expr $del_username - 1)
+		del_username_max=$(expr $del_username + 7)
 		del_username_max_text=$(sed -n "${del_username_max}p" ${server_conf})
 		del_username_max_text_last=`echo ${del_username_max_text:((${#del_username_max_text} - 1))}`
 		if [[ ${del_username_max_text_last} != "," ]]; then
-			del_list_num=$[ $del_username_min - 1 ]
+			del_list_num=$(expr $del_username_min - 7)
 			sed -i "${del_list_num}s/,//g" ${server_conf}
 		fi
 		sed -i "${del_username_min},${del_username_max}d" ${server_conf}
