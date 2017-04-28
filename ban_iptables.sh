@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: iptables 封禁 BT、PT、SPAM（垃圾邮件）和自定义端口、关键词
-#       Version: 1.0.3
+#       Version: 1.0.4
 #       Blog: https://doub.io/shell-jc2/
 #=================================================
 
@@ -16,7 +16,7 @@ smtp_port="25,26,465,587"
 pop3_port="109,110,995"
 imap_port="143,218,220,993"
 other_port="24,50,57,105,106,158,209,1109,24554,60177,60179"
-key_word="torrent
+bt_key_word="torrent
 .torrent
 peer_id=
 announce
@@ -60,28 +60,14 @@ Cat_PORT(){
 	Ban_PORT_list=$(iptables -t filter -L OUTPUT -nvx --line-numbers|grep "REJECT"|awk '{print $13}')
 }
 Cat_KEY_WORDS(){
+	Ban_KEY_WORDS_list=""
+	Ban_KEY_WORDS_v6_list=""
 	if [[ ! -z ${v6iptables} ]]; then
 		Ban_KEY_WORDS_v6_text=$(${v6iptables} -t mangle -L OUTPUT -nvx --line-numbers|grep "DROP")
-		if [[ ! -z ${Ban_KEY_WORDS_v6_text} ]]; then
-			Ban_KEY_WORDS_v6_num=$(echo -e "${Ban_KEY_WORDS_v6_text}"|wc -l)
-			for((integer = 1; integer <= ${Ban_KEY_WORDS_v6_num}; integer++))
-				do
-					Ban_KEY_WORDS_v6_list="${Ban_KEY_WORDS_v6_list}"$(echo -e "${Ban_KEY_WORDS_v6_text}"|sed -n "${integer}p"|sed -r 's/.*\"(.+)\".*/\1/')"\n"
-			done
-		else
-			Ban_KEY_WORDS_v6_list=""
-		fi
+		Ban_KEY_WORDS_v6_list=$(echo -e "${Ban_KEY_WORDS_v6_text}"|sed -r 's/.*\"(.+)\".*/\1/')
 	fi
 	Ban_KEY_WORDS_text=$(${v4iptables} -t mangle -L OUTPUT -nvx --line-numbers|grep "DROP")
-	if [[ ! -z ${Ban_KEY_WORDS_text} ]]; then
-		Ban_KEY_WORDS_num=$(echo -e "${Ban_KEY_WORDS_text}"|wc -l)
-		for((integer = 1; integer <= ${Ban_KEY_WORDS_num}; integer++))
-			do
-				Ban_KEY_WORDS_list="${Ban_KEY_WORDS_list}"$(echo -e "${Ban_KEY_WORDS_text}"|sed -n "${integer}p"|sed -r 's/.*\"(.+)\".*/\1/')"\n"
-		done
-	else
-		Ban_KEY_WORDS_list=""
-	fi
+	Ban_KEY_WORDS_list=$(echo -e "${Ban_KEY_WORDS_text}"|sed -r 's/.*\"(.+)\".*/\1/')
 }
 View_PORT(){
 	Cat_PORT
@@ -99,46 +85,46 @@ View_ALL(){
 	View_KEY_WORDS
 	echo
 }
-Save_iptables_v4(){
-	if [[ ${release} == "centos" ]]; then
-		service iptables save
-		chkconfig --level 2345 iptables on
-	elif [[ ${release} == "debian" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		cat > /etc/network/if-pre-up.d/iptables<<-EOF
-#!/bin/bash
-/sbin/iptables-restore < /etc/iptables.up.rules
-EOF
-		chmod +x /etc/network/if-pre-up.d/iptables
-	elif [[ ${release} == "ubuntu" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		echo -e "\npre-up iptables-restore < /etc/iptables.up.rules
-post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
-		chmod +x /etc/network/interfaces
-	fi
-}
 Save_iptables_v4_v6(){
 	if [[ ${release} == "centos" ]]; then
+		if [[ ! -z "$v6iptables" ]]; then
+			service ip6tables save
+			chkconfig --level 2345 ip6tables on
+		fi
 		service iptables save
-		service ip6tables save
 		chkconfig --level 2345 iptables on
-		chkconfig --level 2345 ip6tables on
 	elif [[ ${release} == "debian" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		ip6tables-save > /etc/ip6tables.up.rules
-		cat > /etc/network/if-pre-up.d/iptables<<-EOF
+		if [[ ! -z "$v6iptables" ]]; then
+			ip6tables-save > /etc/ip6tables.up.rules
+			cat > /etc/network/if-pre-up.d/iptables<<-EOF
 #!/bin/bash
 /sbin/iptables-restore < /etc/iptables.up.rules
 /sbin/ip6tables-restore < /etc/ip6tables.up.rules
 EOF
+		else
+			cat > /etc/network/if-pre-up.d/iptables<<-EOF
+#!/bin/bash
+/sbin/iptables-restore < /etc/iptables.up.rules
+EOF
+		fi
+		iptables-save > /etc/iptables.up.rules
 		chmod +x /etc/network/if-pre-up.d/iptables
 	elif [[ ${release} == "ubuntu" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		ip6tables-save > /etc/ip6tables.up.rules
-		echo -e "\npre-up iptables-restore < /etc/iptables.up.rules
+		if [[ ! -z "$v6iptables" ]]; then
+			ip6tables-save > /etc/ip6tables.up.rules
+			cat > /etc/network/interfaces<<-EOF
+pre-up iptables-restore < /etc/iptables.up.rules
 post-down iptables-save > /etc/iptables.up.rules
 pre-up ip6tables-restore < /etc/ip6tables.up.rules
-post-down ip6tables-save > /etc/ip6tables.up.rules" >> /etc/network/interfaces
+post-down ip6tables-save > /etc/ip6tables.up.rules
+EOF
+		else
+			cat > /etc/network/interfaces<<-EOF
+pre-up iptables-restore < /etc/iptables.up.rules
+post-down iptables-save > /etc/iptables.up.rules
+EOF
+		fi
+		iptables-save > /etc/iptables.up.rules
 		chmod +x /etc/network/interfaces
 	fi
 }
@@ -148,57 +134,49 @@ Set_tcp_port() {
 	[[ "$1" = "$v6iptables" ]] && $1 -t filter -$3 OUTPUT -p tcp -m multiport --dports "$2" -m state --state NEW,ESTABLISHED -j REJECT --reject-with tcp-reset
 }
 Set_udp_port() { $1 -t filter -$3 OUTPUT -p udp -m multiport --dports "$2" -j DROP; }
-Set_BT_Code_v4(){
-	key_word_num=$(echo -e "${key_word}"|wc -l)
-	for((integer = 1; integer <= ${key_word_num}; integer++))
-		do
-			i=$(echo -e "${key_word}"|sed -n "${integer}p")
-			Set_key_word $v4iptables "$i" $s
-	done
-}
-Set_BT_Code_v4_v6(){
-	key_word_num=$(echo -e "${key_word}"|wc -l)
-	for((integer = 1; integer <= ${key_word_num}; integer++))
-		do
-			i=$(echo -e "${key_word}"|sed -n "${integer}p")
-			Set_key_word $v4iptables "$i" $s
-			Set_key_word $v6iptables "$i" $s
-	done
-}
 Set_SPAM_Code_v4(){
 	for i in ${smtp_port} ${pop3_port} ${imap_port} ${other_port}; do Set_tcp_port $v4iptables "$i" $s && Set_udp_port $v4iptables "$i" $s; done
 }
 Set_SPAM_Code_v4_v6(){
 	for i in ${smtp_port} ${pop3_port} ${imap_port} ${other_port}; do for j in $v4iptables $v6iptables; do Set_tcp_port $j "$i" $s && Set_udp_port $j "$i" $s; done; done
 }
-Set_BT(){
+Set_PORT(){
 	if [[ -n "$v4iptables" ]] && [[ -n "$v6iptables" ]]; then
-		Set_BT_Code_v4_v6
-		Save_iptables_v4_v6
+		Set_tcp_port $v4iptables $PORT $s
+		Set_udp_port $v4iptables $PORT $s
+		Set_tcp_port $v6iptables $PORT $s
+		Set_udp_port $v6iptables $PORT $s
 	elif [[ -n "$v4iptables" ]]; then
-		Set_BT_Code_v4
-		Save_iptables_v4
+		Set_tcp_port $v4iptables $PORT $s
+		Set_udp_port $v4iptables $PORT $s
 	fi
+	Save_iptables_v4_v6
+}
+Set_KEY_WORDS(){
+	key_word_num=$(echo -e "${key_word}"|wc -l)
+	for((integer = 1; integer <= ${key_word_num}; integer++))
+		do
+			i=$(echo -e "${key_word}"|sed -n "${integer}p")
+			Set_key_word $v4iptables "$i" $s
+			[[ ! -z "$v6iptables" ]] && Set_key_word $v6iptables "$i" $s
+	done
+}
+Set_BT(){
+	key_word=${bt_key_word}
+	Set_KEY_WORDS
+	Save_iptables_v4_v6
 }
 Set_SPAM(){
 	if [[ -n "$v4iptables" ]] && [[ -n "$v6iptables" ]]; then
 		Set_SPAM_Code_v4_v6
-		Save_iptables_v4_v6
 	elif [[ -n "$v4iptables" ]]; then
 		Set_SPAM_Code_v4
-		Save_iptables_v4
 	fi
+	Save_iptables_v4_v6
 }
 Set_ALL(){
-	if [[ -n "$v4iptables" ]] && [[ -n "$v6iptables" ]]; then
-		Set_BT_Code_v4_v6
-		Set_SPAM_Code_v4_v6
-		Save_iptables_v4_v6
-	elif [[ -n "$v4iptables" ]]; then
-		Set_BT_Code_v4
-		Set_SPAM_Code_v4
-		Save_iptables_v4
-	fi
+	Set_BT
+	Set_SPAM
 }
 Ban_BT(){
 	check_BT
@@ -280,6 +258,24 @@ UnBan_ALL(){
 		fi
 	fi
 }
+ENTER_Ban_KEY_WORDS_type(){
+	echo -e "请选择输入类型：
+ 1. 手动输入（只支持单个关键词）
+ 2. 本地文件读取（支持批量读取关键词，每行一个关键词）
+ 3. 网络地址读取（支持批量读取关键词，每行一个关键词）" && echo
+	stty erase '^H' && read -p "(默认: 1. 手动输入):" key_word_type
+	[[ -z "${key_word_type}" ]] && key_word_type="1"
+	if [[ ${key_word_type} == "1" ]]; then
+		[[ $1 == "ban" ]] && ENTER_Ban_KEY_WORDS
+		ENTER_UnBan_KEY_WORDS
+	elif [[ ${key_word_type} == "2" ]]; then
+		ENTER_Ban_KEY_WORDS_file
+	elif [[ ${key_word_type} == "3" ]]; then
+		ENTER_Ban_KEY_WORDS_url
+	else
+		ENTER_Ban_KEY_WORDS
+	fi
+}
 ENTER_Ban_PORT(){
 	echo -e "请输入欲封禁的 端口（单端口/多端口/连续端口段）
  ${Green_font_prefix}========示例说明========${Font_color_suffix}
@@ -290,62 +286,57 @@ ENTER_Ban_PORT(){
 	[[ -z "${PORT}" ]] && echo "已取消..." && exit 0
 }
 ENTER_Ban_KEY_WORDS(){
-	echo -e "请输入欲封禁的 关键词（域名等）
+	echo -e "请输入欲封禁的 关键词（域名等，仅支持单个关键词）
  ${Green_font_prefix}========示例说明========${Font_color_suffix}
  关键词：youtube，即禁止访问任何包含关键词 youtube 的域名。
  关键词：youtube.com，即禁止访问任何包含关键词 youtube.com 的域名（泛域名屏蔽）。
  关键词：www.youtube.com，即禁止访问任何包含关键词 www.youtube.com 的域名（子域名屏蔽）。
  更多效果自行测试（如关键词 .zip 即可禁止下载任何 .zip 后缀的文件）。" && echo
-	stty erase '^H' && read -p "(回车默认取消):" KEY_WORDS
-	[[ -z "${KEY_WORDS}" ]] && echo "已取消..." && exit 0
+	stty erase '^H' && read -p "(回车默认取消):" key_word
+	[[ -z "${key_word}" ]] && echo "已取消..." && exit 0
+}
+ENTER_Ban_KEY_WORDS_file(){
+	echo -e "请输入欲封禁/解封的 关键词本地文件（请使用绝对路径）" && echo
+	stty erase '^H' && read -p "(默认 读取脚本同目录下的 key_word.txt ):" key_word
+	[[ -z "${key_word}" ]] && key_word="key_word.txt"
+	if [[ -e "${key_word}" ]]; then
+		key_word=$(cat "${key_word}")
+		[[ -z ${key_word} ]] && echo -e "${Error} 文件内容为空 !" && exit 0
+	else
+		echo -e "${Error} 没有找到文件 ${key_word} !"
+	fi
+}
+ENTER_Ban_KEY_WORDS_url(){
+	echo -e "请输入欲封禁/解封的 关键词网络文件地址（例如 http://xxx.xx/key_word.txt）" && echo
+	stty erase '^H' && read -p "(回车默认取消):" key_word
+	[[ -z "${key_word}" ]] && echo "已取消..." && exit 0
+	key_word=$(wget --no-check-certificate -t3 -T5 -qO- "${key_word}")
+	[[ -z ${key_word} ]] && echo -e "${Error} 网络文件内容为空或访问超时 !" && exit 0
+}
+ENTER_UnBan_KEY_WORDS(){
+	View_KEY_WORDS
+	echo -e "请输入欲解封的 关键词（根据上面的列表输入完整准确的 关键词）" && echo
+	stty erase '^H' && read -p "(回车默认取消):" key_word
+	[[ -z "${key_word}" ]] && echo "已取消..." && exit 0
 }
 ENTER_UnBan_PORT(){
 	echo -e "请输入欲解封的 端口（根据上面的列表输入完整准确的 端口，包括逗号、冒号）" && echo
 	stty erase '^H' && read -p "(回车默认取消):" PORT
 	[[ -z "${PORT}" ]] && echo "已取消..." && exit 0
 }
-ENTER_UnBan_KEY_WORDS(){
-	echo -e "请输入欲解封的 关键词（根据上面的列表输入完整准确的 关键词）" && echo
-	stty erase '^H' && read -p "(回车默认取消):" KEY_WORDS
-	[[ -z "${KEY_WORDS}" ]] && echo "已取消..." && exit 0
-}
-Set_PORT(){
-	if [[ -n "$v4iptables" ]] && [[ -n "$v6iptables" ]]; then
-		Set_tcp_port $v4iptables $PORT $s
-		Set_udp_port $v4iptables $PORT $s
-		Set_tcp_port $v6iptables $PORT $s
-		Set_udp_port $v6iptables $PORT $s
-		Save_iptables_v4_v6
-	elif [[ -n "$v4iptables" ]]; then
-		Set_tcp_port $v4iptables $PORT $s
-		Set_udp_port $v4iptables $PORT $s
-		Save_iptables_v4
-	fi
-}
-Set_KEY_WORDS(){
-	if [[ -n "$v4iptables" ]] && [[ -n "$v6iptables" ]]; then
-		Set_key_word $v4iptables "$KEY_WORDS" $s
-		Set_key_word $v6iptables "$KEY_WORDS" $s
-		Save_iptables_v4_v6
-	elif [[ -n "$v4iptables" ]]; then
-		Set_key_word $v4iptables "$KEY_WORDS" $s
-		Set_key_word $v6iptables "$KEY_WORDS" $s
-		Save_iptables_v4
-	fi
-}
 Ban_PORT(){
 	s="A"
 	ENTER_Ban_PORT
 	Set_PORT
 	View_ALL
-	echo -e "${Info} 已封禁端口 ${PORT} !"
+	echo -e "${Info} 已封禁端口 [ ${PORT} ] !"
 }
 Ban_KEY_WORDS(){
 	s="A"
-	ENTER_Ban_KEY_WORDS
+	ENTER_Ban_KEY_WORDS_type "ban"
 	Set_KEY_WORDS
 	View_ALL
-	echo -e "${Info} 已封禁关键词 ${KEY_WORDS} !"
+	echo -e "${Info} 已封禁关键词 [ ${key_word} ] !"
 }
 UnBan_PORT(){
 	s="D"
@@ -354,26 +345,28 @@ UnBan_PORT(){
 	ENTER_UnBan_PORT
 	Set_PORT
 	View_ALL
-	echo -e "${Info} 已解封端口 ${PORT} !"
+	echo -e "${Info} 已解封端口 [ ${PORT} ] !"
 }
 UnBan_KEY_WORDS(){
 	s="D"
-	View_KEY_WORDS
+	Cat_KEY_WORDS
 	[[ -z ${Ban_KEY_WORDS_list} ]] && echo -e "${Error} 检测到未封禁任何 关键词，请检查 !" && exit 0
-	ENTER_UnBan_KEY_WORDS
+	ENTER_Ban_KEY_WORDS_type "unban"
 	Set_KEY_WORDS
 	View_ALL
-	echo -e "${Info} 已解封关键词 ${KEY_WORDS} !"
+	echo -e "${Info} 已解封关键词 [ ${key_word} ] !"
 }
 UnBan_KEY_WORDS_ALL(){
 	Cat_KEY_WORDS
 	[[ -z ${Ban_KEY_WORDS_text} ]] && echo -e "${Error} 检测到未封禁任何 关键词，请检查 !" && exit 0
-	if [[ ! -z ${v6iptables} ]]; then
+	if [[ ! -z "${v6iptables}" ]]; then
+		Ban_KEY_WORDS_v6_num=$(echo -e "${Ban_KEY_WORDS_v6_list}"|wc -l)
 		for((integer = 1; integer <= ${Ban_KEY_WORDS_v6_num}; integer++))
 			do
 				${v6iptables} -t mangle -D OUTPUT 1
 		done
 	fi
+	Ban_KEY_WORDS_num=$(echo -e "${Ban_KEY_WORDS_list}"|wc -l)
 	for((integer = 1; integer <= ${Ban_KEY_WORDS_num}; integer++))
 		do
 			${v4iptables} -t mangle -D OUTPUT 1
