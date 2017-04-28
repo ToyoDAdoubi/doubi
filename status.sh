@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.5
+#	Version: 1.0.6
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.5"
+sh_ver="1.0.6"
 file="/usr/local/ServerStatus"
 web_file="/usr/local/ServerStatus/web"
 server_file="/usr/local/ServerStatus/server"
@@ -373,7 +373,7 @@ Del_ServerStatus_server(){
 	echo -e "请输入要删除的节点用户名"
 	stty erase '^H' && read -p "(默认: 取消):" del_server_username
 	[[ -z "${del_server_username}" ]] && echo -e "已取消..." && exit 1
-	del_username=`cat -n ${server_conf}|grep "${del_server_username}"|awk '{print $1}'`
+	del_username=`cat -n ${server_conf}|grep '"username": "'"${del_server_username}"'"'|awk '{print $1}'`
 	if [[ ! -z ${del_username} ]]; then
 		del_username_min=$(expr $del_username - 1)
 		del_username_max=$(expr $del_username + 7)
@@ -394,7 +394,7 @@ Modify_ServerStatus_server_username(){
 	echo -e "请输入要修改的节点用户名"
 	stty erase '^H' && read -p "(默认: 取消):" manually_username
 	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
-	Set_username_num=$(cat -n ${server_conf}|grep "${manually_username}"|awk '{print $1}')
+	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_username
 		sed -i "${Set_username_num}"'s/"username": "'"${manually_username}"'"/"username": "'"${username_s}"'"/g' ${server_conf}
@@ -406,9 +406,9 @@ Modify_ServerStatus_server_username(){
 Modify_ServerStatus_server_password(){
 	List_ServerStatus_server
 	echo -e "请输入要修改的节点用户名"
-	stty erase '^H' && read -p "(默认: 取消):" manually_password
-	[[ -z "${manually_password}" ]] && echo -e "已取消..." && exit 1
-	Set_username_num=$(cat -n ${server_conf}|grep "${manually_password}"|awk '{print $1}')
+	stty erase '^H' && read -p "(默认: 取消):" manually_username
+	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
+	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_password
 		Set_password_num_a=$(expr $Set_username_num + 1)
@@ -422,9 +422,9 @@ Modify_ServerStatus_server_password(){
 Modify_ServerStatus_server_name(){
 	List_ServerStatus_server
 	echo -e "请输入要修改的节点用户名"
-	stty erase '^H' && read -p "(默认: 取消):" manually_name
-	[[ -z "${manually_name}" ]] && echo -e "已取消..." && exit 1
-	Set_username_num=$(cat -n ${server_conf}|grep "${manually_name}"|awk '{print $1}')
+	stty erase '^H' && read -p "(默认: 取消):" manually_username
+	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
+	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_name
 		Set_name_num_a=$(expr $Set_username_num + 2)
@@ -438,9 +438,9 @@ Modify_ServerStatus_server_name(){
 Modify_ServerStatus_server_type(){
 	List_ServerStatus_server
 	echo -e "请输入要修改的节点用户名"
-	stty erase '^H' && read -p "(默认: 取消):" manually_type
-	[[ -z "${manually_type}" ]] && echo -e "已取消..." && exit 1
-	Set_username_num=$(cat -n ${server_conf}|grep "${manually_type}"|awk '{print $1}')
+	stty erase '^H' && read -p "(默认: 取消):" manually_username
+	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
+	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_type
 		Set_type_num_a=$(expr $Set_username_num + 3)
@@ -454,9 +454,9 @@ Modify_ServerStatus_server_type(){
 Modify_ServerStatus_server_host(){
 	List_ServerStatus_server
 	echo -e "请输入要修改的节点用户名"
-	stty erase '^H' && read -p "(默认: 取消):" manually_host
-	[[ -z "${manually_host}" ]] && echo -e "已取消..." && exit 1
-	Set_username_num=$(cat -n ${server_conf}|grep "${manually_host}"|awk '{print $1}')
+	stty erase '^H' && read -p "(默认: 取消):" manually_username
+	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
+	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_host
 		Set_host_num_a=$(expr $Set_username_num + 4)
@@ -470,9 +470,9 @@ Modify_ServerStatus_server_host(){
 Modify_ServerStatus_server_location(){
 	List_ServerStatus_server
 	echo -e "请输入要修改的节点用户名"
-	stty erase '^H' && read -p "(默认: 取消):" manually_location
-	[[ -z "${manually_location}" ]] && echo -e "已取消..." && exit 1
-	Set_username_num=$(cat -n ${server_conf}|grep "${manually_location}"|awk '{print $1}')
+	stty erase '^H' && read -p "(默认: 取消):" manually_username
+	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
+	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_location
 		Set_location_num_a=$(expr $Set_username_num + 5)
@@ -486,9 +486,9 @@ Modify_ServerStatus_server_location(){
 Modify_ServerStatus_server_all(){
 	List_ServerStatus_server
 	echo -e "请输入要修改的节点用户名"
-	stty erase '^H' && read -p "(默认: 取消):" manually_location
-	[[ -z "${manually_location}" ]] && echo -e "已取消..." && exit 1
-	Set_username_num=$(cat -n ${server_conf}|grep "${manually_location}"|awk '{print $1}')
+	stty erase '^H' && read -p "(默认: 取消):" manually_username
+	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
+	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_username
 		Set_password
@@ -520,9 +520,9 @@ Modify_ServerStatus_server_all(){
 Modify_ServerStatus_server_disabled(){
 	List_ServerStatus_server
 	echo -e "请输入要修改的节点用户名"
-	stty erase '^H' && read -p "(默认: 取消):" manually_disabled
-	[[ -z "${manually_disabled}" ]] && echo -e "已取消..." && exit 1
-	Set_username_num=$(cat -n ${server_conf}|grep "${manually_disabled}"|awk '{print $1}')
+	stty erase '^H' && read -p "(默认: 取消):" manually_username
+	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
+	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_disabled_num_a=$(expr $Set_username_num + 6)
 		Set_disabled_num_a_text=$(sed -n "${Set_disabled_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
