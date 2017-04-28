@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 file="/usr/local/ServerStatus"
 web_file="/usr/local/ServerStatus/web"
 server_file="/usr/local/ServerStatus/server"
@@ -564,33 +564,40 @@ Install_jq(){
 	fi
 }
 Install_caddy(){
-	if [[ ! -e "/usr/local/caddy/caddy" ]]; then
-		wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh
-		chmod +x caddy_install.sh
-		bash caddy_install.sh install
-		[[ ! -e "/usr/local/caddy/caddy" ]] && exit 0
-	else
-		echo -e "${Info} 发现Caddy已安装，开始配置..."
-	fi
-	if [[ ! -s "/usr/local/caddy/Caddyfile" ]]; then
-		cat > "/usr/local/caddy/Caddyfile"<<-EOF
+	echo -e "是否由脚本自动配置HTTP服务(服务端的在线监控网站)[Y/n]"
+	stty erase '^H' && read -p "(默认: Y 自动部署):" caddy_yn
+	[[ -z "$caddy_yn" ]] && caddy_yn="y"
+	if [[ "${caddy_yn}" == [Yy] ]]; then
+		if [[ ! -e "/usr/local/caddy/caddy" ]]; then
+			wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh
+			chmod +x caddy_install.sh
+			bash caddy_install.sh install
+			[[ ! -e "/usr/local/caddy/caddy" ]] && exit 0
+		else
+			echo -e "${Info} 发现Caddy已安装，开始配置..."
+		fi
+		if [[ ! -s "/usr/local/caddy/Caddyfile" ]]; then
+			cat > "/usr/local/caddy/Caddyfile"<<-EOF
 http://${server_s}:${server_port_s} {
  root ${web_file}
  timeouts none
  gzip
 }
 EOF
-		/etc/init.d/caddy restart
-	else
-		echo -e "${Info} 发现 Caddy 配置文件非空，开始追加 ServerStatus 网站配置内容到文件最后..."
-		cat >> "/usr/local/caddy/Caddyfile"<<-EOF
+			/etc/init.d/caddy restart
+		else
+			echo -e "${Info} 发现 Caddy 配置文件非空，开始追加 ServerStatus 网站配置内容到文件最后..."
+			cat >> "/usr/local/caddy/Caddyfile"<<-EOF
 ${server_s}:${server_port_s} {
  root ${web_file}
  timeouts none
  gzip
 }
 EOF
-		/etc/init.d/caddy restart
+			/etc/init.d/caddy restart
+		fi
+	else
+		echo -e "${Info} 跳过 HTTP服务部署，请手动部署，Web网页文件位置：${web_file} ，如果位置改变，请注意修改服务脚本文件 /etc/init.d/status-server 中的 WEB_BIN 变量 !"
 	fi
 }
 Install_ServerStatus_server(){
@@ -781,8 +788,8 @@ post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- -t2 -T2 "https://softs.pw/Bash/status.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
-	sh_new_ver=$(wget --no-check-certificate -qO- -t2 -T2 "https://github.com/ToyoDAdoubi/doubi/blob/master/status.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.pw/Bash/status.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/status.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
 		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
