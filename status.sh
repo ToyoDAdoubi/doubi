@@ -361,6 +361,8 @@ List_ServerStatus_server(){
 }
 Add_ServerStatus_server(){
 	Set_config_server
+	Set_username_ch=$(cat ${server_conf}|grep '"username": "'"${username_s}"'"')
+	[[ ! -z "${Set_username_ch}" ]] && echo -e "${Error} 用户名已被使用 !" && exit 1
 	sed -i '3i\  },' ${server_conf}
 	sed -i '3i\   "disabled": false' ${server_conf}
 	sed -i '3i\   "location": "'"${location_s}"'",' ${server_conf}
@@ -402,6 +404,8 @@ Modify_ServerStatus_server_username(){
 	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_username
+		Set_username_ch=$(cat ${server_conf}|grep '"username": "'"${username_s}"'"')
+		[[ ! -z "${Set_username_ch}" ]] && echo -e "${Error} 用户名已被使用 !" && exit 1
 		sed -i "${Set_username_num}"'s/"username": "'"${manually_username}"'"/"username": "'"${username_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功 [ 原节点用户名: ${manually_username}, 新节点用户名: ${username_s} ]"
 	else
