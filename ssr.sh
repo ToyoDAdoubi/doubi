@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.13
+#	Version: 2.0.14
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.13"
+sh_ver="2.0.14"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -252,6 +252,7 @@ Set_config_password(){
 Set_config_method(){
 	echo -e "请选择要设置的ShadowsocksR账号 加密方式
  ${Green_font_prefix} 1.${Font_color_suffix} none
+ ${Tip} 如果使用 auth_chain_a 协议，请加密方式选择 none，混淆随意(建议 plain)
  
  ${Green_font_prefix} 2.${Font_color_suffix} rc4
  ${Green_font_prefix} 3.${Font_color_suffix} rc4-md5
@@ -272,7 +273,7 @@ Set_config_method(){
  ${Green_font_prefix}14.${Font_color_suffix} salsa20
  ${Green_font_prefix}15.${Font_color_suffix} chacha20
  ${Green_font_prefix}16.${Font_color_suffix} chacha20-ietf
-注意：salsa20/chacha20-*系列加密方式，需要额外安装依赖 libsodium ，否则会无法启动ShadowsocksR !" && echo
+ ${Tip} salsa20/chacha20-*系列加密方式，需要额外安装依赖 libsodium ，否则会无法启动ShadowsocksR !" && echo
 	stty erase '^H' && read -p "(默认: 5. aes-128-ctr):" ssr_method
 	[[ -z "${ssr_method}" ]] && ssmethod="5"
 	if [[ ${ssr_method} == "1" ]]; then
@@ -317,7 +318,9 @@ Set_config_protocol(){
  ${Green_font_prefix}1.${Font_color_suffix} origin
  ${Green_font_prefix}2.${Font_color_suffix} auth_sha1_v4
  ${Green_font_prefix}3.${Font_color_suffix} auth_aes128_md5
- ${Green_font_prefix}4.${Font_color_suffix} auth_aes128_sha1" && echo
+ ${Green_font_prefix}4.${Font_color_suffix} auth_aes128_sha1
+ ${Green_font_prefix}5.${Font_color_suffix} auth_chain_a
+ ${Tip} 如果使用 auth_chain_a 协议，请加密方式选择 none，混淆随意(建议 plain)" && echo
 	stty erase '^H' && read -p "(默认: 2. auth_sha1_v4):" ssr_protocol
 	[[ -z "${ssr_protocol}" ]] && ssr_protocol="2"
 	if [[ ${ssr_protocol} == "1" ]]; then
@@ -328,6 +331,8 @@ Set_config_protocol(){
 		ssr_protocol="auth_aes128_md5"
 	elif [[ ${ssr_protocol} == "4" ]]; then
 		ssr_protocol="auth_aes128_sha1"
+	elif [[ ${ssr_protocol} == "5" ]]; then
+		ssr_protocol="auth_chain_a"
 	else
 		ssr_protocol="auth_sha1_v4"
 	fi
@@ -347,7 +352,8 @@ Set_config_obfs(){
  ${Green_font_prefix}2.${Font_color_suffix} http_simple
  ${Green_font_prefix}3.${Font_color_suffix} http_post
  ${Green_font_prefix}4.${Font_color_suffix} random_head
- ${Green_font_prefix}5.${Font_color_suffix} tls1.2_ticket_auth" && echo
+ ${Green_font_prefix}5.${Font_color_suffix} tls1.2_ticket_auth
+ ${Tip} 如果使用 ShadowsocksR 加速邮箱，请选择 混淆兼容原版或 plain 混淆，然后客户端选择 plain，否则会增加延迟 !" && echo
 	stty erase '^H' && read -p "(默认: 5. tls1.2_ticket_auth):" ssr_obfs
 	[[ -z "${ssr_obfs}" ]] && ssr_obfs="5"
 	if [[ ${ssr_obfs} == "1" ]]; then
@@ -937,7 +943,7 @@ Modify_multi_port_user(){
 		Save_iptables
 		echo -e "${Inof} 多端口用户修改完成 ${Green_font_prefix}[旧: ${modify_user_port}  ${password} , 新: ${ssr_port}  ${ssr_password}]${Font_color_suffix} "
 	else
-		echo "${Error} 请输入正确的端口 !" && exit 1
+		echo -e "${Error} 请输入正确的端口 !" && exit 1
 	fi
 }
 # 删除 多端口用户配置
@@ -1288,8 +1294,8 @@ Set_config_connect_verbose_info(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- -t2 -T2 "https://softs.pw/Bash/ssr.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
-	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- -t2 -T2 "https://github.com/ToyoDAdoubi/doubi/blob/master/ssr.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.pw/Bash/ssr.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
 		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
