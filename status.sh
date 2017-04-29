@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.7
+#	Version: 1.0.8
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.7"
+sh_ver="1.0.8"
 file="/usr/local/ServerStatus"
 web_file="/usr/local/ServerStatus/web"
 server_file="/usr/local/ServerStatus/server"
@@ -59,17 +59,17 @@ check_pid_client(){
 }
 Download_Server_Status_server(){
 	cd "/usr/local"
-	wget -N --no-check-certificate "https://github.com/91yun/ServerStatus-1/archive/master.zip"
+	wget -N --no-check-certificate "https://github.com/ToyoDAdoubi/ServerStatus-Toyo/archive/master.zip"
 	[[ ! -e "master.zip" ]] && echo -e "${Error} ServerStatus 服务端下载失败 !" && exit 1
 	unzip master.zip && rm -rf master.zip
-	[[ ! -e "ServerStatus-1-master" ]] && echo -e "${Error} ServerStatus 服务端解压失败 !" && exit 1
+	[[ ! -e "ServerStatus-Toyo-master" ]] && echo -e "${Error} ServerStatus 服务端解压失败 !" && exit 1
 	if [[ ! -e "${file}" ]]; then
-		mv ServerStatus-1-master ServerStatus
+		mv ServerStatus-Toyo-master ServerStatus
 	else
-		mv ServerStatus-1-master/* "${file}"
-		rm -rf ServerStatus-1-master
+		mv ServerStatus-Toyo-master/* "${file}"
+		rm -rf ServerStatus-Toyo-master
 	fi
-	[[ ! -e "${server_file}" ]] && echo -e "${Error} ServerStatus 服务端文件夹重命名失败 !" && rm -rf ServerStatus-1-master && exit 1
+	[[ ! -e "${server_file}" ]] && echo -e "${Error} ServerStatus 服务端文件夹重命名失败 !" && rm -rf ServerStatus-Toyo-master && exit 1
 	cd "${server_file}"
 	make
 	[[ ! -e "sergate" ]] && echo -e "${Error} ServerStatus 服务端安装失败 !" && exit 1
@@ -262,14 +262,6 @@ Set_type(){
 	echo -e "	虚拟化类型[type]: ${Red_background_prefix} ${type_s} ${Font_color_suffix}"
 	echo "	================================================" && echo
 }
-Set_host(){
-	echo -e "请输入 ServerStatus 服务端要设置的节点主机名[host]（支持中文，前提是你的系统和SSH工具支持中文输入）"
-	stty erase '^H' && read -p "(默认: MineCloud):" host_s
-	[[ -z "$host_s" ]] && host_s="MineCloud"
-	echo && echo "	================================================"
-	echo -e "	节点主机名[host]: ${Red_background_prefix} ${host_s} ${Font_color_suffix}"
-	echo "	================================================" && echo
-}
 Set_location(){
 	echo -e "请输入 ServerStatus 服务端要设置的节点位置[location]（支持中文，前提是你的系统和SSH工具支持中文输入）"
 	stty erase '^H' && read -p "(默认: Hong Kong):" location_s
@@ -283,7 +275,6 @@ Set_config_server(){
 	Set_password "server"
 	Set_name
 	Set_type
-	Set_host
 	Set_location
 }
 Set_config_client(){
@@ -294,6 +285,7 @@ Set_config_client(){
 Set_ServerStatus_server(){
 	check_installed_server_status
 	echo && echo -e " 你要做什么？
+	
  ${Green_font_prefix} 1.${Font_color_suffix} 添加 节点配置
  ${Green_font_prefix} 2.${Font_color_suffix} 删除 节点配置
 ————————
@@ -301,11 +293,10 @@ Set_ServerStatus_server(){
  ${Green_font_prefix} 4.${Font_color_suffix} 修改 节点配置 - 节点密码
  ${Green_font_prefix} 5.${Font_color_suffix} 修改 节点配置 - 节点名称
  ${Green_font_prefix} 6.${Font_color_suffix} 修改 节点配置 - 节点虚拟化
- ${Green_font_prefix} 7.${Font_color_suffix} 修改 节点配置 - 节点主机名
- ${Green_font_prefix} 8.${Font_color_suffix} 修改 节点配置 - 节点位置
- ${Green_font_prefix} 9.${Font_color_suffix} 修改 节点配置 - 全部参数
+ ${Green_font_prefix} 7.${Font_color_suffix} 修改 节点配置 - 节点位置
+ ${Green_font_prefix} 8.${Font_color_suffix} 修改 节点配置 - 全部参数
 ————————
- ${Green_font_prefix}10.${Font_color_suffix} 启用/禁用 节点配置" && echo
+ ${Green_font_prefix} 9.${Font_color_suffix} 启用/禁用 节点配置" && echo
 	stty erase '^H' && read -p "(默认: 取消):" server_num
 	[[ -z "${server_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${server_num} == "1" ]]; then
@@ -321,15 +312,13 @@ Set_ServerStatus_server(){
 	elif [[ ${server_num} == "6" ]]; then
 		Modify_ServerStatus_server_type
 	elif [[ ${server_num} == "7" ]]; then
-		Modify_ServerStatus_server_host
-	elif [[ ${server_num} == "8" ]]; then
 		Modify_ServerStatus_server_location
-	elif [[ ${server_num} == "9" ]]; then
+	elif [[ ${server_num} == "8" ]]; then
 		Modify_ServerStatus_server_all
-	elif [[ ${server_num} == "10" ]]; then
+	elif [[ ${server_num} == "9" ]]; then
 		Modify_ServerStatus_server_disabled
 	else
-		echo -e "${Error} 请输入正确的数字[1-10]" && exit 1
+		echo -e "${Error} 请输入正确的数字[1-9]" && exit 1
 	fi
 	Restart_ServerStatus_server
 }
@@ -346,7 +335,6 @@ List_ServerStatus_server(){
 		now_text_password=$(echo -e "${now_text}"|grep "password"|awk -F ": " '{print $2}')
 		now_text_name=$(echo -e "${now_text}"|grep "name"|grep -v "username"|awk -F ": " '{print $2}')
 		now_text_type=$(echo -e "${now_text}"|grep "type"|awk -F ": " '{print $2}')
-		now_text_host=$(echo -e "${now_text}"|grep "host"|awk -F ": " '{print $2}')
 		now_text_location=$(echo -e "${now_text}"|grep "location"|awk -F ": " '{print $2}')
 		now_text_disabled=$(echo -e "${now_text}"|grep "disabled"|awk -F ": " '{print $2}')
 		if [[ ${now_text_disabled} == "false" ]]; then
@@ -354,7 +342,7 @@ List_ServerStatus_server(){
 		else
 			now_text_disabled_status="${Red_font_prefix}禁用${Font_color_suffix}"
 		fi
-		conf_list_all=${conf_list_all}"用户名: ${Green_font_prefix}"${now_text_username}"${Font_color_suffix} 密码: ${Green_font_prefix}"${now_text_password}"${Font_color_suffix} 节点名: ${Green_font_prefix}"${now_text_name}"${Font_color_suffix} 类型: ${Green_font_prefix}"${now_text_type}"${Font_color_suffix} 主机名: ${Green_font_prefix}"${now_text_host}"${Font_color_suffix} 位置: ${Green_font_prefix}"${now_text_location}"${Font_color_suffix} 状态: ${Green_font_prefix}"${now_text_disabled_status}"${Font_color_suffix}\n"
+		conf_list_all=${conf_list_all}"用户名: ${Green_font_prefix}"${now_text_username}"${Font_color_suffix} 密码: ${Green_font_prefix}"${now_text_password}"${Font_color_suffix} 节点名: ${Green_font_prefix}"${now_text_name}"${Font_color_suffix} 类型: ${Green_font_prefix}"${now_text_type}"${Font_color_suffix} 位置: ${Green_font_prefix}"${now_text_location}"${Font_color_suffix} 状态: ${Green_font_prefix}"${now_text_disabled_status}"${Font_color_suffix}\n"
 	done
 	echo && echo -e "节点总数 ${Green_font_prefix}"${conf_text_total}"${Font_color_suffix}"
 	echo -e ${conf_list_all}
@@ -366,7 +354,7 @@ Add_ServerStatus_server(){
 	sed -i '3i\  },' ${server_conf}
 	sed -i '3i\   "disabled": false' ${server_conf}
 	sed -i '3i\   "location": "'"${location_s}"'",' ${server_conf}
-	sed -i '3i\   "host": "'"${host_s}"'",' ${server_conf}
+	sed -i '3i\   "host": "'"None"'",' ${server_conf}
 	sed -i '3i\   "type": "'"${type_s}"'",' ${server_conf}
 	sed -i '3i\   "name": "'"${name_s}"'",' ${server_conf}
 	sed -i '3i\   "password": "'"${password_s}"'",' ${server_conf}
@@ -460,22 +448,6 @@ Modify_ServerStatus_server_type(){
 		echo -e "${Error} 请输入正确的节点用户名 !" && exit 1
 	fi
 }
-Modify_ServerStatus_server_host(){
-	List_ServerStatus_server
-	echo -e "请输入要修改的节点用户名"
-	stty erase '^H' && read -p "(默认: 取消):" manually_username
-	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
-	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
-	if [[ ! -z ${Set_username_num} ]]; then
-		Set_host
-		Set_host_num_a=$(expr $Set_username_num + 4)
-		Set_host_num_a_text=$(sed -n "${Set_host_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
-		sed -i "${Set_host_num_a}"'s/"host": "'"${Set_host_num_a_text}"'"/"host": "'"${host_s}"'"/g' ${server_conf}
-		echo -e "${Info} 修改成功 [ 原节点主机名: ${Set_host_num_a_text}, 新节点主机名: ${host_s} ]"
-	else
-		echo -e "${Error} 请输入正确的节点用户名 !" && exit 1
-	fi
-}
 Modify_ServerStatus_server_location(){
 	List_ServerStatus_server
 	echo -e "请输入要修改的节点用户名"
@@ -503,7 +475,6 @@ Modify_ServerStatus_server_all(){
 		Set_password
 		Set_name
 		Set_type
-		Set_host
 		Set_location
 		sed -i "${Set_username_num}"'s/"username": "'"${manually_username}"'"/"username": "'"${username_s}"'"/g' ${server_conf}
 		Set_password_num_a=$(expr $Set_username_num + 1)
@@ -515,9 +486,6 @@ Modify_ServerStatus_server_all(){
 		Set_type_num_a=$(expr $Set_username_num + 3)
 		Set_type_num_a_text=$(sed -n "${Set_type_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_type_num_a}"'s/"type": "'"${Set_type_num_a_text}"'"/"type": "'"${type_s}"'"/g' ${server_conf}
-		Set_host_num_a=$(expr $Set_username_num + 4)
-		Set_host_num_a_text=$(sed -n "${Set_host_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
-		sed -i "${Set_host_num_a}"'s/"host": "'"${Set_host_num_a_text}"'"/"host": "'"${host_s}"'"/g' ${server_conf}
 		Set_location_num_a=$(expr $Set_username_num + 5)
 		Set_location_num_a_text=$(sed -n "${Set_location_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_location_num_a}"'s/"location": "'"${Set_location_num_a_text}"'"/"location": "'"${location_s}"'"/g' ${server_conf}
@@ -676,7 +644,7 @@ Restart_ServerStatus_server(){
 }
 Uninstall_ServerStatus_server(){
 	check_installed_server_status
-	echo "确定要卸载 ServerStatus 服务端(如果安装了客户端也会一起删除) ? [y/N]"
+	echo "确定要卸载 ServerStatus 服务端(如果安装了客户端 不会一起删除) ? [y/N]"
 	echo
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
@@ -685,9 +653,10 @@ Uninstall_ServerStatus_server(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Del_iptables
 		if [[ -e "${client_file}" ]]; then
-			cp "${client_file}" "/usr/local/status-client.py"
-			rm -rf "${file}/*"
-			cp "/usr/local/status-client.py" "${client_file}"
+			mv "${client_file}" "/usr/local/status-client.py"
+			rm -rf "${file}"
+			mkdir "${file}"
+			mv "/usr/local/status-client.py" "${client_file}"
 		else
 			rm -rf "${file}"
 		fi
