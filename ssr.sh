@@ -954,7 +954,7 @@ Del_multi_port_user(){
 	echo -e "请输入要删除的用户端口"
 	stty erase '^H' && read -p "(默认: 取消):" del_user_port
 	[[ -z "${del_user_port}" ]] && echo -e "已取消..." && exit 1
-	del_user=`cat ${config_user_file}|grep '"'"${modify_user_port}"'"'`
+	del_user=`cat ${config_user_file}|grep '"'"${del_user_port}"'"'`
 	if [[ ! -z ${del_user} ]]; then
 		port=${del_user_port}
 		Del_iptables
