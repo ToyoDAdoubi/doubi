@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.14
+#	Version: 2.0.15
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.14"
+sh_ver="2.0.15"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -173,9 +173,9 @@ View_User(){
 	SSR_installation_status
 	Get_IP
 	Get_User
-	now_mode=`${jq_file} '.port_password' ${config_user_file}`
+	now_mode=$(cat "${config_user_file}"|grep '"port_password"')
 	[[ -z ${protocol_param} ]] && protocol_param="0(无限)"
-	if [[ "${now_mode}" = "null" ]]; then
+	if [[ -z "${now_mode}" ]]; then
 		ss_ssr_determine
 		clear && echo "===================================================" && echo
 		echo -e " ShadowsocksR账号 配置信息：" && echo
@@ -662,7 +662,7 @@ Uninstall_SSR(){
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
 		[[ ! -z "${PID}" ]] && kill -9 ${PID}
-		if [[ "${now_mode}" = "null" ]]; then
+		if [[ -z "${now_mode}" ]]; then
 			port=`${jq_file} '.server_port' ${config_user_file}`
 			Del_iptables
 		else
@@ -715,7 +715,7 @@ Install_Libsodium(){
 }
 # 显示 连接信息
 debian_View_user_connection_info(){
-	if [[ "${now_mode}" = "null" ]]; then
+	if [[ -z "${now_mode}" ]]; then
 		now_mode="单端口" && user_total="1"
 		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |wc -l`
 		user_port=`${jq_file} '.server_port' ${config_user_file}`
@@ -750,7 +750,7 @@ debian_View_user_connection_info(){
 	fi
 }
 centos_View_user_connection_info(){
-	if [[ "${now_mode}" = "null" ]]; then
+	if [[ -z "${now_mode}" ]]; then
 		now_mode="单端口" && user_total="1"
 		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep '::ffff:' |awk '{print $4}' |sort -u |wc -l`
 		user_port=`${jq_file} '.server_port' ${config_user_file}`
@@ -795,7 +795,7 @@ View_user_connection_info(){
 # 修改 用户配置
 Modify_Config(){
 	SSR_installation_status
-	if [[ "${now_mode}" = "null" ]]; then
+	if [[ -z "${now_mode}" ]]; then
 		echo && echo -e "当前模式: 单端口，你要做什么？
  ${Green_font_prefix}1.${Font_color_suffix} 修改 用户端口
  ${Green_font_prefix}2.${Font_color_suffix} 修改 用户密码
@@ -976,7 +976,7 @@ Manually_Modify_Config(){
 	SSR_installation_status
 	port=`${jq_file} '.server_port' ${config_user_file}`
 	vi ${config_user_file}
-	if [[ "${now_mode}" = "null" ]]; then
+	if [[ -z "${now_mode}" ]]; then
 		ssr_port=`${jq_file} '.server_port' ${config_user_file}`
 		Del_iptables
 		Add_iptables
@@ -986,7 +986,7 @@ Manually_Modify_Config(){
 # 切换端口模式
 Port_mode_switching(){
 	SSR_installation_status
-	if [[ "${now_mode}" = "null" ]]; then
+	if [[ -z "${now_mode}" ]]; then
 		echo && echo -e "	当前模式: ${Green_font_prefix}单端口${Font_color_suffix}" && echo
 		echo -e "确定要切换为 多端口模式？[y/N]"
 		stty erase '^H' && read -p "(默认: n):" mode_yn
@@ -1324,8 +1324,8 @@ menu_status(){
 		else
 			echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}"
 		fi
-		now_mode=`${jq_file} '.port_password' ${config_user_file}`
-		if [[ "${now_mode}" = "null" ]]; then
+		now_mode=$(cat "${config_user_file}"|grep '"port_password"')
+		if [[ -z "${now_mode}" ]]; then
 			echo -e " 当前模式: ${Green_font_prefix}单端口${Font_color_suffix}"
 		else
 			echo -e " 当前模式: ${Green_font_prefix}多端口${Font_color_suffix}"
