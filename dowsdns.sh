@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: DowsDNS
-#	Version: 1.0.1
+#	Version: 1.0.2
 #	Author: Toyo
 #	Blog: https://doub.io/dowsdns-jc3/
 #=================================================
 
-sh_ver="1.0.1"
+sh_ver="1.0.2"
 file="/usr/local/dowsDNS"
 dowsdns_conf="/usr/local/dowsDNS/conf/config.json"
 dowsdns_data="/usr/local/dowsDNS/conf/data.json"
@@ -47,8 +47,8 @@ check_pid(){
 }
 Download_dowsdns(){
 	cd "/usr/local"
-	dowsDNS_new_ver=$(curl -m 10 -s "https://softs.pw/?dir=%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/dowsDNS/Linux%2BMac"|grep "dowsDNS-v"|tail -1|sed -r 's/.*dowsDNS-v(.+)\.zip.*/\1/')
-	[[ -z ${dowsDNS_new_ver} ]] && echo -e "${Error} 获取最新版本失败 !"
+	dowsDNS_new_ver=$(wget --no-check-certificate -qO- "https://softs.pw/?dir=%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/dowsDNS/Linux%2BMac"|grep "dowsDNS-v"|tail -1|sed -r 's/.*dowsDNS-v(.+)\.zip.*/\1/')
+	[[ -z ${dowsDNS_new_ver} ]] && echo -e "${Error} 获取最新版本失败 !" && exit 1
 	wget -N --no-check-certificate "https://softs.pw/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/dowsDNS/Linux%2BMac/dowsDNS-v${dowsDNS_new_ver}.zip"
 	[[ ! -e "dowsDNS-v${dowsDNS_new_ver}.zip" ]] && echo -e "${Error} DowsDNS 下载失败 !" && exit 1
 	unzip dowsDNS-v${dowsDNS_new_ver}.zip && rm -rf dowsDNS-v${dowsDNS_new_ver}.zip
