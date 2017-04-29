@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.15
+#	Version: 2.0.16
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.15"
+sh_ver="2.0.16"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -854,7 +854,7 @@ Modify_Config(){
  ${Green_font_prefix}7.${Font_color_suffix} 修改 设备数限制
  ${Green_font_prefix}8.${Font_color_suffix} 修改 单线程限速
  ${Green_font_prefix}9.${Font_color_suffix} 修改 端口总限速
-${Green_font_prefix}10.${Font_color_suffix} 修改 全部配置" && echo
+ ${Green_font_prefix}10.${Font_color_suffix} 修改 全部配置" && echo
 		stty erase '^H' && read -p "(默认: 取消):" ssr_modify
 		[[ -z "${ssr_modify}" ]] && echo "已取消..." && exit 1
 		Get_User
@@ -931,9 +931,9 @@ Modify_multi_port_user(){
 	echo && echo -e "请输入要修改的用户端口"
 	stty erase '^H' && read -p "(默认: 取消):" modify_user_port
 	[[ -z "${modify_user_port}" ]] && echo -e "已取消..." && exit 1
-	del_user=`cat ${config_user_file}|grep "${modify_user_port}"`
-	if [ ! -z ${del_user} ]; then
-		port=${modify_user_port}
+	del_user=`cat ${config_user_file}|grep '"'"${modify_user_port}"'"'`
+	if [[ ! -z "${del_user}" ]]; then
+		port="${modify_user_port}"
 		password=`echo -e ${del_user}|awk -F ":" '{print $NF}'|sed -r 's/.*\"(.+)\".*/\1/'`
 		Set_config_port
 		Set_config_password
@@ -954,7 +954,7 @@ Del_multi_port_user(){
 	echo -e "请输入要删除的用户端口"
 	stty erase '^H' && read -p "(默认: 取消):" del_user_port
 	[[ -z "${del_user_port}" ]] && echo -e "已取消..." && exit 1
-	del_user=`cat ${config_user_file}|grep "${del_user_port}"`
+	del_user=`cat ${config_user_file}|grep '"'"${modify_user_port}"'"'`
 	if [[ ! -z ${del_user} ]]; then
 		port=${del_user_port}
 		Del_iptables
@@ -962,7 +962,7 @@ Del_multi_port_user(){
 		del_user_determine=`echo ${del_user:((${#del_user} - 1))}`
 		if [[ ${del_user_determine} != "," ]]; then
 			del_user_num=$(sed -n -e "/${port}/=" ${config_user_file})
-			del_user_num=$[ $del_user_num - 1 ]
+			del_user_num=$(expr $del_user_num - 1)
 			sed -i "${del_user_num}s/,//g" ${config_user_file}
 		fi
 		sed -i "/${port}/d" ${config_user_file}
