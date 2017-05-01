@@ -8,7 +8,7 @@
 # Required-Stop:     $network
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: ADbyby
+# Short-Description: Ad filtering tool
 # Description:       Start or stop the ADbyby
 ### END INIT INFO
 

@@ -6,7 +6,7 @@
 # Required-Stop:     $network $local_fs $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: DowsDNS
+# Short-Description: Lightweight DNS server
 # Description:       Start or stop the DowsDNS server
 ### END INIT INFO
 

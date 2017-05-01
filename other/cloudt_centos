@@ -3,7 +3,7 @@
 # description: Cloud Torrent: a self-hosted remote torrent client
 
 ### BEGIN INIT INFO
-# Provides:          Cloud Torrent
+# Provides:          Cloud-Torrent
 # Required-Start:    $network $syslog
 # Required-Stop:     $network
 # Default-Start:     2 3 4 5

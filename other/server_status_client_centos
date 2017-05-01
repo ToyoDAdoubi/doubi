@@ -1,14 +1,14 @@
 #!/bin/bash
 # chkconfig: 2345 90 10
-# description: ServerStatus Client
+# description: ServerStatus-Client
 
 ### BEGIN INIT INFO
-# Provides:          ServerStatus Client
+# Provides:          ServerStatus-Client
 # Required-Start:    $network $syslog
 # Required-Stop:     $network
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: ServerStatus Client
+# Short-Description: Server status monitoring
 # Description:       Start or stop the ServerStatus Client server
 ### END INIT INFO
 

@@ -6,7 +6,7 @@
 # Required-Stop:     $network $local_fs $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: ShadowsocksR
+# Short-Description: Lightweight SOCKS5 proxy tool
 # Description:       Start or stop the ShadowsocksR server
 ### END INIT INFO
 
