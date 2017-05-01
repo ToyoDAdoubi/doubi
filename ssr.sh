@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.16
+#	Version: 2.0.17
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.16"
+sh_ver="2.0.17"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -123,7 +123,7 @@ Get_User(){
 	connect_verbose_info=`${jq_file} '.connect_verbose_info' ${config_user_file}`
 }
 ss_link_qr(){
-	SSbase64=`echo -n "${method}:${password}@${ip}:${port}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
+	SSbase64=`echo -n "${method}:${password}@${ip}:${port}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g;s/=//g'`
 	SSurl="ss://"${SSbase64}
 	SSQRcode="http://doub.pw/qr/qr.php?text="${SSurl}
 	ss_link=" SS    链接 : ${Green_font_prefix}${SSurl}${Font_color_suffix} \n SS  二维码 : ${Green_font_prefix}${SSQRcode}${Font_color_suffix}"
@@ -132,7 +132,7 @@ ssr_link_qr(){
 	SSRprotocol=`echo ${protocol} | sed 's/_compatible//g'`
 	SSRobfs=`echo ${obfs} | sed 's/_compatible//g'`
 	SSRPWDbase64=`echo -n "${password}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
-	SSRbase64=`echo -n "${ip}:${port}:${SSRprotocol}:${method}:${SSRobfs}:${SSRPWDbase64}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
+	SSRbase64=`echo -n "${ip}:${port}:${SSRprotocol}:${method}:${SSRobfs}:${SSRPWDbase64}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g;s/=//g'`
 	SSRurl="ssr://"${SSRbase64}
 	SSRQRcode="http://doub.pw/qr/qr.php?text="${SSRurl}
 	ssr_link=" SSR   链接 : ${Red_font_prefix}${SSRurl}${Font_color_suffix} \n SSR 二维码 : ${Red_font_prefix}${SSRQRcode}${Font_color_suffix} \n "
