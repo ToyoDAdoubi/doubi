@@ -7,9 +7,9 @@ export PATH
 #	Description: Aria2
 #	Version: 1.0.0
 #	Author: Toyo
-#	Blog: https://doub.io/
+#	Blog: https://doub.io/shell-jc4/
 #=================================================
-
+sh_ver="1.0.0"
 file="/root/.aria2"
 aria2_conf="${file}/aria2.conf"
 aria2_log="/root/.aria2/aria2.log"
@@ -157,8 +157,10 @@ Uninstall_aria2(){
 		rm -rf ${file} && rm -rf /etc/init.d/aria2
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del aria2
+			yum remove aria2 -y
 		else
 			update-rc.d -f aria2 remove
+			apt-get remove --purge aria2 -y
 		fi
 		echo && echo "Aria2 卸载完成 !" && echo
 	else
@@ -199,8 +201,29 @@ post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
 		chmod +x /etc/network/interfaces
 	fi
 }
-echo && echo -e "请输入一个数字来选择选项
-
+Update_Shell(){
+	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
+	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
+	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" yn
+		[[ -z "${yn}" ]] && yn="y"
+		if [[ ${yn} == [Yy] ]]; then
+			wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/aria2.sh && chmod +x aria2.sh
+			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
+	fi
+}
+echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+  -- Toyo | doub.io/shell-jc4 --
+  
+ ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+————————————
  ${Green_font_prefix}1.${Font_color_suffix} 安装 Aria2
  ${Green_font_prefix}2.${Font_color_suffix} 卸载 Aria2
 ————————————
@@ -222,8 +245,11 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [1-7]:" num
+stty erase '^H' && read -p " 请输入数字 [0-7]:" num
 case "$num" in
+	0)
+	Update_Shell
+	;;
 	1)
 	Install_aria2
 	;;
@@ -246,6 +272,6 @@ case "$num" in
 	View_Log
 	;;
 	*)
-	echo "请输入正确数字 [1-7]"
+	echo "请输入正确数字 [0-7]"
 	;;
 esac
