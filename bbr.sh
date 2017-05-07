@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: TCP-BBR
-#	Version: 1.0.10
+#	Version: 1.0.11
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-16/
 #=================================================
@@ -33,7 +33,7 @@ check_sys(){
 		release="centos"
     fi
 }
-# 本段代码来源自: https://teddysun.com/489.html
+# 本段获取最新版本的代码来源自: https://teddysun.com/489.html
 Set_latest_new_version(){
 	echo -e "请输入 要下载安装的Linux内核版本(BBR) [ 格式: x.xx.xx ，例如: 4.10.12 ]
 ${Tip} 内核版本列表请去这里获取：[ http://kernel.ubuntu.com/~kernel-ppa/mainline/ ]"
@@ -43,7 +43,7 @@ ${Tip} 内核版本列表请去这里获取：[ http://kernel.ubuntu.com/~kernel
 }
 get_latest_new_version(){
 	echo -e "${Info} 检测内核最新版本中..."
-	latest_version=$(wget -qO- "http://kernel.ubuntu.com/~kernel-ppa/mainline/" | awk -F'\"v' '/v[4-9].[0-9][0-9].[0-9]/{print $2}' | cut -d/ -f1 | sort -V | tail -1)
+	latest_version=$(wget -qO- "http://kernel.ubuntu.com/~kernel-ppa/mainline/" | awk -F'\"v' '/v[4-9].[0-9]*.[0-9]/{print $2}' |grep -v '\-rc'| cut -d/ -f1 | sort -V | tail -1)
 	[[ -z ${latest_version} ]] && echo -e "\033[41;37m [错误] \033[0m 检测内核最新版本失败 !" && exit 1
 	echo -e "${Info} 当前内核最新版本为 : ${latest_version}"
 }
