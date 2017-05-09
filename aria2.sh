@@ -87,6 +87,7 @@ Installation_dependency(){
 		apt-get update
 		apt-get install aria2 curl unzip vim -y
 	fi
+	[[ ! -e ${aria2c} ]] && echo -e "${Error} Aria2 安装失败，请检查 !" && exit 1
 }
 Install_aria2(){
 	[[ -e ${aria2c} ]] && echo -e "${Error} Aria2 已安装，请检查 !" && exit 1
