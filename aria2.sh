@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc4/
 #=================================================
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 file="/root/.aria2"
 aria2_conf="${file}/aria2.conf"
 aria2_log="/root/.aria2/aria2.log"
@@ -41,7 +41,7 @@ check_sys(){
 }
 check_installed_status(){
 	[[ ! -e ${aria2c} ]] && echo -e "${Error} Aria2 没有安装，请检查 !" && exit 1
-	[[ ! -e ${aria2_conf} ]] && echo -e "${Error} Aria2 配置文件不存在，请检查 !" && exit 1
+	[[ ! -e ${aria2_conf} ]] && echo -e "${Error} Aria2 配置文件不存在，请检查 !" && [[ $1 != "un" ]] && exit 1
 }
 check_pid(){
 	PID=`ps -ef| grep "aria2c"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
@@ -143,7 +143,7 @@ View_Log(){
 	tail -f ${aria2_log}
 }
 Uninstall_aria2(){
-	check_installed_status
+	check_installed_status "un"
 	echo "确定要卸载 Aria2 ? (y/N)"
 	echo
 	stty erase '^H' && read -p "(默认: n):" unyn
@@ -234,7 +234,7 @@ echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]$
  ${Green_font_prefix}6.${Font_color_suffix} 修改 配置文件
  ${Green_font_prefix}7.${Font_color_suffix} 查看 日志信息
 ————————————" && echo
-if [[ -e ${file} ]]; then
+if [[ -e ${aria2c} ]]; then
 	check_pid
 	if [[ ! -z "${PID}" ]]; then
 		echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}"
