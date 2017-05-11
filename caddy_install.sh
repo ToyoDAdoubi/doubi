@@ -4,11 +4,12 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: Caddy Install
-#       Version: 1.0.4
+#       Version: 1.0.5
 #       Author: Toyo
 #       Blog: https://doub.io/shell-jc1/
 #=================================================
-caddy_file="/usr/local/caddy"
+file="/usr/local/caddy/"
+caddy_file="/usr/local/caddy/caddy"
 caddy_ver_file="/usr/local/caddy/ver.txt"
 caddy_conf_file="/usr/local/caddy/Caddyfile"
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
@@ -35,7 +36,8 @@ check_installed_status(){
 	[[ ! -e ${caddy_file} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 没有安装，请检查 !" && exit 1
 }
 Download_caddy(){
-	mkdir "${caddy_file}" && cd "${caddy_file}"
+	[[ ! -e ${file} ]] && mkdir "${file}"
+	cd "${file}"
 	[[ -e "caddy_linux*.tar.gz" ]] && rm -rf "caddy_linux*.tar.gz"
 	[[ ! -z ${extension} ]] && extension_all="?plugins=${extension}"
 	if [[ ${bit} == "i386" ]]; then
@@ -48,8 +50,11 @@ Download_caddy(){
 		echo -e "${Error_font_prefix}[错误]${Font_suffix} 不支持 ${bit} !" && exit 1
 	fi
 	[[ ! -e "caddy_linux.tar.gz" ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 下载失败 !" && exit 1
-	tar zxf "caddy_linux.tar.gz" && rm -rf "caddy_linux.tar.gz"
-	[[ ! -e ${caddy_file}"/caddy" ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 解压失败或压缩文件错误 !" && exit 1
+	tar zxf "caddy_linux.tar.gz"
+	rm -rf "caddy_linux.tar.gz"
+	[[ ! -e ${caddy_file} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 解压失败或压缩文件错误 !" && exit 1
+	rm -rf LICENSES.txt README.txt CHANGES.txt
+	rm -rf "init/"
 	chmod +x caddy
 }
 Service_caddy(){
@@ -91,6 +96,7 @@ uninstall_caddy(){
 			update-rc.d -f caddy remove
 		fi
 		rm -rf ${caddy_file}
+		rm -rf ${caddy_conf_file}
 		rm -rf /etc/init.d/caddy
 		[[ ! -e ${caddy_file} ]] && echo && echo -e "${Info_font_prefix}[信息]${Font_suffix} Caddy 卸载完成 !" && echo && exit 1
 		echo && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 卸载失败 !" && echo
