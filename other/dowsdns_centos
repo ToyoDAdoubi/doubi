@@ -13,7 +13,7 @@
 ### END INIT INFO
 
 NAME="DowsDNS"
-NAME_BIN="bin/dns.py"
+NAME_BIN="python start.py"
 BIN="/usr/local/dowsDNS"
 CONF="/usr/local/dowsDNS/conf/config.json"
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
@@ -33,8 +33,12 @@ Read_config(){
 }
 View_dowsdns(){
 	Read_config
-	ip=`wget -qO- -t1 -T2 members.3322.org/dyndns/getip`
-	[[ -z ${ip} ]] && ip="VPS_IP"
+	if [[ ${local_dns_server} == "127.0.0.1" ]]; then
+		ip="${local_dns_server} "
+	else
+		ip=`wget -qO- -t1 -T2 members.3322.org/dyndns/getip`
+		[[ -z ${ip} ]] && ip="VPS_IP"
+	fi
 	clear && echo "————————————————" && echo
 	echo -e " 请在你的设备中设置DNS服务器为：
  IP : ${Info_font_prefix}${ip}${Font_suffix} ,端口 : ${Info_font_prefix}${local_dns_port}${Font_suffix}
@@ -48,7 +52,7 @@ do_start(){
 		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID $(echo ${PID})) 正在运行..." && exit 0
 	else
 		cd "${BIN}"
-		nohup python run.py > /dev/null 2>&1 &
+		nohup python start.py > /dev/null 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
