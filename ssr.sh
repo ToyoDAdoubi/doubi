@@ -93,15 +93,11 @@ Set_iptables(){
 		chkconfig --level 2345 iptables on
 	elif [[ ${release} == "debian" ]]; then
 		iptables-save > /etc/iptables.up.rules
-		cat > /etc/network/if-pre-up.d/iptables<<-EOF
-#!/bin/bash
-/sbin/iptables-restore < /etc/iptables.up.rules
-EOF
+		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
 		chmod +x /etc/network/if-pre-up.d/iptables
 	elif [[ ${release} == "ubuntu" ]]; then
 		iptables-save > /etc/iptables.up.rules
-		echo -e "\npre-up iptables-restore < /etc/iptables.up.rules
-post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
+		echo -e '\npre-up iptables-restore < /etc/iptables.up.rules\npost-down iptables-save > /etc/iptables.up.rules' >> /etc/network/interfaces
 		chmod +x /etc/network/interfaces
 	fi
 }
@@ -275,7 +271,7 @@ Set_config_method(){
  ${Green_font_prefix}16.${Font_color_suffix} chacha20-ietf
  ${Tip} salsa20/chacha20-*系列加密方式，需要额外安装依赖 libsodium ，否则会无法启动ShadowsocksR !" && echo
 	stty erase '^H' && read -p "(默认: 5. aes-128-ctr):" ssr_method
-	[[ -z "${ssr_method}" ]] && ssmethod="5"
+	[[ -z "${ssr_method}" ]] && ssr_method="5"
 	if [[ ${ssr_method} == "1" ]]; then
 		ssr_method="none"
 	elif [[ ${ssr_method} == "2" ]]; then
