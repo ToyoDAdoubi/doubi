@@ -5,13 +5,16 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR Config Check
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #=================================================
 
+Timeout="10"
+Test_URL="https://github.com"
 SSR_folder="/root/shadowsocksr/shadowsocks"
 log_file="$PWD/ssr_check.log"
 config_file="$PWD/ssr_check.conf"
+
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}" && Error="${Red_font_prefix}[错误]${Font_color_suffix}" && Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
 
@@ -19,7 +22,7 @@ set_config_ip(){
 	echo "请输入 ShadowsocksR 账号服务器公网IP"
 	stty erase '^H' && read -p "(默认取消):" ip
 	[[ -z "${ip}" ]] && echo "已取消..." && exit 1
-	echo && echo -e "	I   P : ${Info_font_prefix}${ip}${Font_suffix}" && echo
+	echo && echo -e "	I   P : ${Red_font_prefix}${ip}${Font_color_suffix}" && echo
 }
 set_config_port(){
 	while true
@@ -30,13 +33,13 @@ set_config_port(){
 	expr ${port} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${port} -ge 1 ]] && [[ ${port} -le 65535 ]]; then
-			echo && echo -e "	端口 : ${Info_font_prefix}${port}${Font_suffix}" && echo
+			echo && echo -e "	端口 : ${Red_font_prefix}${port}${Font_color_suffix}" && echo
 			break
 		else
-			echo -e "${Error_font_prefix}[错误]${Font_suffix} 请输入正确的数字！"
+			echo -e "${Error} 请输入正确的数字！"
 		fi
 	else
-		echo -e "${Error_font_prefix}[错误]${Font_suffix} 请输入正确的数字！"
+		echo -e "${Error} 请输入正确的数字！"
 	fi
 	done
 }
@@ -44,7 +47,7 @@ set_config_password(){
 	echo "请输入 ShadowsocksR 账号密码"
 	stty erase '^H' && read -p "(默认: doub.io):" passwd
 	[[ -z "${passwd}" ]] && passwd="doub.io"
-	echo && echo -e "	密码 : ${Info_font_prefix}${passwd}${Font_suffix}" && echo
+	echo && echo -e "	密码 : ${Red_font_prefix}${passwd}${Font_color_suffix}" && echo
 }
 set_config_method(){
 	echo -e "请选择要设置的ShadowsocksR账号 加密方式
@@ -108,7 +111,7 @@ set_config_method(){
 	else
 		method="aes-128-ctr"
 	fi
-	echo && echo ${Separator_1} && echo -e "	加密 : ${Green_font_prefix}${method}${Font_color_suffix}" && echo ${Separator_1} && echo
+	echo && echo ${Separator_1} && echo -e "	加密 : ${Red_font_prefix}${method}${Font_color_suffix}" && echo ${Separator_1} && echo
 }
 set_config_protocol(){
 	echo -e "请选择要设置的ShadowsocksR账号 协议插件
@@ -133,7 +136,7 @@ set_config_protocol(){
 	else
 		protocol="auth_sha1_v4"
 	fi
-	echo && echo -e "	协议 : ${Info_font_prefix}${protocol}${Font_suffix}" && echo
+	echo && echo -e "	协议 : ${Red_font_prefix}${protocol}${Font_color_suffix}" && echo
 }
 set_config_obfs(){
 	echo -e "请选择要设置的ShadowsocksR账号 混淆插件
@@ -158,13 +161,13 @@ set_config_obfs(){
 	else
 		obfs="tls1.2_ticket_auth"
 	fi
-	echo && echo -e "	混淆 : ${Info_font_prefix}${obfs}${Font_suffix}" && echo
+	echo && echo -e "	混淆 : ${Red_font_prefix}${obfs}${Font_color_suffix}" && echo
 }
 set_config_like(){
 	echo "请输入 ShadowsocksR 的链接(SS/SSR链接皆可，如 ss://xxxx ssr://xxxx)"
 	stty erase '^H' && read -p "(默认回车取消):" Like
 	[[ -z "${Like}" ]] && echo "已取消..." && exit 1
-	echo && echo -e "	链接 : ${Info_font_prefix}${Like}${Font_suffix}" && echo
+	echo && echo -e "	链接 : ${Red_font_prefix}${Like}${Font_color_suffix}" && echo
 }
 set_config_user(){
 	echo -e "请输入选择输入方式
@@ -293,7 +296,7 @@ Start_Client(){
 	fi
 }
 Socks5_test(){
-	Test_results=`curl --socks5 127.0.0.1:1082 -m 5 -s https://www.google.com`
+	Test_results=$(curl --socks5 127.0.0.1:1082 -k -m ${Timeout} -s "${Test_URL}")
 	if [[ -z ${Test_results} ]]; then
 		echo -e "${Error} [${ip}] 检测失败，账号不可用 !" | tee -a ${log_file}
 	else
