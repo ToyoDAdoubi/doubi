@@ -723,6 +723,7 @@ Download_SSRStatus(){
 }
 Install_Web(){
 	[[ -e "${Web_file}" ]] && echo -e "${Error} 检测到 SSRStatus 网页文件已安装 !" && exit 1
+	check_sys
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency
 	echo -e "${Info} 开始部署HTTP服务(Caddy)..."
