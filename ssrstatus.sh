@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR Status
-#	Version: 1.0.1
+#	Version: 1.0.2
 #	Author: Toyo
 #=================================================
 
-sh_ver="1.0.1"
+sh_ver="1.0.2"
 Timeout="10"
 Test_URL="https://github.com"
 Web_file="/usr/local/SSRStatus"
@@ -375,7 +375,8 @@ Analysis_Config(){
 ss_config(){
 	zuo=$(echo -e "${Config_info}"|awk -F "@" '{print $1}')
 	you=$(echo -e "${Config_info}"|awk -F "@" '{print $2}')
-	ip=$(echo -e "${you}"|awk -F ":" '{print $1}')
+	port=$(echo -e "${you}"|awk -F ":" '{print $NF}')
+	ip=$(echo -e "${you}"|awk -F ":${port}" '{print $1}')
 	if [[ $(echo -e "${ip}"|wc -L) -le 8 ]]; then
 		echo -e "${Error} 错误，IP格式错误或为 ipv6地址[ ${ip} ]" | tee -a ${log_file}
 		if [[ ${analysis_type} == "add" ]]; then
@@ -384,11 +385,11 @@ ss_config(){
 			Continue_if
 		fi
 	fi
-	port=$(echo -e "${you}"|awk -F ":" '{print $2}')
 	method=$(echo -e "${zuo}"|awk -F ":" '{print $1}')
 	passwd=$(echo -e "${zuo}"|awk -F ":" '{print $2}')
 	protocol="origin"
 	obfs="plain"
+	echo -e "${ip} ${port} ${method} ${passwd} ${protocol} ${obfs}"
 	if [[ -z ${ip} ]] || [[ -z ${port} ]] || [[ -z ${method} ]] || [[ -z ${passwd} ]] || [[ -z ${protocol} ]] || [[ -z ${obfs} ]]; then
 		echo -e "${Error} 错误，有部分 账号参数为空！[ ${ip} ,${port} ,${method} ,${passwd} ,${protocol} ,${obfs} ]" | tee -a ${log_file}
 		if [[ ${analysis_type} == "add" ]]; then
@@ -400,21 +401,26 @@ ss_config(){
 }
 ssr_config(){
 	zuo=$(echo -e "${Config_info}"|awk -F "/?" '{print $1}')
-	ip=$(echo -e "${zuo}"|awk -F ":" '{print $1}')
+	passwd_base64=$(echo -e "${zuo}"|awk -F ":" '{print $NF}')
+	zuo=$(echo -e "${Config_info}"|awk -F ":${passwd_base64}" '{print $1}')
+	obfs=$(echo -e "${zuo}"|awk -F ":" '{print $NF}')
+	zuo=$(echo -e "${Config_info}"|awk -F ":${obfs}" '{print $1}')
+	method=$(echo -e "${zuo}"|awk -F ":" '{print $NF}')
+	zuo=$(echo -e "${Config_info}"|awk -F ":${method}" '{print $1}')
+	protocol=$(echo -e "${zuo}"|awk -F ":" '{print $NF}')
+	zuo=$(echo -e "${Config_info}"|awk -F ":${protocol}" '{print $1}')
+	port=$(echo -e "${zuo}"|awk -F ":" '{print $NF}')
+	ip=$(echo -e "${Config_info}"|awk -F ":${port}" '{print $1}')
 	if [[ $(echo -e "${ip}"|wc -L) -le 8 ]]; then
-		echo -e "${Error} 错误，IP格式错误或为 ipv6地址[ ${ip} ]" | tee -a ${log_file}
+		echo -e "${Error} 错误，IP格式错误[ ${ip} ]" | tee -a ${log_file}
 		if [[ ${analysis_type} == "add" ]]; then
 			exit_GG
 		else
 			Continue_if
 		fi
 	fi
-	port=$(echo -e "${zuo}"|awk -F ":" '{print $2}')
-	protocol=$(echo -e "${zuo}"|awk -F ":" '{print $3}')
-	method=$(echo -e "${zuo}"|awk -F ":" '{print $4}')
-	obfs=$(echo -e "${zuo}"|awk -F ":" '{print $5}')
-	passwd_base64=$(echo -e "${zuo}"|awk -F ":" '{print $6}')
 	passwd=$(echo -e "${passwd_base64}"|base64 -d)
+	echo -e "${ip} ${port} ${method} ${passwd} ${protocol} ${obfs}"
 	if [[ -z ${ip} ]] || [[ -z ${port} ]] || [[ -z ${method} ]] || [[ -z ${passwd} ]] || [[ -z ${protocol} ]] || [[ -z ${obfs} ]]; then
 		echo -e "${Error} 错误，有部分 账号参数为空！[ ${ip} ,${port} ,${method} ,${passwd} ,${protocol} ,${obfs} ]" | tee -a ${log_file}
 		if [[ ${analysis_type} == "add" ]]; then
