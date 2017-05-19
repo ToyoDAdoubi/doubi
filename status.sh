@@ -549,7 +549,7 @@ Install_caddy(){
 			wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh
 			chmod +x caddy_install.sh
 			bash caddy_install.sh install
-			[[ ! -e "/usr/local/caddy/caddy" ]] && exit 0
+			[[ ! -e "/usr/local/caddy/caddy" ]] && echo -e "${Error} Caddy安装失败，请手动部署，Web网页文件位置：${Web_file}" && exit 0
 		else
 			echo -e "${Info} 发现Caddy已安装，开始配置..."
 		fi
@@ -565,7 +565,7 @@ EOF
 		else
 			echo -e "${Info} 发现 Caddy 配置文件非空，开始追加 ServerStatus 网站配置内容到文件最后..."
 			cat >> "/usr/local/caddy/Caddyfile"<<-EOF
-${server_s}:${server_port_s} {
+http://${server_s}:${server_port_s} {
  root ${web_file}
  timeouts none
  gzip
