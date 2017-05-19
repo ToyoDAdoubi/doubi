@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR Status
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 Timeout="10"
 Test_URL="https://github.com"
 Web_file="/usr/local/SSRStatus"
@@ -732,7 +732,7 @@ Install_Web(){
 	Download_SSRStatus
 	echo -e "${Info} 开始配置定时任务..."
 	Set_crontab
-	echo -e "${Info} 所有步骤 安装完毕..."
+	echo -e "${Info} 所有步骤 安装完毕... 请打开本脚本并修改开头的 SSR_folder 变量引号内的ShadowsocksR子目录绝对路径，方可使用。"
 }
 Uninstall_Web(){
 	check_installed_server_status
@@ -750,11 +750,11 @@ Uninstall_Web(){
 	fi
 }
 Add_Crontab(){
-	crontab -l > "$PWD/crontab.bak"
-	sed -i "/ssrstatus.sh/d" "$PWD/crontab.bak"
-	echo -e "\n${Crontab_time} /bin/bash $PWD/ssrstatus.sh t" >> "$PWD/crontab.bak"
-	crontab "$PWD/crontab.bak"
-	rm -r "$PWD/crontab.bak"
+	crontab -l > "$file/crontab.bak"
+	sed -i "/ssrstatus.sh/d" "$file/crontab.bak"
+	echo -e "\n${Crontab_time} /bin/bash $file/ssrstatus.sh t" >> "$file/crontab.bak"
+	crontab "$file/crontab.bak"
+	rm -r "$file/crontab.bak"
 	cron_config=$(crontab -l | grep "ssrstatus.sh")
 	if [[ -z ${cron_config} ]]; then
 		echo -e "${Error} 添加 Crontab 定时任务失败 !" && exit 1
