@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: iptables 封禁 BT、PT、SPAM（垃圾邮件）和自定义端口、关键词
-#       Version: 1.0.4
+#       Version: 1.0.5
 #       Blog: https://doub.io/shell-jc2/
 #=================================================
 
@@ -259,6 +259,7 @@ UnBan_ALL(){
 	fi
 }
 ENTER_Ban_KEY_WORDS_type(){
+	Type=$1
 	echo -e "请选择输入类型：
  1. 手动输入（只支持单个关键词）
  2. 本地文件读取（支持批量读取关键词，每行一个关键词）
@@ -266,14 +267,21 @@ ENTER_Ban_KEY_WORDS_type(){
 	stty erase '^H' && read -p "(默认: 1. 手动输入):" key_word_type
 	[[ -z "${key_word_type}" ]] && key_word_type="1"
 	if [[ ${key_word_type} == "1" ]]; then
-		[[ $1 == "ban" ]] && ENTER_Ban_KEY_WORDS
-		ENTER_UnBan_KEY_WORDS
+		if [[ $Type == "ban" ]]; then
+			ENTER_Ban_KEY_WORDS
+		else
+			ENTER_UnBan_KEY_WORDS
+		fi
 	elif [[ ${key_word_type} == "2" ]]; then
 		ENTER_Ban_KEY_WORDS_file
 	elif [[ ${key_word_type} == "3" ]]; then
 		ENTER_Ban_KEY_WORDS_url
 	else
-		ENTER_Ban_KEY_WORDS
+		if [[ $Type == "ban" ]]; then
+			ENTER_Ban_KEY_WORDS
+		else
+			ENTER_UnBan_KEY_WORDS
+		fi
 	fi
 }
 ENTER_Ban_PORT(){
