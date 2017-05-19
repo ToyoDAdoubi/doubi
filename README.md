@@ -37,6 +37,18 @@ ssr_check.sh
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr_check.sh && chmod +x ssr_check.sh
 ```
 
+ssrstatus.sh
+======
+
+- 脚本说明: ShadowsocksR 账号在线监控网站
+- 系统支持: CentOS6+ / Debian6+ / Ubuntu14+
+- 使用方法: https://doub.io/shell-jc5/
+
+### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssrstatus.sh && chmod +x ssrstatus.sh && bash ssrstatus
+```
+
 ssr_ip_check.sh
 ======
 
