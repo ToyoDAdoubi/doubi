@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR Status
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #=================================================
 
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 Timeout="10"
 Test_URL="https://github.com"
 Web_file="/usr/local/SSRStatus"
@@ -40,7 +40,7 @@ check_sys(){
 	elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
 		release="centos"
     fi
-	bit=`uname -m`
+	#bit=`uname -m`
 }
 check_installed_server_status(){
 	[[ ! -e "${Web_file}" ]] && echo -e "${Error} SSRStatus Web网页文件没有安装，请检查 !" && exit 1
@@ -431,8 +431,10 @@ ssr_config(){
 	fi
 }
 Start_Client(){
-	python local.py -b 127.0.0.1 -l 1082 -s ${ip} -p ${port} -k ${passwd} -m ${method} -O ${protocol} -o ${obfs} -d start
-	if [[ -z $(ps -ef |grep -v grep | grep local.py |awk '{print $2}') ]]; then
+	nohup python "${SSR_folder}/local.py" -b "127.0.0.1" -l "${local_port}" -s "${ip}" -p "${port}" -k "${passwd}" -m "${method}" -O "${protocol}" -o "${obfs}" > /dev/null 2>&1 &
+	sleep 2s
+	PID=$(ps -ef |grep -v grep | grep "local.py" | grep "${local_port}" |awk '{print $2}')
+	if [[ -z ${PID} ]]; then
 		echo -e "${Error} ShadowsocksR客户端 启动失败，请检查 !" | tee -a ${log_file}
 		if [[ ${analysis_type} == "add" ]]; then
 			exit_GG
@@ -442,7 +444,7 @@ Start_Client(){
 	fi
 }
 Socks5_test(){
-	Test_results=$(curl --socks5 127.0.0.1:1082 -k -m ${Timeout} -s "${Test_URL}")
+	Test_results=$(curl --socks5 127.0.0.1:${local_port} -k -m ${Timeout} -s "${Test_URL}")
 	if [[ -z ${Test_results} ]]; then
 		echo -e "${Error} [${ip}] 检测失败，账号不可用 !" | tee -a ${log_file}
 		Config_Status="false"
@@ -450,8 +452,16 @@ Socks5_test(){
 		echo -e "${Info} [${ip}] 检测成功，账号可用 !" | tee -a ${log_file}
 		Config_Status="true"
 	fi
-	python local.py -d stop
-	sleep 1s
+	kill -9 ${PID}
+	PID=$(ps -ef |grep -v grep | grep "local.py" | grep "${local_port}" |awk '{print $2}')
+	if [[ ! -z ${PID} ]]; then
+		echo -e "${Error} ShadowsocksR客户端 停止失败，请检查 !" | tee -a ${log_file}
+		if [[ ${analysis_type} == "add" ]]; then
+			exit_GG
+		else
+			Continue_if
+		fi
+	fi
 	echo "---------------------------------------------------------"
 	if [[ ${analysis_type} != "add" ]]; then
 		if [[ ${Like_num} == ${integer} ]]; then
@@ -461,10 +471,17 @@ Socks5_test(){
 		fi
 	fi
 }
+rand(){
+	min=1000
+	max=$((2000-$min+1))
+	num=$(date +%s%N)
+	echo $(($num%$max+$min))
+}
 Test(){
 	GO
 	Get_Like
 	cd ${SSR_folder}
+	local_port=$(rand)
 	for((integer = 1; integer <= "${Like_num}"; integer++))
 	do
 		Analysis_Config "${integer}"
@@ -477,6 +494,7 @@ Test_add(){
 	analysis_type="add"
 	GO
 	cd ${SSR_folder}
+	local_port=$(rand)
 	set_config_user
 	[[ $? == 2 ]] && Analysis_Config "1"
 	Start_Client
@@ -486,6 +504,7 @@ Test_add(){
 Test_one(){
 	List_SSRStatus
 	cd ${SSR_folder}
+	local_port=$(rand)
 	while true
 	do
 	echo -e "请选择你要单独测试的账号序号"
