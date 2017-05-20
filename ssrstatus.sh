@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR Status
-#	Version: 1.0.3
+#	Version: 1.0.4
 #	Author: Toyo
 #=================================================
 
-sh_ver="1.0.3"
+sh_ver="1.0.4"
 Timeout="10"
 Test_URL="https://github.com"
 Web_file="/usr/local/SSRStatus"
@@ -446,8 +446,16 @@ Start_Client(){
 Socks5_test(){
 	Test_results=$(curl --socks5 127.0.0.1:${local_port} -k -m ${Timeout} -s "${Test_URL}")
 	if [[ -z ${Test_results} ]]; then
-		echo -e "${Error} [${ip}] 检测失败，账号不可用 !" | tee -a ${log_file}
-		Config_Status="false"
+		echo -e "${Error} [${ip}] 检测失败，账号不可用，重新尝试一次..." | tee -a ${log_file}
+		sleep 2s
+		Test_results=$(curl --socks5 127.0.0.1:${local_port} -k -m ${Timeout} -s "${Test_URL}")
+		if [[ -z ${Test_results} ]]; then
+			echo -e "${Error} [${ip}] 检测失败，账号不可用(已重新尝试) !" | tee -a ${log_file}
+			Config_Status="false"
+		else
+			echo -e "${Info} [${ip}] 检测成功，账号可用 !" | tee -a ${log_file}
+			Config_Status="true"
+		fi
 	else
 		echo -e "${Info} [${ip}] 检测成功，账号可用 !" | tee -a ${log_file}
 		Config_Status="true"
@@ -888,6 +896,8 @@ if [[ ${1} == "t" ]]; then
 	Test
 elif [[ ${1} == "a" ]]; then
 	Test_add
+elif [[ ${1} == "o" ]]; then
+	Test_one
 elif [[ ${1} == "log" ]]; then
 	View_log
 else
