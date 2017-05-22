@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: DowsDNS
-#	Version: 1.0.3
+#	Version: 1.0.4
 #	Author: Toyo
 #	Blog: https://doub.io/dowsdns-jc3/
 #=================================================
 
-sh_ver="1.0.3"
+sh_ver="1.0.4"
 file="/usr/local/dowsDNS"
 dowsdns_conf="/usr/local/dowsDNS/conf/config.json"
 dowsdns_data="/usr/local/dowsDNS/conf/hosts_repository_config.json"
@@ -319,11 +319,18 @@ Add_wrcd(){
 		[[ $(echo -e "${wrcd_name}"|cut -c 1-2) == "*." ]] && Set_wrcd_name_1
 		Set_wrcd_ip
 		sed -i "2 i \"${wrcd_name}\":\"${wrcd_ip}\"," ${dowsdns_wrcd}
-		[[ ! -z ${wrcd_name_1} ]] && sed -i "2 i \"${wrcd_name_1}\":\"${wrcd_ip}\"," ${dowsdns_wrcd}
 		if [[ $? == "0" ]]; then
 			echo -e "${Info} 添加泛域名解析 成功 [${wrcd_name} : ${wrcd_ip}]"
 		else
-			echo -e "${Error} 添加泛域名解析 失败！"
+			echo -e "${Error} 添加泛域名解析 失败！" && exit 0
+		fi
+		if [[ ! -z ${wrcd_name_1} ]]; then
+			sed -i "2 i \"${wrcd_name_1}\":\"${wrcd_ip}\"," ${dowsdns_wrcd}
+			if [[ $? == "0" ]]; then
+				echo -e "${Info} 添加泛域名解析 成功 [${wrcd_name_1} : ${wrcd_ip}]"
+			else
+				echo -e "${Error} 添加泛域名解析 失败！" && exit 0
+			fi
 		fi
 		echo && echo "是否继续添加 泛域名解析？[Y/n]"
 		stty erase '^H' && read -p "(默认: Y 继续添加):" wrcd_add_1
@@ -359,7 +366,7 @@ Del_wrcd(){
 				if [[ $? == "0" ]]; then
 					echo -e "${Info} 删除泛域名解析 成功 [${wrcd_name} : ${wrcd_ip}]"
 				else
-					echo -e "${Error} 删除泛域名解析 失败！"
+					echo -e "${Error} 删除泛域名解析 失败！" && exit 0
 				fi
 				echo && echo "是否继续删除 泛域名解析？[Y/n]"
 				stty erase '^H' && read -p "(默认: Y 继续删除):" wrcd_del_1
@@ -400,7 +407,7 @@ Modify_wrcd(){
 				if [[ $? == "0" ]]; then
 					echo -e "${Info} 修改泛域名解析 成功 [旧 ${wrcd_name_now} : ${wrcd_ip_now} , 新 ${wrcd_name} : ${wrcd_ip}]"
 				else
-					echo -e "${Error} 修改泛域名解析 失败！"
+					echo -e "${Error} 修改泛域名解析 失败！" && exit 0
 				fi
 				break
 			else
