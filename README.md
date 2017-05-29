@@ -161,6 +161,18 @@ aria2.sh
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/aria2.sh && chmod +x aria2.sh && bash aria2.sh
 ```
 
+ocserv.sh
+======
+
+- 脚本说明: Ocserv AnyConnect 一键安装脚本
+- 系统支持: Debian7+ / Ubuntu14+
+- 使用方法: https://doub.io/vpnzy-7/
+
+### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ocserv.sh && chmod +x ocserv.sh && bash ocserv.sh
+```
+
 gogo.sh
 ======
 
