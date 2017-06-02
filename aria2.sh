@@ -184,7 +184,6 @@ Save_iptables(){
 	fi
 }
 Set_iptables(){
-	echo "1" > /proc/sys/net/ipv4/ip_forward
 	if [[ ${release} == "centos" ]]; then
 		service iptables save
 		chkconfig --level 2345 iptables on
