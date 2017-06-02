@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: ocserv AnyConnect
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/vpnzy-7/
 #=================================================
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 file="/usr/local/sbin/ocserv"
 conf_file="/etc/ocserv"
 conf="/etc/ocserv/ocserv.conf"
@@ -64,6 +64,8 @@ Download_ocserv(){
 	./configure
 	make
 	make install
+	cd .. && cd ..
+	rm -rf ocserv/
 	
 	mkdir "${conf_file}"
 	wget --no-check-certificate -N -P "${conf_file}" "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ocserv.conf"
@@ -198,6 +200,7 @@ Set_ocserv(){
 	set_udp_port=$(cat ${conf}|grep "udp-port ="|awk -F ' = ' '{print $NF}')
 	Del_iptables
 	Add_iptables
+	Save_iptables
 	echo "是否重启 ocserv ? (Y/n)"
 	stty erase '^H' && read -p "(默认: Y):" yn
 	[[ -z ${yn} ]] && yn="y"
@@ -430,7 +433,6 @@ Save_iptables(){
 }
 Set_iptables(){
 	echo "1" > /proc/sys/net/ipv4/ip_forward
-	sysctl -p
 	ifconfig_status=$(ifconfig)
 	if [[ -z ${ifconfig_status} ]]; then
 		echo -e "${Error} ifconfig 未安装 !"
