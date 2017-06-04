@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: ocserv AnyConnect
-#	Version: 1.0.1
+#	Version: 1.0.2
 #	Author: Toyo
 #	Blog: https://doub.io/vpnzy-7/
 #=================================================
-sh_ver="1.0.1"
+sh_ver="1.0.2"
 file="/usr/local/sbin/ocserv"
 conf_file="/etc/ocserv"
 conf="/etc/ocserv/ocserv.conf"
@@ -432,7 +432,8 @@ Save_iptables(){
 	iptables-save > /etc/iptables.up.rules
 }
 Set_iptables(){
-	echo "1" > /proc/sys/net/ipv4/ip_forward
+	echo -e "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	sysctl -p
 	ifconfig_status=$(ifconfig)
 	if [[ -z ${ifconfig_status} ]]; then
 		echo -e "${Error} ifconfig 未安装 !"
