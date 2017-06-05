@@ -5,20 +5,21 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: iptables Port forwarding
-#	Version: 1.0.1
+#	Version: 1.1.0
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-20/
 #=================================================
+sh_ver="1.1.0"
 
-#检查是否安装iptables
+Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
+Info="${Green_font_prefix}[信息]${Font_color_suffix}"
+Error="${Red_font_prefix}[错误]${Font_color_suffix}"
+Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
+
 check_iptables(){
-	iptables_exist=`iptables -V`
-	if [[ ${iptables_exist} = "" ]]; then
-		echo -e "\033[41;37m [错误] \033[0m 没有安装iptables，请检查 !"
-		exit 1
-	fi
+	iptables_exist=$(iptables -V)
+	[[ ${iptables_exist} = "" ]] && echo -e "${Error} 没有安装iptables，请检查 !" && exit 1
 }
-#检查系统
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
 		release="centos"
@@ -37,336 +38,265 @@ check_sys(){
     fi
 	#bit=`uname -m`
 }
-# 安装iptables
-installiptables(){
-# 判断是否安装iptables
-	iptables_exist=`iptables -V`
+install_iptables(){
+	iptables_exist=$(iptables -V)
 	if [[ ${iptables_exist} != "" ]]; then
-		echo -e "\033[41;37m [错误] \033[0m 已经安装iptables，请检查 !"
-		exit 1
-	fi
-check_sys
-# 系统判断
-	if [[ ${release}  == "centos" ]]; then
-		yum update
-		yum install -y vim curl iptables
+		echo -e "${Info} 已经安装iptables，继续..."
 	else
-		apt-get update
-		apt-get install -y vim curl iptables
+		echo -e "${Info} 检测到未安装 iptables，开始安装..."
+		if [[ ${release}  == "centos" ]]; then
+			yum update
+			yum install -y vim iptables
+		else
+			apt-get update
+			apt-get install -y vim iptables
+		fi
+		iptables_exist=$(iptables -V)
+		if [[ ${iptables_exist} = "" ]]; then
+			echo -e "${Error} 安装iptables失败，请检查 !" && exit 1
+		else
+			echo -e "${Info} iptables 安装完成 !"
+		fi
 	fi
-	chmod +x /etc/rc.local
-	echo 1 > /proc/sys/net/ipv4/ip_forward
-	#判断iptables是否安装成功
-	iptables_exist=`iptables -V`
-	if [[ ${iptables_exist} = "" ]]; then
-		echo -e "\033[41;37m [错误] \033[0m 安装iptables失败，请检查 !"
-		exit 1
+	echo -e "${Info} 开始配置 iptables !"
+	Set_iptables
+	echo -e "${Info} iptables 配置完毕 !"
+}
+Set_forwarding_port(){
+	stty erase '^H' && read -p "请输入 iptables 欲转发至的 端口 [1-65535] (支持端口段 如 2333-6666):" forwarding_port
+	[[ -z "${forwarding_port}" ]] && echo "取消..." && exit 1
+	echo && echo -e "	欲转发端口 : ${Red_font_prefix}${forwarding_port}${Font_color_suffix}" && echo
+}
+Set_forwarding_ip(){
+		stty erase '^H' && read -p "请输入 iptables 欲转发至的 IP(被转发服务器):" forwarding_ip
+		[[ -z "${forwarding_ip}" ]] && echo "取消..." && exit 1
+		echo && echo -e "	欲转发服务器IP : ${Red_font_prefix}${forwarding_ip}${Font_color_suffix}" && echo
+}
+Set_local_port(){
+	echo -e "请输入 iptables 本地监听端口 [1-65535] (支持端口段 如 2333-6666)"
+	stty erase '^H' && read -p "(默认端口: ${forwarding_port}):" local_port
+	[[ -z "${local_port}" ]] && local_port="${forwarding_port}"
+	echo && echo -e "	本地监听端口 : ${Red_font_prefix}${local_port}${Font_color_suffix}" && echo
+}
+Set_local_ip(){
+	stty erase '^H' && read -p "请输入 本服务器的 公网IP(回车自动检测):" local_ip
+	if [[ -z "${local_ip}" ]]; then
+		local_ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+		if [[ -z "${local_ip}" ]]; then
+			echo "${Error} 无法检测到本服务器的公网IP，请手动输入"
+			stty erase '^H' && read -p "请输入 本服务器的 公网IP:" local_ip
+			[[ -z "${local_ip}" ]] && echo "取消..." && exit 1
+		fi
+	fi
+	echo && echo -e "	本服务器IP : ${Red_font_prefix}${local_ip}${Font_color_suffix}" && echo
+}
+Set_forwarding_type(){
+	echo -e "请输入数字 来选择 iptables 转发类型:
+ 1. TCP
+ 2. UDP
+ 3. TCP+UDP\n"
+	stty erase '^H' && read -p "(默认: TCP+UDP):" forwarding_type_num
+	[[ -z "${forwarding_type_num}" ]] && forwarding_type_num="3"
+	if [[ ${forwarding_type_num} == "1" ]]; then
+		forwarding_type="TCP"
+	elif [[ ${forwarding_type_num} == "2" ]]; then
+		forwarding_type="UDP"
+	elif [[ ${forwarding_type_num} == "3" ]]; then
+		forwarding_type="TCP+UDP"
 	else
-		echo -e "\033[42;37m [信息] \033[0m iptables 安装/升级 完成 !"
+		forwarding_type="TCP+UDP"
 	fi
 }
-addiptables(){
-# 判断是否安装iptables
-	check_iptables
-# 设置本地监听端口
-	stty erase '^H' && read -p "请输入 iptables 的 本地监听端口 [1-65535] (支持端口段: 2333-6666): " iptablesport
-	[[ -z "${iptablesport}" ]] && echo "取消..." && exit 1
-# 设置本地 IP
-	stty erase '^H' && read -p "请输入 本服务器的 公网IP (回车默认: 自动检测):" ip
-	if [[ -z "${ip}" ]]; then
-		ip=`curl -m 10 -s http://members.3322.org/dyndns/getip`
-		[[ -z "${ip}" ]] && echo "无法检测到本服务器的公网IP，取消..." && exit 1
-	fi
-# 设置欲转发端口
-	echo -e "请输入 iptables 欲转发的 端口 [1-65535] (支持端口段: 2333-6666): "
-	stty erase '^H' && read -p "(默认端口: ${iptablesport})" iptablesport1
-	[[ -z "${iptablesport1}" ]] && iptablesport1=${iptablesport}
-# 设置欲转发 IP
-	stty erase '^H' && read -p "请输入 iptables 欲转发的 IP:" iptablesip
-	[[ -z "${iptablesip}" ]] && echo "取消..." && exit 1
-#设置 转发类型
-	echo "请输入数字 来选择 iptables 转发类型:"
-	echo "1. TCP"
-	echo "2. UDP"
-	echo "3. TCP+UDP"
-	echo
-	stty erase '^H' && read -p "(默认: TCP+UDP):" iptablestype_num
-	[ -z "${iptablestype_num}" ] && iptablestype_num="3"
-	if [ ${iptablestype_num} = "1" ]; then
-		iptablestype="TCP"
-	elif [ ${iptablestype_num} = "2" ]; then
-		iptablestype="UDP"
-	elif [ ${iptablestype_num} = "3" ]; then
-		iptablestype="TCP+UDP"
-	else
-		iptablestype="TCP+UDP"
-	fi
-#最后确认
-	echo
-	echo "——————————————————————————————"
-	echo "      请检查 iptables 端口转发规则配置是否有误 !"
-	echo
-	echo -e "	本地监听端口 : \033[32m${iptablesport}\033[0m"
-	echo -e "	公网    IP       : \033[32m${ip}\033[0m"
-	echo -e "	欲转发端口    : \033[32m${iptablesport1}\033[0m"
-	echo -e "	欲转发 IP       : \033[32m${iptablesip}\033[0m"
-	echo -e "	转发类型       : \033[32m${iptablestype}\033[0m"
-	echo "——————————————————————————————"
-	echo
+Set_Config(){
+	Set_forwarding_port
+	Set_forwarding_ip
+	Set_local_port
+	Set_local_ip
+	Set_forwarding_type
+	echo && echo -e "——————————————————————————————
+	请检查 iptables 端口转发规则配置是否有误 !\n
+	本地监听端口    : ${Green_font_prefix}${local_port}${Font_color_suffix}
+	服务器 IP\t: ${Green_font_prefix}${local_ip}${Font_color_suffix}\n
+	欲转发的端口    : ${Green_font_prefix}${forwarding_port}${Font_color_suffix}
+	欲转发 IP\t: ${Green_font_prefix}${forwarding_ip}${Font_color_suffix}
+	转发类型\t: ${Green_font_prefix}${forwarding_type}${Font_color_suffix}
+——————————————————————————————\n"
 	stty erase '^H' && read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
-	
-	echo 1 > /proc/sys/net/ipv4/ip_forward
-	
-	iptablesport2=`echo ${iptablesport} | sed 's/-/:/g'`
-	iptablesport3=`echo ${iptablesport1} | sed 's/-/:/g'`
-	
-	if [ ${iptablestype} = "TCP" ]; then
-		iptables -t nat -A PREROUTING -p tcp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-		iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source "${ip}"
-		sleep 1s
-# 系统判断
-		check_sys
-		# 加入开机启动
-		if [[ ${release}  == "debian" ]]; then
-			sed -i '$d' /etc/rc.local
-			echo -e "iptables -t nat -A PREROUTING -p tcp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}" >> /etc/rc.local
-			echo -e "exit 0" >> /etc/rc.local
-		else
-			echo -e "iptables -t nat -A PREROUTING -p tcp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}" >> /etc/rc.local
-		fi
-		# 开放防火墙端口
-		iptables -I INPUT -p tcp --dport ${iptablesport2} -j ACCEPT
-		service iptables save
-		service iptables restart
-	elif [ ${iptablestype} = "UDP" ]; then
-		iptables -t nat -A PREROUTING -p udp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-		iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source "${ip}"
-		sleep 1s
-# 系统判断
-		check_sys
-		# 加入开机启动
-		if [[ ${release}  == "debian" ]]; then
-			sed -i '$d' /etc/rc.local
-			echo -e "iptables -t nat -A PREROUTING -p udp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}" >> /etc/rc.local
-			echo -e "exit 0" >> /etc/rc.local
-		else
-			echo -e "iptables -t nat -A PREROUTING -p udp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}" >> /etc/rc.local
-		fi
-		# 开放防火墙端口
-		iptables -I INPUT -p udp --dport ${iptablesport2} -j ACCEPT
-		service iptables save
-		service iptables restart
-	elif [ ${iptablestype} = "TCP+UDP" ]; then
-		iptables -t nat -A PREROUTING -p tcp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-		iptables -t nat -A PREROUTING -p udp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-		iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source "${ip}"
-		iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source "${ip}"
-		sleep 1s
-# 系统判断
-		check_sys
-		# 加入开机启动
-		if [[ ${release}  == "debian" ]]; then
-			sed -i '$d' /etc/rc.local
-			echo -e "iptables -t nat -A PREROUTING -p tcp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-iptables -t nat -A PREROUTING -p udp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}
-iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}" >> /etc/rc.local
-			echo -e "exit 0" >> /etc/rc.local
-		else
-			echo -e "iptables -t nat -A PREROUTING -p tcp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-iptables -t nat -A PREROUTING -p udp --dport ${iptablesport2} -j DNAT --to-destination ${iptablesip}:${iptablesport1}
-iptables -t nat -A POSTROUTING -p tcp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}
-iptables -t nat -A POSTROUTING -p udp -d ${iptablesip} --dport ${iptablesport3} -j SNAT --to-source ${ip}" >> /etc/rc.local
-		fi
-		# 开放防火墙端口
-		iptables -I INPUT -p tcp --dport ${iptablesport2} -j ACCEPT
-		iptables -I INPUT -p udp --dport ${iptablesport2} -j ACCEPT
-		service iptables save
-		service iptables restart
-	fi
-	clear
-	echo
-	echo "——————————————————————————————"
-	echo "	iptables 端口转发规则配置完成 !"
-	echo
-	echo -e "	公网 IP           : \033[32m${ip}\033[0m"
-	echo -e "	本地监听端口 : \033[32m${iptablesport}\033[0m"
-	echo
-	echo -e "	欲转发 IP      : \033[32m${iptablesip}\033[0m"
-	echo -e "	欲转发端口   : \033[32m${iptablesport1}\033[0m"
-	echo -e "	转发类型      : \033[32m${iptablestype}\033[0m"
-	echo "——————————————————————————————"
-	echo
 }
-# 查看iptables列表
-listiptables(){
-# 检查是否安装
+Add_forwarding(){
 	check_iptables
-	iptables_total=`iptables -t nat -vnL PREROUTING | wc -l`
-	iptables_total=$[ $iptables_total - 2 ]
-	if [[ ${iptables_total} = "0" ]]; then
-		echo -e "\033[41;37m [错误] \033[0m 没有发现 iptables 端口转发规则，请检查 !"
-		exit 1
+	Set_Config
+	local_port=$(echo ${local_port} | sed 's/-/:/g')
+	forwarding_port_1=$(echo ${forwarding_port} | sed 's/-/:/g')
+	if [[ ${forwarding_type} == "TCP" ]]; then
+		Add_iptables "tcp"
+	elif [[ ${forwarding_type} == "UDP" ]]; then
+		Add_iptables "udp"
+	elif [[ ${forwarding_type} == "TCP+UDP" ]]; then
+		Add_iptables "tcp"
+		Add_iptables "udp"
 	fi
-	iptables_list_all=""
-	for((integer = 1; integer <= ${iptables_total}; integer++))
-	do
-		iptables_type=`iptables -t nat -vnL PREROUTING | awk '{print $4}' | sed "1,2d" | sed -n "${integer}p"`
-		iptables_listen=`iptables -t nat -vnL PREROUTING | awk '{print $11}' | sed "1,2d" | sed -n "${integer}p" | awk -F "dpt:" '{print $2}'`
-		[[ -z ${iptables_listen} ]] && iptables_listen=`iptables -t nat -vnL PREROUTING | awk '{print $11}' | sed "1,2d" | sed -n "${integer}p" | awk -F "dpts:" '{print $2}'`
-		iptables_fork=`iptables -t nat -vnL PREROUTING | awk '{print $12}' | sed "1,2d" | sed -n "${integer}p" | awk -F "to:" '{print $2}'`
-		iptables_list_all=${iptables_list_all}${integer}". 类型: "${iptables_type}" 监听端口: "${iptables_listen}" 转发IP和端口: "${iptables_fork}"\n"
-	done
-	echo
-	echo -e "当前有 \033[42;37m "${iptables_total}" \033[0m 个 iptables 端口转发规则。"
-	echo -e ${iptables_list_all}
+	Save_iptables
+	clear && echo && echo -e "——————————————————————————————
+	iptables 端口转发规则配置完成 !\n
+	本地监听端口    : ${Green_font_prefix}${local_port}${Font_color_suffix}
+	服务器 IP\t: ${Green_font_prefix}${local_ip}${Font_color_suffix}\n
+	欲转发的端口    : ${Green_font_prefix}${forwarding_port_1}${Font_color_suffix}
+	欲转发 IP\t: ${Green_font_prefix}${forwarding_ip}${Font_color_suffix}
+	转发类型\t: ${Green_font_prefix}${forwarding_type}${Font_color_suffix}
+——————————————————————————————\n"
 }
-deliptables(){
-# 检查是否安装
-	check_iptables	
-	
+View_forwarding(){
+	check_iptables
+	forwarding_text=$(iptables -t nat -vnL PREROUTING|tail -n +3)
+	[[ -z ${forwarding_text} ]] && echo -e "${Error} 没有发现 iptables 端口转发规则，请检查 !" && exit 1
+	forwarding_total=$(echo -e "${forwarding_text}"|wc -l)
+	forwarding_list_all=""
+	for((integer = 1; integer <= ${forwarding_total}; integer++))
+	do
+		forwarding_type=$(echo -e "${forwarding_text}"|awk '{print $4}'|sed -n "${integer}p")
+		forwarding_listen=$(echo -e "${forwarding_text}"|awk '{print $11}'|sed -n "${integer}p"|awk -F "dpt:" '{print $2}')
+		[[ -z ${forwarding_listen} ]] && forwarding_listen=$(echo -e "${forwarding_text}"| awk '{print $11}'|sed -n "${integer}p"|awk -F "dpts:" '{print $2}')
+		forwarding_fork=$(echo -e "${forwarding_text}"| awk '{print $12}'|sed -n "${integer}p"|awk -F "to:" '{print $2}')
+		forwarding_list_all=${forwarding_list_all}"${Green_font_prefix}"${integer}".${Font_color_suffix} 类型: ${Green_font_prefix}"${forwarding_type}"${Font_color_suffix} 监听端口: ${Red_font_prefix}"${forwarding_listen}"${Font_color_suffix} 转发IP和端口: ${Red_font_prefix}"${forwarding_fork}"${Font_color_suffix}\n"
+	done
+	echo && echo -e "当前有 ${Green_background_prefix} "${forwarding_total}" ${Font_color_suffix} 个 iptables 端口转发规则。"
+	echo -e ${forwarding_list_all}
+}
+Del_forwarding(){
+	check_iptables
 	while true
 	do
-	# 列出 iptables
-	listiptables
-	stty erase '^H' && read -p "请输入数字 来选择要删除的 iptables 端口转发规则:" stopiptables
-	[[ -z "${stopiptables}" ]] && stopiptables="0"
-	expr ${stopiptables} + 0 &>/dev/null
+	View_forwarding
+	stty erase '^H' && read -p "请输入数字 来选择要删除的 iptables 端口转发规则(默认回车取消):" Del_forwarding_num
+	[[ -z "${Del_forwarding_num}" ]] && Del_forwarding_num="0"
+	expr ${Del_forwarding_num} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
-		if [[ ${stopiptables} -ge 1 ]] && [[ ${stopiptables} -le ${iptables_total} ]]; then
-			# 删除开机启动
-			iptables_type_del=`iptables -t nat -vnL PREROUTING | awk '{print $4}' | sed "1,2d" | sed -n "${stopiptables}p"`
-			iptables_listen_del=`iptables -t nat -vnL PREROUTING | awk '{print $11}' | sed "1,2d" | sed -n "${stopiptables}p" | awk -F "dpt:" '{print $2}'`
-			[[ -z ${iptables_listen_del} ]] && iptables_listen_del=`iptables -t nat -vnL PREROUTING | awk '{print $11}' | sed "1,2d" | sed -n "${stopiptables}p" | awk -F "dpts:" '{print $2}'`
-			iptables_fork_del=`iptables -t nat -vnL PREROUTING | awk '{print $12}' | sed "1,2d" | sed -n "${stopiptables}p" | awk -F "to:" '{print $2}'`
-			if [[ ${iptables_type_del} = "tcp" ]]; then
-				iptables_del_tcp_1=`echo "iptables -t nat -A PREROUTING -p tcp --dport ${iptables_listen_del} -j DNAT --to-destination ${iptables_fork_del}"`
-				iptables_del_tcp_1_ip=`echo ${iptables_fork_del} | awk -F ":" '{print $1}'`
-				iptables_del_tcp_1_prot=`echo ${iptables_fork_del} | awk -F ":" '{print $2}'`
-				iptables_del_tcp_1_prot=`echo ${iptables_del_tcp_1_prot} | sed 's/-/:/g'`
-				iptables_del_tcp_2=`echo "iptables -t nat -A POSTROUTING -p tcp -d ${iptables_del_tcp_1_ip} --dport ${iptables_del_tcp_1_prot} -j SNAT"`
-				#echo ${iptables_del_tcp_2}
-				sed -i "/${iptables_del_tcp_1}/d" /etc/rc.local
-				sed -i "/${iptables_del_tcp_2}/d" /etc/rc.local
-			else
-				iptables_del_udp_1=`echo "iptables -t nat -A PREROUTING -p udp --dport ${iptables_listen_del} -j DNAT --to-destination ${iptables_fork_del}"`
-				iptables_del_udp_1_ip=`echo ${iptables_fork_del} | awk -F ":" '{print $1}'`
-				iptables_del_udp_1_prot=`echo ${iptables_fork_del} | awk -F ":" '{print $2}'`
-				iptables_del_udp_1_prot=`echo ${iptables_del_udp_1_prot} | sed 's/-/:/g'`
-				iptables_del_udp_2=`echo "iptables -t nat -A POSTROUTING -p udp -d ${iptables_del_udp_1_ip} --dport ${iptables_del_udp_1_prot} -j SNAT"`
-				#echo ${iptables_del_udp_2}
-				sed -i "/${iptables_del_udp_1}/d" /etc/rc.local
-				sed -i "/${iptables_del_udp_2}/d" /etc/rc.local
-			fi
-			
-			# 删除端口开放的防火墙规则
-			iptables_listen_del_2=`iptables -t nat -vnL PREROUTING | awk '{print $11}' | sed "1,2d" | sed -n "${stopiptables}p" | awk -F "dpt:" '{print $2}'`
-			[[ -z ${iptables_listen_del_2} ]] && iptables_listen_del_2=`iptables -t nat -vnL PREROUTING | awk '{print $11}' | sed "1,2d" | sed -n "${stopiptables}p" | awk -F "dpts:" '{print $2}'`
-			iptables_type_del_2=`iptables -t nat -vnL PREROUTING | awk '{print $4}' | sed "1,2d" | sed -n "${stopiptables}p"`
-			if [[ ${iptables_type_del_2} = "tcp" ]]; then
-				iptables -D INPUT -p tcp --dport ${iptables_listen_del_2} -j ACCEPT
-			else
-				iptables -D INPUT -p udp --dport ${iptables_listen_del_2} -j ACCEPT
-			fi
-			service iptables save
-			service iptables restart
-		
-			iptables_total=`iptables -t nat -vnL PREROUTING | wc -l`
-			iptables_total=$[ $iptables_total - 2 ]
-			iptables_total1=$[ $iptables_total - 1 ]
-			
-			iptables -t nat -D POSTROUTING ${stopiptables}
-			iptables -t nat -D PREROUTING ${stopiptables}
-			sleep 1s
-			iptables_total=`iptables -t nat -vnL PREROUTING | wc -l`
-			iptables_total=$[ $iptables_total - 2 ]
-			#echo ${iptables_total}"+"${iptables_total1}
-			if [[ ${iptables_total} != ${iptables_total1} ]]; then
-				echo -e "\033[41;37m [错误] \033[0m iptables 端口转发规则 删除失败 !"
-				exit 1
-			else
-				echo
-				echo "	iptables 端口转发规则已删除 !"
-				echo
-			fi
-			break
+		if [[ ${Del_forwarding_num} -ge 1 ]] && [[ ${Del_forwarding_num} -le ${forwarding_total} ]]; then
+			forwarding_type=$(echo -e "${forwarding_text}"| awk '{print $4}' | sed -n "${Del_forwarding_num}p")
+			forwarding_listen=$(echo -e "${forwarding_text}"| awk '{print $11}' | sed -n "${Del_forwarding_num}p" | awk -F "dpt:" '{print $2}' | sed 's/-/:/g')
+			[[ -z ${forwarding_listen} ]] && forwarding_listen=$(echo -e "${forwarding_text}"| awk '{print $11}' |sed -n "${Del_forwarding_num}p" | awk -F "dpts:" '{print $2}')
+			Del_iptables "${forwarding_type}"
+			Save_iptables
+			echo && echo -e "${Info} iptables 端口转发规则删除完成 !" && echo
 		else
-			echo -e "\033[41;37m [错误] \033[0m 请输入正确的数字 !"
+			echo -e "${Error} 请输入正确的数字 !"
 		fi
 	else
-		echo "取消..."
-		exit 1
+		break && echo "取消..."
 	fi
 	done
 }
-uninstalliptables(){
-# 检查是否安装
+Uninstall_forwarding(){
 	check_iptables
-
-	printf "确定要清空 iptables 所有端口转发规则 ? (y/N)"
-	printf "\n"
+	echo -e "确定要清空 iptables 所有端口转发规则 ? [y/N]"
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
-		iptables_total=`iptables -t nat -vnL PREROUTING | wc -l`
-		iptables_total=$[ $iptables_total - 2 ]
-		for((integer = 1; integer <= ${iptables_total}; integer++))
+		forwarding_text=$(iptables -t nat -vnL PREROUTING|tail -n +3)
+		[[ -z ${forwarding_text} ]] && echo -e "${Error} 没有发现 iptables 端口转发规则，请检查 !" && exit 1
+		forwarding_total=$(echo -e "${forwarding_text}"|wc -l)
+		for((integer = 1; integer <= ${forwarding_total}; integer++))
 		do
-			iptables_fork_del_3=`iptables -t nat -vnL PREROUTING | awk '{print $12}' | sed "1,2d" | sed -n "1p" | awk -F "to:" '{print $2}'`
-			iptables_listen_del_3=`iptables -t nat -vnL PREROUTING | awk '{print $11}' | sed "1,2d" | sed -n "1p" | awk -F "dpt:" '{print $2}'`
-			[[ -z ${iptables_listen_del_3} ]] && iptables_listen_del_3=`iptables -t nat -vnL PREROUTING | awk '{print $11}' | sed "1,2d" | sed -n "1p" | awk -F "dpts:" '{print $2}'`
-			iptables_type_del_3=`iptables -t nat -vnL PREROUTING | awk '{print $4}' | sed "1,2d" | sed -n "1p"`
-			if [[ ${iptables_type_del_3} = "tcp" ]]; then
-				iptables_del_tcp_1=`echo "iptables -t nat -A PREROUTING -p tcp --dport ${iptables_listen_del_3} -j DNAT --to-destination ${iptables_fork_del_3}"`
-				iptables_del_tcp_1_ip=`echo ${iptables_fork_del_3} | awk -F ":" '{print $1}'`
-				iptables_del_tcp_1_prot=`echo ${iptables_fork_del_3} | awk -F ":" '{print $2}'`
-				iptables_del_tcp_1_prot=`echo ${iptables_del_tcp_1_prot} | sed 's/-/:/g'`
-				iptables_del_tcp_2=`echo "iptables -t nat -A POSTROUTING -p tcp -d ${iptables_del_tcp_1_ip} --dport ${iptables_del_tcp_1_prot} -j SNAT"`
-				sed -i "/${iptables_del_tcp_1}/d" /etc/rc.local
-				sed -i "/${iptables_del_tcp_2}/d" /etc/rc.local
-				
-				iptables -D INPUT -p tcp --dport ${iptables_listen_del_3} -j ACCEPT
-			else
-				iptables_del_udp_1=`echo "iptables -t nat -A PREROUTING -p udp --dport ${iptables_listen_del_3} -j DNAT --to-destination ${iptables_fork_del_3}"`
-				iptables_del_udp_1_ip=`echo ${iptables_fork_del_3} | awk -F ":" '{print $1}'`
-				iptables_del_udp_1_prot=`echo ${iptables_fork_del_3} | awk -F ":" '{print $2}'`
-				iptables_del_udp_1_prot=`echo ${iptables_del_udp_1_prot} | sed 's/-/:/g'`
-				iptables_del_udp_2=`echo "iptables -t nat -A POSTROUTING -p udp -d ${iptables_del_udp_1_ip} --dport ${iptables_del_udp_1_prot} -j SNAT"`
-				sed -i "/${iptables_del_udp_1}/d" /etc/rc.local
-				sed -i "/${iptables_del_udp_2}/d" /etc/rc.local
-				
-				iptables -D INPUT -p udp --dport ${iptables_listen_del_3} -j ACCEPT
-			fi
-			
-			iptables -t nat -D POSTROUTING 1
-			iptables -t nat -D PREROUTING 1
-			sleep 1s
+			forwarding_type=$(echo -e "${forwarding_text}"|awk '{print $4}'|sed -n "${integer}p")
+			forwarding_listen=$(echo -e "${forwarding_text}"|awk '{print $11}'|sed -n "${integer}p"|awk -F "dpt:" '{print $2}')
+			[[ -z ${forwarding_listen} ]] && forwarding_listen=$(echo -e "${forwarding_text}"| awk '{print $11}'|sed -n "${integer}p"|awk -F "dpts:" '{print $2}')
+			# echo -e "${forwarding_text} ${forwarding_type} ${forwarding_listen}"
+			Del_iptables "${forwarding_type}"
 		done
-		service iptables save
-		service iptables restart
-		
-		echo
-		echo "	iptables 已清空 所有端口转发规则 !"
-		echo
+		Save_iptables
+		echo && echo -e "${Info} iptables 已清空 所有端口转发规则 !" && echo
 	else
-		echo
-		echo "清空已取消..."
-		echo
+		echo && echo "清空已取消..." && echo
 	fi
 }
-
-action=$1
-[[ -z $1 ]] && action=install
-case "$action" in
-	install|add|del|list|uninstall)
-	${action}iptables
+Add_iptables(){
+	iptables -t nat -A PREROUTING -p "$1" --dport "${local_port}" -j DNAT --to-destination "${forwarding_ip}":"${forwarding_port}"
+	iptables -t nat -A POSTROUTING -p "$1" -d "${forwarding_ip}" --dport "${forwarding_port_1}" -j SNAT --to-source "${local_ip}"
+	echo "${local_port}"
+	iptables -I INPUT -m state --state NEW -m "$1" -p "$1" --dport "${local_port}" -j ACCEPT
+}
+Del_iptables(){
+	iptables -t nat -D POSTROUTING "1"
+	iptables -t nat -D PREROUTING "1"
+	iptables -D INPUT -m state --state NEW -m "$1" -p "$1" --dport "${forwarding_listen}" -j ACCEPT
+}
+Save_iptables(){
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+	else
+		iptables-save > /etc/iptables.up.rules
+	fi
+}
+Set_iptables(){
+	echo -e "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	sysctl -p
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+		chkconfig --level 2345 iptables on
+	elif [[ ${release} == "debian" ]]; then
+		iptables-save > /etc/iptables.up.rules
+		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
+		chmod +x /etc/network/if-pre-up.d/iptables
+	elif [[ ${release} == "ubuntu" ]]; then
+		iptables-save > /etc/iptables.up.rules
+		echo -e '\npre-up iptables-restore < /etc/iptables.up.rules\npost-down iptables-save > /etc/iptables.up.rules' >> /etc/network/interfaces
+		chmod +x /etc/network/interfaces
+	fi
+}
+Update_Shell(){
+	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/iptables-pf.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
+	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 1
+	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" yn
+		[[ -z "${yn}" ]] && yn="y"
+		if [[ ${yn} == [Yy] ]]; then
+			wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/iptables-pf.sh && chmod +x iptables-pf.sh
+			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
+	fi
+}
+check_sys
+echo && echo -e " iptables 端口转发一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+  -- Toyo | doub.io/wlzy-20 --
+  
+ ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+————————————
+ ${Green_font_prefix}1.${Font_color_suffix} 安装 iptables
+ ${Green_font_prefix}2.${Font_color_suffix} 清空 iptables 端口转发
+————————————
+ ${Green_font_prefix}3.${Font_color_suffix} 查看 iptables 端口转发
+ ${Green_font_prefix}4.${Font_color_suffix} 添加 iptables 端口转发
+ ${Green_font_prefix}5.${Font_color_suffix} 删除 iptables 端口转发
+————————————
+注意：初次使用前请请务必执行 ${Green_font_prefix}1. 安装 iptables${Font_color_suffix}(不仅仅是安装)" && echo
+stty erase '^H' && read -p " 请输入数字 [0-5]:" num
+case "$num" in
+	0)
+	Update_Shell
+	;;
+	1)
+	install_iptables
+	;;
+	2)
+	Uninstall_forwarding
+	;;
+	3)
+	View_forwarding
+	;;
+	4)
+	Add_forwarding
+	;;
+	5)
+	Del_forwarding
 	;;
 	*)
-	echo "输入错误 !"
-	echo "用法: {install | add | del | list | uninstall}"
+	echo "请输入正确数字 [0-5]"
 	;;
 esac
