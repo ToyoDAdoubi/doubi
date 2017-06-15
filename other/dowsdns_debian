@@ -51,7 +51,7 @@ do_start(){
 		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID $(echo ${PID})) 正在运行..." && exit 0
 	else
 		cd "${BIN}"
-		nohup python start.py > /dev/null 2>&1 &
+		nohup python start.py > /tmp/dowsdns.log 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
