@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: DowsDNS
-#	Version: 1.0.4
+#	Version: 1.0.5
 #	Author: Toyo
 #	Blog: https://doub.io/dowsdns-jc3/
 #=================================================
 
-sh_ver="1.0.4"
+sh_ver="1.0.5"
 file="/usr/local/dowsDNS"
 dowsdns_conf="/usr/local/dowsDNS/conf/config.json"
 dowsdns_data="/usr/local/dowsDNS/conf/hosts_repository_config.json"
@@ -279,6 +279,7 @@ Set_wrcd_name_1(){
 		wrcd_name_1=$(echo -e "${wrcd_name}"|cut -c 3-100)
 		echo -e "检测到 上级域名为 : ${Red_font_prefix}${wrcd_name_1}${Font_color_suffix}"
 	else
+		wrcd_name_1=""
 		echo "已取消...继续..."
 	fi
 	echo
