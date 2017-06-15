@@ -5,16 +5,17 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: DowsDNS
-#	Version: 1.0.5
+#	Version: 1.0.6
 #	Author: Toyo
 #	Blog: https://doub.io/dowsdns-jc3/
 #=================================================
 
-sh_ver="1.0.5"
+sh_ver="1.0.6"
 file="/usr/local/dowsDNS"
 dowsdns_conf="/usr/local/dowsDNS/conf/config.json"
 dowsdns_data="/usr/local/dowsDNS/conf/hosts_repository_config.json"
 dowsdns_wrcd="/usr/local/dowsDNS/data/wrcd.json"
+dowsdns_log="/tmp/dowsdns.log"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}" && Error="${Red_font_prefix}[错误]${Font_color_suffix}" && Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
@@ -358,8 +359,8 @@ Del_wrcd(){
 				wrcd_text=$(cat ${dowsdns_wrcd}|sed -n "${del_wrcd_num}p")
 				wrcd_name=$(echo -e "${wrcd_text}"|sed 's/\"//g;s/,//g'|awk -F ":" '{print $1}')
 				wrcd_ip=$(echo -e "${wrcd_text}"|sed 's/\"//g;s/,//g'|awk -F ":" '{print $2}')
-				del_wrcd_determine=`echo ${wrcd_text:((${#wrcd_text} - 1))}`
-				if [[ ${del_wrcd_determine} != "," ]]; then
+				del_wrcd_determine=$(echo ${wrcd_text:((${#wrcd_text} - 1))})
+				if [[ ${del_wrcd_num} == ${wrcd_json_num} ]]; then
 					del_wrcd_determine_num=$(expr $del_wrcd_num - 1)
 					sed -i "${del_wrcd_determine_num}s/,//g" ${dowsdns_wrcd}
 				fi
@@ -538,6 +539,11 @@ post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
 		chmod +x /etc/network/interfaces
 	fi
 }
+View_Log(){
+	[[ ! -e ${dowsdns_log} ]] && echo -e "${Error} dowsDNS 日志文件不存在 !" && exit 1
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
+	tail -f ${dowsdns_log}
+}
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
 	sh_new_ver=$(wget --no-check-certificate -qO- softs.pw/Bash/dowsdns.sh|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
@@ -559,19 +565,20 @@ Update_Shell(){
 echo && echo -e "  DowsDNS 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- Toyo | doub.io/dowsdns-jc3 --
   
- ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+ ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
  ————————————
- ${Green_font_prefix}1.${Font_color_suffix} 安装 DowsDNS
- ${Green_font_prefix}2.${Font_color_suffix} 升级 DowsDNS
- ${Green_font_prefix}3.${Font_color_suffix} 卸载 DowsDNS
+ ${Green_font_prefix} 1.${Font_color_suffix} 安装 DowsDNS
+ ${Green_font_prefix} 2.${Font_color_suffix} 升级 DowsDNS
+ ${Green_font_prefix} 3.${Font_color_suffix} 卸载 DowsDNS
 ————————————
- ${Green_font_prefix}4.${Font_color_suffix} 启动 DowsDNS
- ${Green_font_prefix}5.${Font_color_suffix} 停止 DowsDNS
- ${Green_font_prefix}6.${Font_color_suffix} 重启 DowsDNS
+ ${Green_font_prefix} 4.${Font_color_suffix} 启动 DowsDNS
+ ${Green_font_prefix} 5.${Font_color_suffix} 停止 DowsDNS
+ ${Green_font_prefix} 6.${Font_color_suffix} 重启 DowsDNS
 ————————————
- ${Green_font_prefix}7.${Font_color_suffix} 设置 DowsDNS 基础配置
- ${Green_font_prefix}8.${Font_color_suffix} 设置 DowsDNS 泛域名解析配置
- ${Green_font_prefix}9.${Font_color_suffix} 查看 DowsDNS 信息
+ ${Green_font_prefix} 7.${Font_color_suffix} 设置 DowsDNS 基础配置
+ ${Green_font_prefix} 8.${Font_color_suffix} 设置 DowsDNS 泛域名解析配置
+ ${Green_font_prefix} 9.${Font_color_suffix} 查看 DowsDNS 信息
+ ${Green_font_prefix}10.${Font_color_suffix} 查看 DowsDNS 日志
 ————————————" && echo
 if [[ -e ${file} ]]; then
 	check_pid
@@ -616,7 +623,10 @@ case "$num" in
 	9)
 	View_dowsdns
 	;;
+	10)
+	View_Log
+	;;
 	*)
-	echo "请输入正确数字 [0-9]"
+	echo "请输入正确数字 [0-10]"
 	;;
 esac
