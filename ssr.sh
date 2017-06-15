@@ -127,7 +127,7 @@ ss_link_qr(){
 ssr_link_qr(){
 	SSRprotocol=`echo ${protocol} | sed 's/_compatible//g'`
 	SSRobfs=`echo ${obfs} | sed 's/_compatible//g'`
-	SSRPWDbase64=`echo -n "${password}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g'`
+	SSRPWDbase64=`echo -n "${password}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g;s/=//g'`
 	SSRbase64=`echo -n "${ip}:${port}:${SSRprotocol}:${method}:${SSRobfs}:${SSRPWDbase64}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g;s/=//g'`
 	SSRurl="ssr://"${SSRbase64}
 	SSRQRcode="http://doub.pw/qr/qr.php?text="${SSRurl}
