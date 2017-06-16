@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.17
+#	Version: 2.0.18
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.17"
+sh_ver="2.0.18"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -118,19 +118,23 @@ Get_User(){
 	speed_limit_per_user=`${jq_file} '.speed_limit_per_user' ${config_user_file}`
 	connect_verbose_info=`${jq_file} '.connect_verbose_info' ${config_user_file}`
 }
+urlsafe_base64(){
+	date=$(echo -n "$1"|base64|sed ':a;N;s/\n/ /g;ta'|sed 's/ //g;s/=//g;s/+/-/g;s/\//_/g')
+	echo -e "${date}"
+}
 ss_link_qr(){
-	SSbase64=`echo -n "${method}:${password}@${ip}:${port}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g;s/=//g'`
-	SSurl="ss://"${SSbase64}
-	SSQRcode="http://doub.pw/qr/qr.php?text="${SSurl}
+	SSbase64=$(urlsafe_base64 "${method}:${password}@${ip}:${port}")
+	SSurl="ss://${SSbase64}"
+	SSQRcode="http://doub.pw/qr/qr.php?text=${SSurl}"
 	ss_link=" SS    链接 : ${Green_font_prefix}${SSurl}${Font_color_suffix} \n SS  二维码 : ${Green_font_prefix}${SSQRcode}${Font_color_suffix}"
 }
 ssr_link_qr(){
-	SSRprotocol=`echo ${protocol} | sed 's/_compatible//g'`
-	SSRobfs=`echo ${obfs} | sed 's/_compatible//g'`
-	SSRPWDbase64=`echo -n "${password}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g;s/=//g'`
-	SSRbase64=`echo -n "${ip}:${port}:${SSRprotocol}:${method}:${SSRobfs}:${SSRPWDbase64}" | base64 | sed ':a;N;s/\n/ /g;ta' | sed 's/ //g;s/=//g'`
-	SSRurl="ssr://"${SSRbase64}
-	SSRQRcode="http://doub.pw/qr/qr.php?text="${SSRurl}
+	SSRprotocol=$(echo ${protocol} | sed 's/_compatible//g')
+	SSRobfs=$(echo ${obfs} | sed 's/_compatible//g')
+	SSRPWDbase64=$(urlsafe_base64 "${password}")
+	SSRbase64=$(urlsafe_base64 "${ip}:${port}:${SSRprotocol}:${method}:${SSRobfs}:${SSRPWDbase64}")
+	SSRurl="ssr://${SSRbase64}"
+	SSRQRcode="http://doub.pw/qr/qr.php?text=${SSRurl}"
 	ssr_link=" SSR   链接 : ${Red_font_prefix}${SSRurl}${Font_color_suffix} \n SSR 二维码 : ${Red_font_prefix}${SSRQRcode}${Font_color_suffix} \n "
 }
 ss_ssr_determine(){
