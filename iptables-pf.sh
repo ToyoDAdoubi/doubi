@@ -63,12 +63,12 @@ install_iptables(){
 	echo -e "${Info} iptables 配置完毕 !"
 }
 Set_forwarding_port(){
-	stty erase '^H' && read -p "请输入 iptables 欲转发至的 端口 [1-65535] (支持端口段 如 2333-6666):" forwarding_port
+	stty erase '^H' && read -p "请输入 iptables 欲转发至的 远程端口 [1-65535] (支持端口段 如 2333-6666, 被转发服务器):" forwarding_port
 	[[ -z "${forwarding_port}" ]] && echo "取消..." && exit 1
 	echo && echo -e "	欲转发端口 : ${Red_font_prefix}${forwarding_port}${Font_color_suffix}" && echo
 }
 Set_forwarding_ip(){
-		stty erase '^H' && read -p "请输入 iptables 欲转发至的 IP(被转发服务器):" forwarding_ip
+		stty erase '^H' && read -p "请输入 iptables 欲转发至的 远程IP(被转发服务器):" forwarding_ip
 		[[ -z "${forwarding_ip}" ]] && echo "取消..." && exit 1
 		echo && echo -e "	欲转发服务器IP : ${Red_font_prefix}${forwarding_ip}${Font_color_suffix}" && echo
 }
