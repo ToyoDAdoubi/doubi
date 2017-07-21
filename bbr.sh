@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: TCP-BBR
-#	Version: 1.0.11
+#	Version: 1.0.12
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-16/
 #=================================================
@@ -101,13 +101,14 @@ del_deb(){
 del_deb_over(){
 	del_deb
 	update-grub
-	echo -e "\033[42;37m[注意]\033[0m 重启VPS后，请重新运行脚本开启BBR \033[42;37m bash bbr.sh start \033[0m"
+	addsysctl
+	echo -e "\033[42;37m[注意]\033[0m 重启VPS后，请重新运行脚本查看BBR是否加载成功 \033[42;37m bash bbr.sh status \033[0m"
 	stty erase '^H' && read -p "需要重启VPS后，才能开启BBR，是否现在重启 ? [Y/n] :" yn
 	[ -z "${yn}" ] && yn="y"
-		if [[ $yn == [Yy] ]]; then
+	if [[ $yn == [Yy] ]]; then
 		echo -e "\033[41;37m[信息]\033[0m VPS 重启中..."
 		reboot
-		fi
+	fi
 }
 # 安装BBR
 installbbr(){
@@ -178,19 +179,13 @@ bbrstatus(){
 		exit 1
 	fi
 }
-# 开启BBR
-startbbr(){
-	check_deb_off
-	bbrstatus
+addsysctl(){
 	sed -i '/net\.core\.default_qdisc=fq/d' /etc/sysctl.conf
 	sed -i '/net\.ipv4\.tcp_congestion_control=bbr/d' /etc/sysctl.conf
 	
 	echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
 	echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 	sysctl -p
-	sleep 1s
-	bbrstatus
-	echo -e "${Error} BBR 启动失败，请检查 !"
 }
 # 关闭BBR
 stopbbr(){
@@ -202,10 +197,10 @@ stopbbr(){
 	
 	stty erase '^H' && read -p "需要重启VPS后，才能彻底停止BBR，是否现在重启 ? [Y/n] :" yn
 	[ -z "${yn}" ] && yn="y"
-		if [[ $yn == [Yy] ]]; then
+	if [[ $yn == [Yy] ]]; then
 		echo -e "\033[41;37m[信息]\033[0m VPS 重启中..."
 		reboot
-		fi
+	fi
 }
 # 查看BBR状态
 statusbbr(){
@@ -217,11 +212,11 @@ statusbbr(){
 action=$1
 [ -z $1 ] && action=install
 case "$action" in
-	install|start|stop|status)
+	install|stop|status)
 	${action}bbr
 	;;
 	*)
 	echo "输入错误 !"
-	echo "用法: { install | start | stop | status }"
+	echo "用法: { install | stop | status }"
 	;;
 esac
