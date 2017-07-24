@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: Socat
-#	Version: 1.0.3
+#	Version: 1.0.4
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-18/
 #=================================================
@@ -297,7 +297,8 @@ uninstallSocat(){
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
-		kill -9 $(ps -ef | grep "socat" | grep -v grep | awk '{print $2}')
+		PID=$(ps -ef | grep "socat" | grep -v grep | grep -v ".sh" |awk '{print $2}')
+		[[ ! -z "${PID}" ]] && kill -9 "${PID}"
 		apt-get remove --purge socat -y
 		sed -i "/socat/d" /etc/rc.local
 		[[ -e ${socat_file} ]] && echo -e "${Error} Socat 卸载失败，请检查 !" && exit 1
