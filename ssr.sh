@@ -10,7 +10,7 @@ export PATH
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.18"
+sh_ver="2.0.19"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
