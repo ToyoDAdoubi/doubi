@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.18
+#	Version: 2.0.19
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
@@ -29,6 +29,9 @@ Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
 Separator_1="——————————————————————————————"
 
+check_root(){
+	[[ $EUID != 0 ]] && echo "${Error} 当前账号非ROOT(或没有ROOT权限)，无法继续操作，请使用${Green_background_prefix} sudo su ${Font_color_suffix}来获取临时ROOT权限（执行后会提示输入当前账号的密码）。" && exit 1
+}
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
 		release="centos"
@@ -625,6 +628,7 @@ Installation_dependency(){
 	cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 }
 Install_SSR(){
+	check_root
 	[[ -e ${config_user_file} ]] && echo -e "${Error} ShadowsocksR 配置文件已存在，请检查( 如安装失败或者存在旧版本，请先卸载 ) !" && exit 1
 	[[ -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR 文件夹已存在，请检查( 如安装失败或者存在旧版本，请先卸载 ) !" && exit 1
 	echo -e "${Info} 开始设置 ShadowsocksR账号配置..."
