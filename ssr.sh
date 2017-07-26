@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.19
+#	Version: 2.0.20
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.19"
+sh_ver="2.0.20"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -622,6 +622,7 @@ Installation_dependency(){
 	else
 		Debian_apt
 	fi
+	[[ ! -e "/usr/bin/git" ]] && echo -e "${Error} 依赖 Git 安装失败，多半是软件包源的问题，请检查 !" && exit 1
 	Check_python
 	echo "nameserver 8.8.8.8" > /etc/resolv.conf
 	echo "nameserver 8.8.4.4" >> /etc/resolv.conf
@@ -731,7 +732,7 @@ debian_View_user_connection_info(){
 			user_IP=`echo ${user_IP}|sed 's/ / | /g'`
 		fi
 		user_list_all="端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
-		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix}"
+		echo -e "当前模式: ${Green_background_prefix} "${now_mode}" ${Font_color_suffix}，链接IP总数: ${Green_background_prefix} "${IP_total}" ${Font_color_suffix}"
 		echo -e ${user_list_all}
 	else
 		now_mode="多端口" && user_total=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' | wc -l`
@@ -749,14 +750,14 @@ debian_View_user_connection_info(){
 			fi
 			user_list_all=${user_list_all}"端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		done
-		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix} ，用户总数: ${Green_font_prefix} "${user_total}" ${Font_color_suffix} ，链接IP总数: ${Green_font_prefix} "${IP_total}" ${Font_color_suffix} "
+		echo -e "当前模式: ${Green_background_prefix} "${now_mode}" ${Font_color_suffix} ，用户总数: ${Green_background_prefix} "${user_total}" ${Font_color_suffix} ，链接IP总数: ${Green_background_prefix} "${IP_total}" ${Font_color_suffix} "
 		echo -e ${user_list_all}
 	fi
 }
 centos_View_user_connection_info(){
 	if [[ -z "${now_mode}" ]]; then
 		now_mode="单端口" && user_total="1"
-		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep '::ffff:' |awk '{print $4}' |sort -u |wc -l`
+		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u |wc -l`
 		user_port=`${jq_file} '.server_port' ${config_user_file}`
 		user_IP=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' |grep "${user_port}" | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u`
 		if [[ -z ${user_IP} ]]; then
@@ -766,11 +767,11 @@ centos_View_user_connection_info(){
 			user_IP=`echo ${user_IP}|sed 's/ / | /g'`
 		fi
 		user_list_all="端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
-		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix}"
+		echo -e "当前模式: ${Green_background_prefix} "${now_mode}" ${Font_color_suffix}，链接IP总数: ${Green_background_prefix} "${IP_total}" ${Font_color_suffix}"
 		echo -e ${user_list_all}
 	else
 		now_mode="多端口" && user_total=`${jq_file} '.port_password' ${config_user_file} |sed '$d;1d' | wc -l`
-		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' | grep '::ffff:' |awk '{print $4}' |sort -u |wc -l`
+		IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u |wc -l`
 		user_list_all=""
 		for((integer = 1; integer <= ${user_total}; integer++))
 		do
@@ -784,14 +785,19 @@ centos_View_user_connection_info(){
 			fi
 			user_list_all=${user_list_all}"端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}, 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}, 当前链接IP: ${Green_font_prefix}"${user_IP}"${Font_color_suffix}\n"
 		done
-		echo -e "当前模式: ${Green_font_prefix} "${now_mode}" ${Font_color_suffix} ，用户总数: ${Green_font_prefix} "${user_total}" ${Font_color_suffix} ，链接IP总数: ${Green_font_prefix} "${IP_total}" ${Font_color_suffix} "
+		echo -e "当前模式: ${Green_background_prefix} "${now_mode}" ${Font_color_suffix} ，用户总数: ${Green_background_prefix} "${user_total}" ${Font_color_suffix} ，链接IP总数: ${Green_background_prefix} "${IP_total}" ${Font_color_suffix} "
 		echo -e ${user_list_all}
 	fi
 }
 View_user_connection_info(){
 	SSR_installation_status
 	if [[ ${release} = "centos" ]]; then
-		centos_View_user_connection_info
+		cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+		if [[ $? = 0 ]]; then
+			debian_View_user_connection_info
+		else
+			centos_View_user_connection_info
+		fi
 	else
 		debian_View_user_connection_info
 	fi
