@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.20
+#	Version: 2.0.21
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.20"
+sh_ver="2.0.21"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -576,7 +576,7 @@ Debian_apt(){
 Download_SSR(){
 	cd "/usr/local"
 	#git config --global http.sslVerify false
-	env GIT_SSL_NO_VERIFY=true git clone -b manyuser https://github.com/shadowsocksr/shadowsocksr.git
+	env GIT_SSL_NO_VERIFY=true git clone -b manyuser https://github.com/ToyoDAdoubi/shadowsocksr.git
 	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
 	[[ -e ${config_folder} ]] && rm -rf ${config_folder}
 	mkdir ${config_folder}
