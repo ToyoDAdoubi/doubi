@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.21
+#	Version: 2.0.22
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.21"
+sh_ver="2.0.22"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -323,6 +323,7 @@ Set_config_protocol(){
  ${Green_font_prefix}3.${Font_color_suffix} auth_aes128_md5
  ${Green_font_prefix}4.${Font_color_suffix} auth_aes128_sha1
  ${Green_font_prefix}5.${Font_color_suffix} auth_chain_a
+ ${Green_font_prefix}6.${Font_color_suffix} auth_chain_b
  ${Tip} 如果使用 auth_chain_a 协议，请加密方式选择 none，混淆随意(建议 plain)" && echo
 	stty erase '^H' && read -p "(默认: 2. auth_sha1_v4):" ssr_protocol
 	[[ -z "${ssr_protocol}" ]] && ssr_protocol="2"
@@ -336,6 +337,8 @@ Set_config_protocol(){
 		ssr_protocol="auth_aes128_sha1"
 	elif [[ ${ssr_protocol} == "5" ]]; then
 		ssr_protocol="auth_chain_a"
+	elif [[ ${ssr_protocol} == "6" ]]; then
+		ssr_protocol="auth_chain_b"
 	else
 		ssr_protocol="auth_sha1_v4"
 	fi
