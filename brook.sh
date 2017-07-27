@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
@@ -78,8 +78,8 @@ Download_brook(){
 	if [ ${bit} == "x86_64" ]; then
 		wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook"
 	else
-		wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook386"
-		mv brook386 brook
+		wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook_linux_386"
+		mv brook_linux_386 brook
 	fi
 	[[ ! -e "brook" ]] && echo -e "${Error} Brook 下载失败 !" && exit 1
 	chmod +x brook
@@ -216,7 +216,6 @@ Set_conf(){
 }
 Set_brook(){
 	check_installed_status
-	check_sys
 	check_pid
 	Set_conf
 	Read_config
@@ -228,7 +227,6 @@ Set_brook(){
 }
 Install_brook(){
 	[[ -e ${brook_file} ]] && echo -e "${Error} 检测到 Brook 已安装 !" && exit 1
-	check_sys
 	echo -e "${Info} 开始设置 用户配置..."
 	Set_conf
 	echo -e "${Info} 开始安装/配置 依赖..."
@@ -270,7 +268,6 @@ Restart_brook(){
 }
 Update_brook(){
 	check_installed_status
-	check_sys
 	check_new_ver
 	check_ver_comparison
 }
@@ -285,12 +282,13 @@ Uninstall_brook(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config
 		Del_iptables
-		rm -rf ${file} && rm -rf /etc/init.d/brook
+		rm -rf ${file}
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del brook
 		else
 			update-rc.d -f brook remove
 		fi
+		rm -rf /etc/init.d/brook
 		echo && echo "Brook 卸载完成 !" && echo
 	else
 		echo && echo "卸载已取消..." && echo
@@ -343,6 +341,7 @@ post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
 		chmod +x /etc/network/interfaces
 	fi
 }
+check_sys
 echo && echo -e "请输入一个数字来选择选项
 
  ${Green_font_prefix}1.${Font_color_suffix} 安装 Brook
