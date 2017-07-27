@@ -658,9 +658,10 @@ Install_SSR(){
 }
 Update_SSR(){
 	SSR_installation_status
-	cd ${ssr_folder}
-	git pull
-	Restart_SSR
+	echo -e "因破娃暂停更新ShadowsocksR服务端，所以此功能临时禁用。"
+	#cd ${ssr_folder}
+	#git pull
+	#Restart_SSR
 }
 Uninstall_SSR(){
 	[[ ! -e ${config_user_file} ]] && [[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有安装 ShadowsocksR，请检查 !" && exit 1
