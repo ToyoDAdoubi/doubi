@@ -53,7 +53,9 @@ Download_caddy(){
 	tar zxf "caddy_linux.tar.gz"
 	rm -rf "caddy_linux.tar.gz"
 	[[ ! -e ${caddy_file} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} Caddy 解压失败或压缩文件错误 !" && exit 1
-	rm -rf LICENSES.txt README.txt CHANGES.txt
+	rm -rf LICENSES.txt
+	rm -rf README.txt 
+	rm -rf CHANGES.txt
 	rm -rf "init/"
 	chmod +x caddy
 }
