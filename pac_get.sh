@@ -862,5 +862,9 @@ urlsafe_base64_d(){
 PAC_TEXT=$(curl -m 10 -s "${PAC_URL}")
 PAC_BASE64=$(urlsafe_base64_d "${PAC_TEXT}"|grep -v "!"|sed '1d;/^\s*$/d;s/^/	"&/g;s/$/&",/g;$s/.$//')
 PAC_NUM=$(echo "${PAC_BASE64}"|wc -l)
-echo "${PAC_prefix}${PAC_BASE64}${PAC_suffix}" > /home/wwwroot/softs.pw/Other/pac.txt
+PAC_TAME="/*
+ * Last Updated:$(date '+%Y-%m-%d %H:%M:%S')
+ */
+"
+echo "${PAC_TAME}${PAC_prefix}${PAC_BASE64}${PAC_suffix}" > /home/wwwroot/softs.pw/Other/pac.txt
 echo "${PAC_NUM}"
