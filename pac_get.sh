@@ -855,9 +855,6 @@ function FindProxyForURL(url, host) {
 '
 }
 prefix_suffix
-Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
-Info="${Green_font_prefix}[信息]${Font_color_suffix}" && Error="${Red_font_prefix}[错误]${Font_color_suffix}" && Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
-
 urlsafe_base64_d(){
 	date=$(echo -n "$1"|sed 's/-/+/g;s/_/\//g'|base64 -d)
 	echo -e "${date}"
@@ -866,4 +863,4 @@ PAC_TEXT=$(curl -m 10 -s "${PAC_URL}")
 PAC_BASE64=$(urlsafe_base64_d "${PAC_TEXT}"|grep -v "!"|sed '1d;/^\s*$/d;s/^/	"&/g;s/$/&",/g;$s/.$//')
 PAC_NUM=$(echo "${PAC_BASE64}"|wc -l)
 echo "${PAC_prefix}${PAC_BASE64}${PAC_suffix}" > /home/wwwroot/softs.pw/Other/pac.txt
-echo -e "${PAC_NUM}"
+echo "${PAC_NUM}"
