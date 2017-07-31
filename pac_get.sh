@@ -4,6 +4,10 @@ export PATH
 
 PAC_URL="https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt"
 prefix_suffix(){
+PAC_TAME="/*
+ * Last Updated:$(date '+%Y-%m-%d %H:%M:%S')
+ */
+"
 PAC_prefix='var direct = "__DIRECT__";
 if (direct == "__DIR" + "ECT__") direct = "DIRECT;";
 
@@ -860,11 +864,7 @@ urlsafe_base64_d(){
 	echo -e "${date}"
 }
 PAC_TEXT=$(curl -m 10 -s "${PAC_URL}")
-PAC_BASE64=$(urlsafe_base64_d "${PAC_TEXT}"|grep -v "!"|sed '1d;/^\s*$/d;s/^/	"&/g;s/$/&",/g;$s/.$//')
+PAC_BASE64=$(urlsafe_base64_d "${PAC_TEXT}"|grep -v "!"|sed '1d;s/\\/\\\\/g;/^\s*$/d;s/^/	"&/g;s/$/&",/g;$s/.$//')
 PAC_NUM=$(echo "${PAC_BASE64}"|wc -l)
-PAC_TAME="/*
- * Last Updated:$(date '+%Y-%m-%d %H:%M:%S')
- */
-"
 echo "${PAC_TAME}${PAC_prefix}${PAC_BASE64}${PAC_suffix}" > /home/wwwroot/softs.pw/Other/pac.txt
 echo "${PAC_NUM}"
