@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: ocserv AnyConnect
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/vpnzy-7/
 #=================================================
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 file="/usr/local/sbin/ocserv"
 conf_file="/etc/ocserv"
 conf="/etc/ocserv/ocserv.conf"
@@ -54,7 +54,7 @@ check_pid(){
 	fi
 }
 Get_ip(){
-	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
+	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
 }
 Download_ocserv(){
 	mkdir "ocserv" && cd "ocserv"
@@ -73,7 +73,7 @@ Download_ocserv(){
 }
 Service_ocserv(){
 	if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ocserv_debian -O /etc/init.d/ocserv; then
-		echo -e "${Error} ocserv 服务 管理脚本下载失败 !" && exit 1
+		echo -e "${Error} ocserv 服务 管理脚本下载失败 !" && over
 	fi
 	chmod +x /etc/init.d/ocserv
 	update-rc.d -f ocserv defaults
@@ -96,17 +96,17 @@ ca
 signing_key
 cert_signing_key
 crl_signing_key' > ca.tmpl
-	[[ $? != 0 ]] && echo -e "${Error} 写入SSL证书签名模板失败(ca.tmpl) !"
+	[[ $? != 0 ]] && echo -e "${Error} 写入SSL证书签名模板失败(ca.tmpl) !" && over
 	certtool --generate-privkey --outfile ca-key.pem
-	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书密匙文件失败(ca-key.pem) !"
+	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书密匙文件失败(ca-key.pem) !" && over
 	certtool --generate-self-signed --load-privkey ca-key.pem --template ca.tmpl --outfile ca-cert.pem
-	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书文件失败(ca-cert.pem) !"
+	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书文件失败(ca-cert.pem) !" && over
 	
 	Get_ip
 	if [[ -z "$ip" ]]; then
 		echo -e "${Error} 检测外网IP失败 !"
 		stty erase '^H' && read -p "请手动输入你的服务器外网IP:" ip
-		[[ -z "${ip}" ]] && echo "取消..." && exit 1
+		[[ -z "${ip}" ]] && echo "取消..." && over
 	fi
 	echo -e 'cn = "'${ip}'"
 organization = "'${lalala}'"
@@ -114,11 +114,11 @@ expiration_days = 365
 signing_key
 encryption_key
 tls_www_server' > server.tmpl
-	[[ $? != 0 ]] && echo -e "${Error} 写入SSL证书签名模板失败(server.tmpl) !"
+	[[ $? != 0 ]] && echo -e "${Error} 写入SSL证书签名模板失败(server.tmpl) !" && over
 	certtool --generate-privkey --outfile server-key.pem
-	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书密匙文件失败(server-key.pem) !"
+	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书密匙文件失败(server-key.pem) !" && over
 	certtool --generate-certificate --load-privkey server-key.pem --load-ca-certificate ca-cert.pem --load-ca-privkey ca-key.pem --template server.tmpl --outfile server-cert.pem
-	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书文件失败(server-cert.pem) !"
+	[[ $? != 0 ]] && echo -e "${Error} 生成SSL证书文件失败(server-cert.pem) !" && over
 	
 	mkdir /etc/ocserv/ssl
 	mv ca-cert.pem /etc/ocserv/ssl/ca-cert.pem
@@ -411,14 +411,31 @@ Uninstall_ocserv(){
 		rm -rf /etc/init.d/ocserv
 		rm -rf "${conf_file}"
 		rm -rf "${log_file}"
-		cd '/usr/local/bin' && rm -f occtl ocpasswd
+		cd '/usr/local/bin' && rm -f occtl
+		rm -f ocpasswd
 		cd '/usr/local/bin' && rm -f ocserv-fw
 		cd '/usr/local/sbin' && rm -f ocserv
-		cd '/usr/local/share/man/man8' && rm -f ocserv.8 ocpasswd.8 occtl.8
+		cd '/usr/local/share/man/man8' && rm -f ocserv.8
+		rm -f ocpasswd.8
+		rm -f occtl.8
 		echo && echo "ocserv 卸载完成 !" && echo
 	else
 		echo && echo "卸载已取消..." && echo
 	fi
+}
+over(){
+	update-rc.d -f ocserv remove
+	rm -rf /etc/init.d/ocserv
+	rm -rf "${conf_file}"
+	rm -rf "${log_file}"
+	cd '/usr/local/bin' && rm -f occtl
+	rm -f ocpasswd
+	cd '/usr/local/bin' && rm -f ocserv-fw
+	cd '/usr/local/sbin' && rm -f ocserv
+	cd '/usr/local/share/man/man8' && rm -f ocserv.8
+	rm -f ocpasswd.8
+	rm -f occtl.8
+	echo && echo "安装过程错误，ocserv 卸载完成 !" && echo
 }
 Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${set_tcp_port} -j ACCEPT
@@ -487,6 +504,8 @@ Update_Shell(){
 		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
 	fi
 }
+check_sys
+[[ ${release} != "debian" ]] && [[ ${release} != "ubuntu" ]] && echo -e "${Error} 本脚本不支持当前系统 ${release} !" && exit 1
 echo && echo -e " ocserv 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- Toyo | doub.io/vpnzy-7 --
   
