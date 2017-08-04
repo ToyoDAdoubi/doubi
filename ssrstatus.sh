@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR Status
-#	Version: 1.0.4
+#	Version: 1.0.5
 #	Author: Toyo
 #=================================================
 
-sh_ver="1.0.4"
+sh_ver="1.0.5"
 Timeout="10"
 Test_URL="https://github.com"
 Web_file="/usr/local/SSRStatus"
@@ -377,7 +377,7 @@ ss_config(){
 	you=$(echo -e "${Config_info}"|awk -F "@" '{print $2}')
 	port=$(echo -e "${you}"|awk -F ":" '{print $NF}')
 	ip=$(echo -e "${you}"|awk -F ":${port}" '{print $1}')
-	if [[ $(echo -e "${ip}"|wc -L) -le 8 ]]; then
+	if [[ $(echo -e "${ip}"|wc -L) -lt 7 ]]; then
 		echo -e "${Error} 错误，IP格式错误或为 ipv6地址[ ${ip} ]" | tee -a ${log_file}
 		if [[ ${analysis_type} == "add" ]]; then
 			exit_GG
@@ -411,7 +411,7 @@ ssr_config(){
 	zuo=$(echo -e "${Config_info}"|awk -F ":${protocol}" '{print $1}')
 	port=$(echo -e "${zuo}"|awk -F ":" '{print $NF}')
 	ip=$(echo -e "${Config_info}"|awk -F ":${port}" '{print $1}')
-	if [[ $(echo -e "${ip}"|wc -L) -le 8 ]]; then
+	if [[ $(echo -e "${ip}"|wc -L) -lt 7 ]]; then
 		echo -e "${Error} 错误，IP格式错误[ ${ip} ]" | tee -a ${log_file}
 		if [[ ${analysis_type} == "add" ]]; then
 			exit_GG
@@ -809,7 +809,7 @@ Del_Crontab(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.pw/Bash/ssrstatus.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.fun/Bash/ssrstatus.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
 	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssrstatus.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
@@ -818,7 +818,7 @@ Update_Shell(){
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
 			if [[ $sh_new_type == "softs" ]]; then
-				wget -N --no-check-certificate https://softs.pw/Bash/ssrstatus.sh && chmod +x ssrstatus.sh
+				wget -N --no-check-certificate https://softs.fun/Bash/ssrstatus.sh && chmod +x ssrstatus.sh
 			else
 				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssrstatus.sh && chmod +x ssrstatus.sh
 			fi
