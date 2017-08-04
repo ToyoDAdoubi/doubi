@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: TCP-BBR
-#	Version: 1.0.13
+#	Version: 1.0.14
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-16/
 #=================================================
@@ -184,6 +184,13 @@ addsysctl(){
 	echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 	sysctl -p
 }
+startbbr(){
+	check_deb_off
+	bbrstatus
+	addsysctl
+	sleep 1s
+	bbrstatus
+}
 # 关闭BBR
 stopbbr(){
 	check_deb_off
@@ -210,11 +217,11 @@ check_sys
 action=$1
 [ -z $1 ] && action=install
 case "$action" in
-	install|stop|status)
+	install|start|stop|status)
 	${action}bbr
 	;;
 	*)
 	echo "输入错误 !"
-	echo "用法: { install | stop | status }"
+	echo "用法: { install | start | stop | status }"
 	;;
 esac
