@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR Port-IP Check
-#	Version: 1.0.4
+#	Version: 1.0.5
 #	Author: Toyo
 #=================================================
 # ——————————————————————————————
@@ -77,6 +77,7 @@ check_threshold_centos(){
 			ip_check=`echo -e "\n${ip_check_1}"`
 		fi
 		[[ ${ip_num} -ge ${IP_threshold} ]] && echo -e " 端口: ${Red_font_prefix}${port_check}${Font_color_suffix} ,IP总数: ${Red_font_prefix}${ip_num}${Font_color_suffix} ,IP: ${Sky_blue_font_prefix}$(echo "${ip_check}")${Font_color_suffix}"
+		ip_check=""
 	done
 }
 check_threshold_debian(){
