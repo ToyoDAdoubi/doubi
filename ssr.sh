@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.24
+#	Version: 2.0.25
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.24"
+sh_ver="2.0.25"
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -18,7 +18,7 @@ config_folder="/etc/shadowsocksr"
 config_user_file="${config_folder}/user-config.json"
 ssr_log_file="${ssr_ss_file}/ssserver.log"
 Libsodiumr_file="/usr/local/lib/libsodium.so"
-Libsodiumr_ver_backup="1.0.12"
+Libsodiumr_ver_backup="1.0.13"
 Server_Speeder_file="/serverspeeder/bin/serverSpeeder.sh"
 LotServer_file="/appex/bin/serverSpeeder.sh"
 BBR_file="${PWD}/bbr.sh"
@@ -569,7 +569,12 @@ Check_python(){
 }
 Centos_yum(){
 	yum update
-	yum install -y vim git
+	cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+	if [[ $? = 0 ]]; then
+		yum install -y vim git net-tools
+	else
+		yum install -y vim git
+	fi
 }
 Debian_apt(){
 	apt-get update
