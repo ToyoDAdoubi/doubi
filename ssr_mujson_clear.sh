@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 7+/Ubuntu 14.04+
 #	Description: ShadowsocksR mujson mode traffic clear script
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #=================================================
 SSR_file="/usr/local/shadowsocksr"
@@ -16,9 +16,9 @@ check_ssr(){
 }
 scan_port(){
 	cd "${SSR_file}"
-	port_all=$(python "mujson_mgr.py" -l|sed "1d")
+	port_all=$(python "mujson_mgr.py" -l)
 	[[ -z ${port_all} ]] && echo -e "${Error} 没有发现任何端口(用户) !" && exit 1
-	port_num=$(echo -e "${port_all}"|wc -l)
+	port_num=$(echo "${port_all}"|wc -l)
 	[[ ${port_num} = 0 ]] && echo -e "${Error} 没有发现任何端口(用户) !" && exit 1
 }
 clear_traffic(){
