@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: TCP-BBR
-#	Version: 1.0.15
+#	Version: 1.0.16
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-16/
 #=================================================
@@ -69,12 +69,12 @@ check_deb_off(){
 	deb_ver=`dpkg -l|grep linux-image | awk '{print $2}' | awk -F '-' '{print $3}' | grep '[4-9].[0-9]*.'`
 	if [[ "${deb_ver}" != "" ]]; then
 		if [[ "${deb_ver}" == "${latest_version}" ]]; then
-			echo -e "${Info} 检测到 内核版本 已满足要求，继续..."
+			echo -e "${Info} 检测到 当前内核版本[${deb_ver}] 已满足要求，继续..."
 		else
-			echo -e "\033[42;37m[错误]\033[0m 检测到 内核版本 不是最新版本，建议使用${Green_font_prefix} bash bbr.sh ${Font_color_suffix}来升级内核 !"
+			echo -e "\033[42;37m[错误]\033[0m 检测到 当前内核版本[${deb_ver}] 不是最新版本，建议使用${Green_font_prefix} bash bbr.sh ${Font_color_suffix}来升级内核 !"
 		fi
 	else
-		echo -e "${Error} 检测到 内核版本 不支持开启BBR，请使用${Green_font_prefix} bash bbr.sh ${Font_color_suffix}来更换最新内核 !" && exit 1
+		echo -e "${Error} 检测到 当前内核版本[${deb_ver}] 不支持开启BBR，请使用${Green_font_prefix} bash bbr.sh ${Font_color_suffix}来更换最新内核 !" && exit 1
 	fi
 }
 # 删除其余内核
