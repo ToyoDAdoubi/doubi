@@ -5,12 +5,14 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.25
+#	Version: 2.0.26
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.25"
+sh_ver="2.0.26"
+filepath=$(cd "$(dirname "$0")"; pwd)
+file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
 ssr_ss_file="${ssr_folder}/shadowsocks"
 config_file="${ssr_folder}/config.json"
@@ -21,7 +23,7 @@ Libsodiumr_file="/usr/local/lib/libsodium.so"
 Libsodiumr_ver_backup="1.0.13"
 Server_Speeder_file="/serverspeeder/bin/serverSpeeder.sh"
 LotServer_file="/appex/bin/serverSpeeder.sh"
-BBR_file="${PWD}/bbr.sh"
+BBR_file="${file}/bbr.sh"
 jq_file="${ssr_folder}/jq"
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -1280,19 +1282,19 @@ echo -e "${Green_font_prefix} [安装前 请注意] ${Font_color_suffix}
 Install_BBR(){
 	[[ ${release} = "centos" ]] && echo -e "${Error} 本脚本不支持 CentOS系统安装 BBR !" && exit 1
 	BBR_installation_status
-	bash bbr.sh
+	bash "${BBR_file}"
 }
 Start_BBR(){
 	BBR_installation_status
-	bash bbr.sh start
+	bash "${BBR_file}" start
 }
 Stop_BBR(){
 	BBR_installation_status
-	bash bbr.sh stop
+	bash "${BBR_file}" stop
 }
 Status_BBR(){
 	BBR_installation_status
-	bash bbr.sh status
+	bash "${BBR_file}" status
 }
 # 其他功能
 Other_functions(){
