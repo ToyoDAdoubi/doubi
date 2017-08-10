@@ -5,12 +5,14 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.1"
+filepath=$(cd "$(dirname "$0")"; pwd)
+file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
 config_file="${ssr_folder}/config.json"
 config_user_file="${ssr_folder}/user-config.json"
@@ -21,10 +23,9 @@ Libsodiumr_file="/usr/local/lib/libsodium.so"
 Libsodiumr_ver_backup="1.0.13"
 Server_Speeder_file="/serverspeeder/bin/serverSpeeder.sh"
 LotServer_file="/appex/bin/serverSpeeder.sh"
-BBR_file="${PWD}/bbr.sh"
+BBR_file="${file}/bbr.sh"
 jq_file="${ssr_folder}/jq"
-filepath=$(cd "$(dirname "$0")"; pwd)
-file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
+
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
@@ -1301,17 +1302,16 @@ Configure_Server_Speeder(){
 }
 Install_ServerSpeeder(){
 	[[ -e ${Server_Speeder_file} ]] && echo -e "${Error} 锐速(Server Speeder) 已安装 !" && exit 1
-	cd /root
 	#借用91yun.rog的开心版锐速
-	wget -N --no-check-certificate https://raw.githubusercontent.com/91yun/serverspeeder/master/serverspeeder.sh
-	[[ ! -e "serverspeeder.sh" ]] && echo -e "${Error} 锐速安装脚本下载失败 !" && exit 1
-	bash serverspeeder.sh
+	wget --no-check-certificate -qO /tmp/serverspeeder.sh https://raw.githubusercontent.com/91yun/serverspeeder/master/serverspeeder.sh
+	[[ ! -e "/tmp/serverspeeder.sh" ]] && echo -e "${Error} 锐速安装脚本下载失败 !" && exit 1
+	bash /tmp/serverspeeder.sh
 	sleep 2s
 	PID=`ps -ef |grep -v grep |grep "serverspeeder" |awk '{print $2}'`
 	if [[ ! -z ${PID} ]]; then
-		rm -rf /root/serverspeeder.sh
-		rm -rf /root/91yunserverspeeder
-		rm -rf /root/91yunserverspeeder.tar.gz
+		rm -rf /tmp/serverspeeder.sh
+		rm -rf /tmp/91yunserverspeeder
+		rm -rf /tmp/91yunserverspeeder.tar.gz
 		echo -e "${Info} 锐速(Server Speeder) 安装完成 !" && exit 1
 	else
 		echo -e "${Error} 锐速(Server Speeder) 安装失败 !" && exit 1
@@ -1418,19 +1418,19 @@ echo -e "${Green_font_prefix} [安装前 请注意] ${Font_color_suffix}
 Install_BBR(){
 	[[ ${release} = "centos" ]] && echo -e "${Error} 本脚本不支持 CentOS系统安装 BBR !" && exit 1
 	BBR_installation_status
-	bash bbr.sh
+	bash "${BBR_file}"
 }
 Start_BBR(){
 	BBR_installation_status
-	bash bbr.sh start
+	bash "${BBR_file}" start
 }
 Stop_BBR(){
 	BBR_installation_status
-	bash bbr.sh stop
+	bash "${BBR_file}" stop
 }
 Status_BBR(){
 	BBR_installation_status
-	bash bbr.sh status
+	bash "${BBR_file}" status
 }
 # 其他功能
 Other_functions(){
