@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -569,8 +569,8 @@ Set_config_transfer(){
 Set_config_forbid(){
 	echo "请输入要设置的用户 禁止访问的端口"
 	echo -e "${Tip} 禁止的端口：例如不允许访问 25端口，用户就无法通过SSR代理访问 邮件端口25了，如果禁止了 80,443 那么用户将无法正常访问 http/https 网站。"
-	stty erase '^H' && read -p "(默认: 25,26,465,587,109,110,995):" ssr_forbid
-	[[ -z "${ssr_forbid}" ]] && ssr_forbid="25,26,465,587,109,110,995"
+	stty erase '^H' && read -p "(默认为空 不禁止访问任何端口):" ssr_forbid
+	[[ -z "${ssr_forbid}" ]] && ssr_forbid=""
 	echo && echo ${Separator_1} && echo -e "	禁止的端口 : ${Green_font_prefix}${ssr_forbid}${Font_color_suffix}" && echo ${Separator_1} && echo
 }
 Set_config_all(){
