@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: HaProxy
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-19/
 #=================================================
@@ -17,8 +17,7 @@ HaProxy_cfg_file="/etc/haproxy/haproxy.cfg"
 check_HaProxy(){
 	HaProxy_exist=`haproxy -v`
 	if [[ ${HaProxy_exist} = "" ]]; then
-		echo -e "\033[41;37m [错误] \033[0m 没有安装HaProxy，请检查 !"
-		exit 1
+		echo -e "\033[41;37m [错误] \033[0m 没有安装HaProxy，请检查 !" && exit 1
 	fi
 }
 #检查系统
@@ -40,20 +39,41 @@ check_sys(){
     fi
 	#bit=`uname -m`
 }
+# 设置 防火墙规则
+Save_iptables(){
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+	else
+		iptables-save > /etc/iptables.up.rules
+	fi
+}
+Set_iptables(){
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+		chkconfig --level 2345 iptables on
+	elif [[ ${release} == "debian" ]]; then
+		iptables-save > /etc/iptables.up.rules
+		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
+		chmod +x /etc/network/if-pre-up.d/iptables
+	elif [[ ${release} == "ubuntu" ]]; then
+		iptables-save > /etc/iptables.up.rules
+		echo -e '\npre-up iptables-restore < /etc/iptables.up.rules\npost-down iptables-save > /etc/iptables.up.rules' >> /etc/network/interfaces
+		chmod +x /etc/network/interfaces
+	fi
+}
 # 安装HaProxy
 installHaProxy(){
 # 判断是否安装HaProxy
 	HaProxy_exist=`haproxy -v`
 	if [[ ${HaProxy_exist} != "" ]]; then
-		echo -e "\033[41;37m [错误] \033[0m 已经安装HaProxy，请检查 !"
-		exit 1
+		echo -e "\033[41;37m [错误] \033[0m 已经安装HaProxy，请检查 !" && exit 1
 	fi
 	check_sys
 # 系统判断
 	if [[ ${release}  == "centos" ]]; then
-		yum update && yum install -y vim curl haproxy
+		yum update && yum install -y vim haproxy
 	else
-		apt-get update && apt-get install -y vim curl haproxy
+		apt-get update && apt-get install -y vim haproxy
 	fi
 	chmod +x /etc/rc.local
 	#判断HaProxy是否安装成功
@@ -61,6 +81,15 @@ installHaProxy(){
 	if [[ ${HaProxy_exist} = "" ]]; then
 		echo -e "\033[41;37m [错误] \033[0m 安装HaProxy失败，请检查 !" && exit 1
 	else
+		Set_iptables
+		if [[ ${release}  == "centos" ]]; then
+			chmod +x /etc/init.d/haproxy
+			chkconfig --add haproxy
+			chkconfig haproxy on
+		else
+			chmod +x /etc/init.d/haproxy
+			update-rc.d -f haproxy defaults
+		fi
 		setHaProxy
 	fi
 }
@@ -91,7 +120,6 @@ setHaProxy(){
 		HaProxy_port_1=`echo ${HaProxy_port_1} | sed 's/-/:/g'`
 		iptables -D INPUT -p tcp --dport ${HaProxy_port_1} -j ACCEPT
 	fi
-	
 	cat > ${HaProxy_cfg_file}<<-EOF
 global
 
@@ -124,7 +152,7 @@ viewHaProxy(){
 	HaProxy_port=`cat ${HaProxy_cfg_file} | sed -n "12p" | cut -c 12-23`
 	HaProxy_ip=`cat ${HaProxy_cfg_file} | sed -n "16p" | awk '{print $3}'`
 # 获取IP
-	ip=`curl -m 10 -s http://members.3322.org/dyndns/getip`
+	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
 	[[ -z $ip ]] && ip="VPS_IP"
 	echo
 	echo "——————————————————————————————"
@@ -157,21 +185,9 @@ startHaProxy(){
 		HaProxy_port_1=`echo ${HaProxy_port_1} | sed 's/-/:/g'`
 		iptables -I INPUT -p tcp --dport ${HaProxy_port_1} -j ACCEPT
 	fi
-	
-# 系统判断
-	check_sys
-	if [[ ${release}  == "debian" ]]; then
-		sed -i '$d' /etc/rc.local
-		echo -e "/etc/init.d/haproxy start" >> /etc/rc.local
-		echo -e "exit 0" >> /etc/rc.local
-	else
-		echo -e "/etc/init.d/haproxy start" >> /etc/rc.local
-	fi
-	clear
-	echo
-	echo "——————————————————————————————"
-	echo
+	echo && echo "——————————————————————————————" && echo
 	echo "	HaProxy 已启动 !"
+	Save_iptables
 	viewHaProxy
 }
 # 停止aProxy
@@ -181,7 +197,6 @@ stopHaProxy(){
 # 判断进程是否存在
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	[[ -z $PID ]] && echo -e "\033[41;37m [错误] \033[0m 发现 HaProxy 没有运行，请检查 !" && exit 1
-	sed -i '/\/etc\/init.d\/haproxy start/d' /etc/rc.local
 	
 	HaProxy_port_1=`cat ${HaProxy_cfg_file} | sed -n "12p" | cut -c 12-23 | grep "-"`
 	HaProxy_port=`cat ${HaProxy_cfg_file} | sed -n "12p" | cut -c 12-23`
@@ -191,20 +206,19 @@ stopHaProxy(){
 		HaProxy_port_1=`echo ${HaProxy_port_1} | sed 's/-/:/g'`
 		iptables -D INPUT -p tcp --dport ${HaProxy_port_1} -j ACCEPT
 	fi
-	
 	/etc/init.d/haproxy stop
 	sleep 2s
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	if [[ ! -z $PID ]]; then
 		echo -e "\033[41;37m [错误] \033[0m HaProxy 停止失败 !" && exit 1
 	else
+		Save_iptables
 		echo "	HaProxy 已停止 !"
 	fi
 }
 restartHaProxy(){
 # 检查是否安装
 	check_HaProxy
-	
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	if [[ ! -z $PID ]]; then
 		stopHaProxy
@@ -225,9 +239,7 @@ statusHaProxy(){
 uninstallHaProxy(){
 # 检查是否安装
 	check_HaProxy
-
-	printf "确定要卸载 HaProxy ? (y/N)"
-	printf "\n"
+	echo "确定要卸载 HaProxy ? [y/N]"
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
@@ -236,22 +248,17 @@ uninstallHaProxy(){
 		if [[ ${release}  == "centos" ]]; then
 			yum remove haproxy -y
 		else
-			sudo apt-get remove haproxy -y
-			sudo apt-get autoremove
+			apt-get remove haproxy -y
+			apt-get autoremove
 		fi
 		rm -rf ${HaProxy_file}
 		HaProxy_exist=`haproxy -v`
 		if [[ ${HaProxy_exist} != "" ]]; then
-			echo -e "\033[41;37m [错误] \033[0m HaProxy卸载失败，请检查 !"
-			exit 1
+			echo -e "\033[41;37m [错误] \033[0m HaProxy卸载失败，请检查 !" && exit 1
 		fi
-		echo
-		echo "	HaProxy 已卸载 !"
-		echo
+		echo && echo "	HaProxy 已卸载 !" && echo
 	else
-		echo
-		echo "卸载已取消..."
-		echo
+		echo && echo "卸载已取消..." && echo
 	fi
 }
 
