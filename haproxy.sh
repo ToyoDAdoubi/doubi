@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: HaProxy
-#	Version: 1.0.4
+#	Version: 1.0.5
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-19/
 #=================================================
@@ -211,7 +211,7 @@ stopHaProxy(){
 # 判断进程是否存在
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	[[ -z $PID ]] && echo -e "\033[41;37m [错误] \033[0m 发现 HaProxy 没有运行，请检查 !" && exit 1
-	
+	kill -9 ${PID}
 	HaProxy_port_1=`cat ${HaProxy_cfg_file} | sed -n "12p" | cut -c 12-23 | grep "-"`
 	HaProxy_port=`cat ${HaProxy_cfg_file} | sed -n "12p" | cut -c 12-23`
 	if [[ ${HaProxy_port_1} = "" ]]; then
@@ -219,16 +219,6 @@ stopHaProxy(){
 	else
 		HaProxy_port_1=`echo ${HaProxy_port_1} | sed 's/-/:/g'`
 		iptables -D INPUT -p tcp --dport ${HaProxy_port_1} -j ACCEPT
-	fi
-	if [[ ${release}  == "centos" ]]; then
-		cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
-		if [[ $? = 0 ]]; then
-			systemctl stop haproxy.service
-		else
-			/etc/init.d/haproxy stop
-		fi
-	else
-		/etc/init.d/haproxy stop
 	fi
 	sleep 2s
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
@@ -266,6 +256,10 @@ uninstallHaProxy(){
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
+		PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
+		if [[ ! -z $PID ]]; then
+			stopHaProxy
+		fi
 		check_sys
 		# 系统判断
 		if [[ ${release}  == "centos" ]]; then
