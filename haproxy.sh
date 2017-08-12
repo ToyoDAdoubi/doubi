@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: HaProxy
-#	Version: 1.0.5
+#	Version: 1.0.6
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-19/
 #=================================================
@@ -68,8 +68,6 @@ installHaProxy(){
 	if [[ ${HaProxy_exist} != "" ]]; then
 		echo -e "\033[41;37m [错误] \033[0m 已经安装HaProxy，请检查 !" && exit 1
 	fi
-	check_sys
-# 系统判断
 	if [[ ${release}  == "centos" ]]; then
 		yum update && yum install -y vim haproxy
 	else
@@ -260,8 +258,6 @@ uninstallHaProxy(){
 		if [[ ! -z $PID ]]; then
 			stopHaProxy
 		fi
-		check_sys
-		# 系统判断
 		if [[ ${release}  == "centos" ]]; then
 			yum remove haproxy -y
 		else
@@ -278,7 +274,7 @@ uninstallHaProxy(){
 		echo && echo "卸载已取消..." && echo
 	fi
 }
-
+check_sys
 action=$1
 [[ -z $1 ]] && action=install
 case "$action" in
