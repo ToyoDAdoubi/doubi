@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: HaProxy
-#	Version: 1.0.3
+#	Version: 1.0.4
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-19/
 #=================================================
@@ -83,9 +83,14 @@ installHaProxy(){
 	else
 		Set_iptables
 		if [[ ${release}  == "centos" ]]; then
-			chmod +x /etc/init.d/haproxy
-			chkconfig --add haproxy
-			chkconfig haproxy on
+			cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+			if [[ $? = 0 ]]; then
+				systemctl enable haproxy.service
+			else
+				chmod +x /etc/init.d/haproxy
+				chkconfig --add haproxy
+				chkconfig haproxy on
+			fi
 		else
 			chmod +x /etc/init.d/haproxy
 			update-rc.d -f haproxy defaults
@@ -173,7 +178,16 @@ startHaProxy(){
 # 判断进程是否存在
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	[[ ! -z $PID ]] && echo -e "\033[41;37m [错误] \033[0m 发现 HaProxy 正在运行，请检查 !" && exit 1
-	/etc/init.d/haproxy start
+	if [[ ${release}  == "centos" ]]; then
+		cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+		if [[ $? = 0 ]]; then
+			systemctl start haproxy.service
+		else
+			/etc/init.d/haproxy start
+		fi
+	else
+		/etc/init.d/haproxy start
+	fi
 	sleep 2s
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	[[ -z $PID ]] && echo -e "\033[41;37m [错误] \033[0m HaProxy 启动失败 !" && exit 1
@@ -206,7 +220,16 @@ stopHaProxy(){
 		HaProxy_port_1=`echo ${HaProxy_port_1} | sed 's/-/:/g'`
 		iptables -D INPUT -p tcp --dport ${HaProxy_port_1} -j ACCEPT
 	fi
-	/etc/init.d/haproxy stop
+	if [[ ${release}  == "centos" ]]; then
+		cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+		if [[ $? = 0 ]]; then
+			systemctl stop haproxy.service
+		else
+			/etc/init.d/haproxy stop
+		fi
+	else
+		/etc/init.d/haproxy stop
+	fi
 	sleep 2s
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	if [[ ! -z $PID ]]; then
