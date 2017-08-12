@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.4
+#	Version: 1.0.5
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.4"
+sh_ver="1.0.5"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -1052,7 +1052,6 @@ Modify_Config(){
 	else
 		echo -e "${Error} 请输入正确的数字(1-12)" && exit 1
 	fi
-	Restart_SSR
 }
 List_port_user(){
 	user_info=$(python mujson_mgr.py -l)
