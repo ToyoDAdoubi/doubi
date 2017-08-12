@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: HaProxy
-#	Version: 1.0.6
+#	Version: 1.0.7
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-19/
 #=================================================
@@ -63,7 +63,6 @@ Set_iptables(){
 }
 # 安装HaProxy
 installHaProxy(){
-# 判断是否安装HaProxy
 	HaProxy_exist=`haproxy -v`
 	if [[ ${HaProxy_exist} != "" ]]; then
 		echo -e "\033[41;37m [错误] \033[0m 已经安装HaProxy，请检查 !" && exit 1
@@ -74,7 +73,6 @@ installHaProxy(){
 		apt-get update && apt-get install -y vim haproxy
 	fi
 	chmod +x /etc/rc.local
-	#判断HaProxy是否安装成功
 	HaProxy_exist=`haproxy -v`
 	if [[ ${HaProxy_exist} = "" ]]; then
 		echo -e "\033[41;37m [错误] \033[0m 安装HaProxy失败，请检查 !" && exit 1
@@ -97,15 +95,11 @@ installHaProxy(){
 	fi
 }
 setHaProxy(){
-# 判断是否安装HaProxy
 	check_HaProxy
-# 设置本地监听端口
 	stty erase '^H' && read -p "请输入 HaProxy 的 本地监听端口(转发端口) [1-65535](支持端口段: 2333-6666): " HaProxyport
 	[[ -z "${HaProxyport}" ]] && echo "取消..." && exit 1
-# 设置欲转发 IP
 	stty erase '^H' && read -p "请输入 HaProxy 欲转发的 IP:" HaProxyip
 	[[ -z "${HaProxyip}" ]] && echo "取消..." && exit 1
-#最后确认
 	echo
 	echo "——————————————————————————————"
 	echo "      请检查 HaProxy 配置是否有误 !"
@@ -141,20 +135,13 @@ frontend ss-in1
 backend ss-out1
     server server1 ${HaProxyip} maxconn 20480
 EOF
-	
-	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
-	if [[ ! -z $PID ]]; then
-		stopHaProxy
-	fi
-	startHaProxy
+	restartHaProxy
 }
 # 查看HaProxy列表
 viewHaProxy(){
-# 检查是否安装
 	check_HaProxy
 	HaProxy_port=`cat ${HaProxy_cfg_file} | sed -n "12p" | cut -c 12-23`
 	HaProxy_ip=`cat ${HaProxy_cfg_file} | sed -n "16p" | awk '{print $3}'`
-# 获取IP
 	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
 	[[ -z $ip ]] && ip="VPS_IP"
 	echo
@@ -171,9 +158,7 @@ viewHaProxy(){
 }
 # 启动aProxy
 startHaProxy(){
-# 检查是否安装
 	check_HaProxy
-# 判断进程是否存在
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	[[ ! -z $PID ]] && echo -e "\033[41;37m [错误] \033[0m 发现 HaProxy 正在运行，请检查 !" && exit 1
 	if [[ ${release}  == "centos" ]]; then
@@ -204,12 +189,19 @@ startHaProxy(){
 }
 # 停止aProxy
 stopHaProxy(){
-# 检查是否安装
 	check_HaProxy
-# 判断进程是否存在
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	[[ -z $PID ]] && echo -e "\033[41;37m [错误] \033[0m 发现 HaProxy 没有运行，请检查 !" && exit 1
-	kill -9 ${PID}
+	if [[ ${release}  == "centos" ]]; then
+		cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+		if [[ $? = 0 ]]; then
+			systemctl stop haproxy.service
+		else
+			/etc/init.d/haproxy stop
+		fi
+	else
+		/etc/init.d/haproxy stop
+	fi
 	HaProxy_port_1=`cat ${HaProxy_cfg_file} | sed -n "12p" | cut -c 12-23 | grep "-"`
 	HaProxy_port=`cat ${HaProxy_cfg_file} | sed -n "12p" | cut -c 12-23`
 	if [[ ${HaProxy_port_1} = "" ]]; then
@@ -237,9 +229,7 @@ restartHaProxy(){
 	startHaProxy
 }
 statusHaProxy(){
-# 检查是否安装
 	check_HaProxy
-# 判断进程是否存在
 	PID=`ps -ef | grep "haproxy" | grep -v grep | grep -v "haproxy.sh" | awk '{print $2}'`
 	if [[ ! -z $PID ]]; then
 		echo -e "\033[42;37m [信息] \033[0m HaProxy 正在运行，PID: ${PID} !"
@@ -248,7 +238,6 @@ statusHaProxy(){
 	fi
 }
 uninstallHaProxy(){
-# 检查是否安装
 	check_HaProxy
 	echo "确定要卸载 HaProxy ? [y/N]"
 	stty erase '^H' && read -p "(默认: n):" unyn
