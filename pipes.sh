@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: PipeSocks
-#       Version: 1.0.3
+#       Version: 1.0.4
 #       Author: Toyo
 #       Blog: https://doub.io/pipesocks-jc1/
 #       Github: https://github.com/pipesocks/install
@@ -39,7 +39,7 @@ check_installed_status(){
 }
 check_new_ver(){
 	#pipes_new_ver=`curl -m 10 -s "https://pipesocks.github.io/js/index.js" | sed -n "15p" | awk -F ": " '{print $NF}' | sed 's/"//g;s/,//g'`
-	pipes_new_ver=`wget -qO- https://github.com/pipesocks/pipesocks/releases/latest | grep "<title>" | sed -r 's/.*pipesocks (.+) · pipesocks.*/\1/'`
+	pipes_new_ver=`wget -qO- "https://pipesocks.github.io/dist.json" | sed -n "15p" | awk -F ": " '{print $NF}' | sed 's/"//g;s/,//g'`
 	[[ -z ${pipes_new_ver} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} PipeSocks 最新版本获取失败 !" && exit 1
 }
 check_ver_comparison(){
@@ -67,7 +67,7 @@ Download_pipes(){
 	cd "/usr/local"
 	if [[ ${bit} == "x86_64" ]]; then
 		#wget -O "pipesocks-linux.tar.xz" "https://coding.net/u/yvbbrjdr/p/pipesocks-release/git/raw/master/pipesocks-${pipes_new_ver}-linux.tar.xz"
-		wget -O "pipesocks-linux.tar.xz" "https://github.com/pipesocks/pipesocks/releases/download/${pipes_new_ver}/pipesocks-${pipes_new_ver}-linux.tar.xz"
+		wget --no-check-certificate -O "pipesocks-linux.tar.xz" "https://github.com/pipesocks/pipesocks/releases/download/${pipes_new_ver}/pipesocks-${pipes_new_ver}-linux.tar.xz"
 	else
 		echo -e "${Error_font_prefix}[错误]${Font_suffix} 不支持 ${bit} !" && exit 1
 	fi
