@@ -106,6 +106,27 @@ Del_iptables(){
 	iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${pump_port} -j ACCEPT
 	iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${pump_port} -j ACCEPT
 }
+Save_iptables(){
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+	else
+		iptables-save > /etc/iptables.up.rules
+	fi
+}
+Set_iptables(){
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+		chkconfig --level 2345 iptables on
+	elif [[ ${release} == "debian" ]]; then
+		iptables-save > /etc/iptables.up.rules
+		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
+		chmod +x /etc/network/if-pre-up.d/iptables
+	elif [[ ${release} == "ubuntu" ]]; then
+		iptables-save > /etc/iptables.up.rules
+		echo -e '\npre-up iptables-restore < /etc/iptables.up.rules\npost-down iptables-save > /etc/iptables.up.rules' >> /etc/network/interfaces
+		chmod +x /etc/network/interfaces
+	fi
+}
 Write_config(){
 	if [[ ! -e ${pipes_config} ]]; then
 		[[ ! -e ${pipes_config_file} ]] && mkdir ${pipes_config_file}
@@ -153,6 +174,7 @@ Set_pipes(){
 	Read_config
 	Del_iptables
 	Add_iptables
+	Save_iptables
 	Write_config
 	Restart_pipes
 }
@@ -182,7 +204,9 @@ Install_pipes(){
 	Download_pipes
 	Service_pipes
 	Write_config
+	Set_iptables
 	Add_iptables
+	Save_iptables
 	Start_pipes
 }
 Update_pipes(){
@@ -226,6 +250,7 @@ Uninstall_pipes(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config
 		Del_iptables
+		Save_iptables
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del pipes
 		else
