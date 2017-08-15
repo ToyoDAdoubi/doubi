@@ -4,7 +4,7 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: PipeSocks
-#       Version: 1.0.4
+#       Version: 1.0.5
 #       Author: Toyo
 #       Blog: https://doub.io/pipesocks-jc1/
 #       Github: https://github.com/pipesocks/install
@@ -80,6 +80,23 @@ Download_pipes(){
 	mv pipes pipesocks/pipesocks
 	cd ${pipes_file}
 	echo "${pipes_new_ver}" > ${pipes_ver}
+}
+Service_pipes(){
+	if [[ ${release} = "centos" ]]; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/pipes_centos -O /etc/init.d/pipes; then
+			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
+		fi
+		chmod +x /etc/init.d/pipes
+		chkconfig --add pipes
+		chkconfig pipes on
+	else
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/pipes_debian -O /etc/init.d/pipes; then
+			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
+		fi
+		chmod +x /etc/init.d/pipes
+		update-rc.d -f pipes defaults
+	fi
+	echo -e "${Info} ShadowsocksR服务 管理脚本下载完成 !"
 }
 Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${pipes_port} -j ACCEPT
@@ -160,17 +177,16 @@ View_pipes(){
 }
 Install_pipes(){
 	[[ -e ${pipes_file} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} 检测到 PipeSocks 已安装，如需继续，请先卸载 !" && exit 1
-	check_sys
 	check_new_ver
 	Set_user_pipes
 	Download_pipes
+	Service_pipes
 	Write_config
 	Add_iptables
 	Start_pipes
 }
 Update_pipes(){
 	check_installed_status
-	check_sys
 	check_new_ver
 	check_ver_comparison
 }
@@ -178,33 +194,21 @@ Start_pipes(){
 	check_installed_status
 	PID=`ps -ef|grep "pipesocks"|grep -v "grep"|awk '{print $2}'`
 	[[ ! -z $PID ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} PipeSocks 进程正在运行，请检查 !" && exit 1
-	Read_config
-	cd ${pipes_file} && nohup ./pipesocks pump -p ${pump_port} -k ${pump_passwd} &>pipesocks.log &
-	sleep 2s && PID=`ps -ef|grep "pipesocks"|grep -v "grep"|awk '{print $2}'`
-	if [[ -z $PID ]]; then
-		echo -e "${Error_font_prefix}[错误]${Font_suffix} PipeSocks 启动失败 !" && exit 1
-	else
-		View_pipes
-	fi
+	/etc/init.d/pipes start
 }
 Stop_pipes(){
 	check_installed_status
 	PID=`ps -ef|grep "pipesocks"|grep -v "grep"|awk '{print $2}'`
 	[[ -z $PID ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} 没有发现 PipeSocks 进程运行，请检查 !" && exit 1
-	kill -9 ${PID} && sleep 2s && PID=`ps -ef|grep "pipesocks"|grep -v "grep"|awk '{print $2}'`
-	if [[ ! -z $PID ]]; then
-		echo -e "${Error_font_prefix}[错误]${Font_suffix} PipeSocks 停止失败 !" && exit 1
-	else
-		echo && echo "PipeSocks 已停止 !" && echo
-	fi
+	/etc/init.d/pipes stop
 }
 Restart_pipes(){
 	check_installed_status
 	PID=`ps -ef|grep "pipesocks"|grep -v "grep"|awk '{print $2}'`
 	if [[ ! -z $PID ]]; then
-		Stop_pipes
+		/etc/init.d/pipes stop
 	fi
-	Start_pipes
+	/etc/init.d/pipes start
 }
 Log_pipes(){
 	check_installed_status
@@ -222,12 +226,19 @@ Uninstall_pipes(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config
 		Del_iptables
+		if [[ ${release} = "centos" ]]; then
+			chkconfig --del pipes
+		else
+			update-rc.d -f pipes remove
+		fi
+		rm -rf /etc/init.d/pipes
 		rm -rf ${pipes_file} && rm -rf  ${pipes_config_file}
 		echo && echo "PipeSocks 卸载完成 !" && echo
 	else
 		echo && echo "卸载已取消..." && echo
 	fi
 }
+check_sys
 echo && echo "请输入一个数字来选择选项" && echo
 echo -e " 1. 安装 PipeSocks"
 echo -e " 2. 升级 PipeSocks"
