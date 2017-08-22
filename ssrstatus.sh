@@ -11,7 +11,7 @@ export PATH
 
 sh_ver="1.0.5"
 Timeout="10"
-Test_URL="https://github.com"
+Test_URL="https://www.bing.com"
 Web_file="/usr/local/SSRStatus"
 SSR_folder="/root/shadowsocksr/shadowsocks"
 filepath=$(cd "$(dirname "$0")"; pwd)
