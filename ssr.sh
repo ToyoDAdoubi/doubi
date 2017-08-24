@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.28
+#	Version: 2.0.29
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.28"
+sh_ver="2.0.29"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -109,8 +109,16 @@ Set_iptables(){
 }
 # 读取 配置信息
 Get_IP(){
-	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
-	[[ -z "$ip" ]] && ip="VPS_IP"
+	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+	if [[ -z "${ip}" ]]; then
+		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+		if [[ -z "${ip}" ]]; then
+			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+			if [[ -z "${ip}" ]]; then
+				ip="VPS_IP"
+			fi
+		fi
+	fi
 }
 Get_User(){
 	[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 不存在，请检查 !" && exit 1

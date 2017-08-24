@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.7
+#	Version: 1.0.8
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.7"
+sh_ver="1.0.8"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -117,7 +117,15 @@ Set_iptables(){
 # 读取 配置信息
 Get_IP(){
 	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
-	[[ -z "$ip" ]] && ip="VPS_IP"
+	if [[ -z "${ip}" ]]; then
+		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+		if [[ -z "${ip}" ]]; then
+			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+			if [[ -z "${ip}" ]]; then
+				ip="VPS_IP"
+			fi
+		fi
+	fi
 }
 Get_User_info(){
 	Get_user_port=$1
