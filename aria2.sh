@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc4/
 #=================================================
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 file="/root/.aria2"
 aria2_conf="${file}/aria2.conf"
 aria2_log="/root/.aria2/aria2.log"
@@ -73,8 +73,8 @@ Service_aria2(){
 }
 Installation_dependency(){
 	if [[ ${release} = "centos" ]]; then
-		cat /etc/redhat-release |grep 6\..*|grep -i centos>/dev/null
-		if [[ $? = 0 ]]; then
+		cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+		if [[ $? = 1 ]]; then
 			echo -e "${Error} CentOS6 系统不支持安装 Aria2（源没有Aria2包），请更换 CentOS7 或其他系统安装 !" && exit 1
 		fi
 		yum update
