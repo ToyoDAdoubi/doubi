@@ -4,11 +4,11 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: iptables 封禁 BT、PT、SPAM（垃圾邮件）和自定义端口、关键词
-#       Version: 1.0.6
+#       Version: 1.0.7
 #       Blog: https://doub.io/shell-jc2/
 #=================================================
 
-sh_ver="1.0.6"
+sh_ver="1.0.7"
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
@@ -97,33 +97,25 @@ Save_iptables_v4_v6(){
 	elif [[ ${release} == "debian" ]]; then
 		if [[ ! -z "$v6iptables" ]]; then
 			ip6tables-save > /etc/ip6tables.up.rules
-			cat > /etc/network/if-pre-up.d/iptables<<-EOF
-#!/bin/bash
+			echo -e "#!/bin/bash
 /sbin/iptables-restore < /etc/iptables.up.rules
-/sbin/ip6tables-restore < /etc/ip6tables.up.rules
-EOF
+/sbin/ip6tables-restore < /etc/ip6tables.up.rules" > /etc/network/if-pre-up.d/iptables
 		else
-			cat > /etc/network/if-pre-up.d/iptables<<-EOF
-#!/bin/bash
-/sbin/iptables-restore < /etc/iptables.up.rules
-EOF
+			echo -e "#!/bin/bash
+/sbin/iptables-restore < /etc/iptables.up.rules" > /etc/network/if-pre-up.d/iptables
 		fi
 		iptables-save > /etc/iptables.up.rules
 		chmod +x /etc/network/if-pre-up.d/iptables
 	elif [[ ${release} == "ubuntu" ]]; then
 		if [[ ! -z "$v6iptables" ]]; then
 			ip6tables-save > /etc/ip6tables.up.rules
-			cat > /etc/network/interfaces<<-EOF
-pre-up iptables-restore < /etc/iptables.up.rules
+		echo -e "pre-up iptables-restore < /etc/iptables.up.rules
 post-down iptables-save > /etc/iptables.up.rules
 pre-up ip6tables-restore < /etc/ip6tables.up.rules
-post-down ip6tables-save > /etc/ip6tables.up.rules
-EOF
+post-down ip6tables-save > /etc/ip6tables.up.rules" >> /etc/network/interfaces
 		else
-			cat > /etc/network/interfaces<<-EOF
-pre-up iptables-restore < /etc/iptables.up.rules
-post-down iptables-save > /etc/iptables.up.rules
-EOF
+			echo -e "pre-up iptables-restore < /etc/iptables.up.rules
+post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
 		fi
 		iptables-save > /etc/iptables.up.rules
 		chmod +x /etc/network/interfaces
