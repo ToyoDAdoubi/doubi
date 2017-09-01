@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: iptables Port forwarding
-#	Version: 1.1.0
+#	Version: 1.1.1
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-20/
 #=================================================
-sh_ver="1.1.0"
+sh_ver="1.1.1"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -213,12 +213,14 @@ Uninstall_forwarding(){
 Add_iptables(){
 	iptables -t nat -A PREROUTING -p "$1" --dport "${local_port}" -j DNAT --to-destination "${forwarding_ip}":"${forwarding_port}"
 	iptables -t nat -A POSTROUTING -p "$1" -d "${forwarding_ip}" --dport "${forwarding_port_1}" -j SNAT --to-source "${local_ip}"
+	echo "iptables -t nat -A PREROUTING -p $1 --dport ${local_port} -j DNAT --to-destination ${forwarding_ip}:${forwarding_port}"
+	echo "iptables -t nat -A POSTROUTING -p $1 -d ${forwarding_ip} --dport ${forwarding_port_1} -j SNAT --to-source ${local_ip}"
 	echo "${local_port}"
 	iptables -I INPUT -m state --state NEW -m "$1" -p "$1" --dport "${local_port}" -j ACCEPT
 }
 Del_iptables(){
-	iptables -t nat -D POSTROUTING "1"
-	iptables -t nat -D PREROUTING "1"
+	iptables -t nat -D POSTROUTING "$1"
+	iptables -t nat -D PREROUTING "$1"
 	iptables -D INPUT -m state --state NEW -m "$1" -p "$1" --dport "${forwarding_listen}" -j ACCEPT
 }
 Save_iptables(){
