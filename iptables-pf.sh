@@ -176,7 +176,7 @@ Del_forwarding(){
 			forwarding_type=$(echo -e "${forwarding_text}"| awk '{print $4}' | sed -n "${Del_forwarding_num}p")
 			forwarding_listen=$(echo -e "${forwarding_text}"| awk '{print $11}' | sed -n "${Del_forwarding_num}p" | awk -F "dpt:" '{print $2}' | sed 's/-/:/g')
 			[[ -z ${forwarding_listen} ]] && forwarding_listen=$(echo -e "${forwarding_text}"| awk '{print $11}' |sed -n "${Del_forwarding_num}p" | awk -F "dpts:" '{print $2}')
-			Del_iptables "${forwarding_type}"
+			Del_iptables "${forwarding_type}" "${Del_forwarding_num}"
 			Save_iptables
 			echo && echo -e "${Info} iptables 端口转发规则删除完成 !" && echo
 		else
@@ -202,7 +202,7 @@ Uninstall_forwarding(){
 			forwarding_listen=$(echo -e "${forwarding_text}"|awk '{print $11}'|sed -n "${integer}p"|awk -F "dpt:" '{print $2}')
 			[[ -z ${forwarding_listen} ]] && forwarding_listen=$(echo -e "${forwarding_text}"| awk '{print $11}'|sed -n "${integer}p"|awk -F "dpts:" '{print $2}')
 			# echo -e "${forwarding_text} ${forwarding_type} ${forwarding_listen}"
-			Del_iptables "${forwarding_type}"
+			Del_iptables "${forwarding_type}" "${integer}"
 		done
 		Save_iptables
 		echo && echo -e "${Info} iptables 已清空 所有端口转发规则 !" && echo
@@ -219,8 +219,8 @@ Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m "$1" -p "$1" --dport "${local_port}" -j ACCEPT
 }
 Del_iptables(){
-	iptables -t nat -D POSTROUTING "$1"
-	iptables -t nat -D PREROUTING "$1"
+	iptables -t nat -D POSTROUTING "$2"
+	iptables -t nat -D PREROUTING "$2"
 	iptables -D INPUT -m state --state NEW -m "$1" -p "$1" --dport "${forwarding_listen}" -j ACCEPT
 }
 Save_iptables(){
