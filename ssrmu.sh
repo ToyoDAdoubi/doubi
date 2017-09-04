@@ -757,7 +757,6 @@ Modify_config_all(){
 	Modify_config_transfer
 	Modify_config_forbid
 }
-
 Check_python(){
 	python_ver=`python -h`
 	if [[ -z ${python_ver} ]]; then
@@ -1599,6 +1598,7 @@ Update_Shell(){
 	else
 		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
 	fi
+	exit 0
 }
 # 显示 菜单状态
 menu_status(){
