@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: TCP-BBR
-#	Version: 1.0.16
+#	Version: 1.0.17
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-16/
 #=================================================
@@ -14,6 +14,8 @@ Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_p
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
+filepath=$(cd "$(dirname "$0")"; pwd)
+file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 
 check_root(){
 	[[ $EUID != 0 ]] && echo -e "${Error} 当前账号非ROOT(或没有ROOT权限)，无法继续操作，请使用${Green_background_prefix} sudo su ${Font_color_suffix}来获取临时ROOT权限（执行后会提示输入当前账号的密码）。" && exit 1
@@ -67,14 +69,18 @@ get_latest_version(){
 check_deb_off(){
 	get_latest_new_version
 	deb_ver=`dpkg -l|grep linux-image | awk '{print $2}' | awk -F '-' '{print $3}' | grep '[4-9].[0-9]*.'`
+	deb_ver_2=$(echo "${deb_ver: -2}")
+	if [[ "${deb_ver_2}" == ".0" ]]; then
+		deb_ver=$(echo "${deb_ver}" |awk -F '.0' '{print $1}')
+	fi
 	if [[ "${deb_ver}" != "" ]]; then
 		if [[ "${deb_ver}" == "${latest_version}" ]]; then
 			echo -e "${Info} 检测到 当前内核版本[${deb_ver}] 已满足要求，继续..."
 		else
-			echo -e "\033[42;37m[错误]\033[0m 检测到 当前内核版本[${deb_ver}] 不是最新版本，建议使用${Green_font_prefix} bash bbr.sh ${Font_color_suffix}来升级内核 !"
+			echo -e "\033[42;37m[错误]\033[0m 检测到 当前内核版本[${deb_ver}] 不是最新版本，建议使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来升级内核 !"
 		fi
 	else
-		echo -e "${Error} 检测到 当前内核版本[${deb_ver}] 不支持开启BBR，请使用${Green_font_prefix} bash bbr.sh ${Font_color_suffix}来更换最新内核 !" && exit 1
+		echo -e "${Error} 检测到 当前内核版本[${deb_ver}] 不支持开启BBR，请使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来更换最新内核 !" && exit 1
 	fi
 }
 # 删除其余内核
@@ -103,7 +109,7 @@ del_deb_over(){
 	del_deb
 	update-grub
 	addsysctl
-	echo -e "\033[42;37m[注意]\033[0m 重启VPS后，请重新运行脚本查看BBR是否加载成功 \033[42;37m bash bbr.sh status \033[0m"
+	echo -e "\033[42;37m[注意]\033[0m 重启VPS后，请重新运行脚本查看BBR是否加载成功 \033[42;37m bash ${file}/bbr.sh status \033[0m"
 	stty erase '^H' && read -p "需要重启VPS后，才能开启BBR，是否现在重启 ? [Y/n] :" yn
 	[ -z "${yn}" ] && yn="y"
 	if [[ $yn == [Yy] ]]; then
@@ -116,6 +122,10 @@ installbbr(){
 	check_root
 	get_latest_version
 	deb_ver=`dpkg -l|grep linux-image | awk '{print $2}' | awk -F '-' '{print $3}' | grep '[4-9].[0-9]*.'`
+	deb_ver_2=$(echo "${deb_ver: -2}")
+	if [[ "${deb_ver_2}" == ".0" ]]; then
+		deb_ver=$(echo "${deb_ver}" |awk -F '.0' '{print $1}')
+	fi
 	if [ "${deb_ver}" != "" ]; then	
 		if [ "${deb_ver}" == "${latest_version}" ]; then
 			echo -e "${Info} 检测到 当前内核版本 已是最新版本，无需继续安装 !"
@@ -132,11 +142,11 @@ installbbr(){
 	else
 		echo -e "${Info} 检测到 当前内核版本 不支持开启BBR，开始安装..."
 		virt=`virt-what`
-		if [[ ${virt} = "" ]]; then
+		if [[ -z ${virt} ]]; then
 			apt-get update && apt-get install virt-what -y
 			virt=`virt-what`
 		fi
-		if [[ ${virt} = "openvz" ]]; then
+		if [[ ${virt} == "openvz" ]]; then
 			echo -e "${Error} BBR 不支持 OpenVZ 虚拟化 !" && exit 1
 		fi
 	fi
