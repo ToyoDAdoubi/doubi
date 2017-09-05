@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 1.0.3
+#	Version: 1.0.4
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc4/
 #=================================================
-sh_ver="1.0.3"
+sh_ver="1.0.4"
 file="/root/.aria2"
 aria2_conf="${file}/aria2.conf"
 aria2_log="/root/.aria2/aria2.log"
@@ -77,6 +77,10 @@ Installation_dependency(){
 		if [[ $? = 1 ]]; then
 			echo -e "${Error} CentOS6 系统不支持安装 Aria2（源没有Aria2包），请更换 CentOS7 或其他系统安装 !" && exit 1
 		fi
+		wget -N --no-check-certificate http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+		[[ ! -e "epel-release-latest-7.noarch.rpm" ]] && echo -e "${Error} CentOS7 EPEL 源下载失败 !" && exit 1
+		rpm -ivh epel-release-latest-7.noarch.rpm
+		rm -rf epel-release-latest-7.noarch.rpm
 		yum update
 		yum install aria2 curl unzip vim -y
 	elif [[ ${release} = "debian" ]]; then
