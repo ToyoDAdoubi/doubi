@@ -254,19 +254,19 @@ Start_brook(){
 	check_installed_status
 	check_pid
 	[[ ! -z ${PID} ]] && echo -e "${Error} Brook 正在运行，请检查 !" && exit 1
-	service brook start
+	/etc/init.d/brook start
 }
 Stop_brook(){
 	check_installed_status
 	check_pid
 	[[ -z ${PID} ]] && echo -e "${Error} Brook 没有运行，请检查 !" && exit 1
-	service brook stop
+	/etc/init.d/brook stop
 }
 Restart_brook(){
 	check_installed_status
 	check_pid
-	[[ ! -z ${PID} ]] && service brook stop
-	service brook start
+	[[ ! -z ${PID} ]] && /etc/init.d/brook stop
+	/etc/init.d/brook start
 }
 Update_brook(){
 	check_installed_status
