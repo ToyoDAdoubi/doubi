@@ -401,9 +401,9 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [1-9]:" num
+stty erase '^H' && read -p " 请输入数字 [0-9]:" num
 case "$num" in
-	1)
+	0)
 	Update_Shell
 	;;
 	1)
@@ -434,6 +434,6 @@ case "$num" in
 	View_Log
 	;;
 	*)
-	echo "请输入正确数字 [1-9]"
+	echo "请输入正确数字 [0-9]"
 	;;
 esac
