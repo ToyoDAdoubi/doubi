@@ -5,15 +5,17 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.0.1
+#	Version: 1.0.2
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
+sh_ver="1.0.2"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
 brook_ver="/usr/local/brook/ver.txt"
+brook_log="/usr/local/brook/brook.log"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -308,6 +310,12 @@ View_brook(){
 	echo -e " 音乐\t: ${Green_font_prefix}${music}${Font_color_suffix}"
 	echo && echo "————————————————"
 }
+View_Log(){
+	check_installed_status
+	[[ ! -e ${brook_log} ]] && echo -e "${Error} Brook 日志文件不存在 !" && exit 1
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志(正常情况是没有使用日志记录的)" && echo
+	tail -f ${brook_log}
+}
 Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${bk_port} -j ACCEPT
 	iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${bk_port} -j ACCEPT
@@ -341,9 +349,35 @@ post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
 		chmod +x /etc/network/interfaces
 	fi
 }
+Update_Shell(){
+	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.fun/Bash/brook.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
+	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" yn
+		[[ -z "${yn}" ]] && yn="y"
+		if [[ ${yn} == [Yy] ]]; then
+			if [[ $sh_new_type == "softs" ]]; then
+				wget -N --no-check-certificate https://softs.fun/Bash/brook.sh && chmod +x brook.sh
+			else
+				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook.sh && chmod +x brook.sh
+			fi
+			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
+	fi
+}
 check_sys
-echo && echo -e "请输入一个数字来选择选项
-
+echo && echo -e "  Brook 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+  ---- Toyo | doub.io/brook-jc3 ----
+  
+ ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+————————————
  ${Green_font_prefix}1.${Font_color_suffix} 安装 Brook
  ${Green_font_prefix}2.${Font_color_suffix} 升级 Brook
  ${Green_font_prefix}3.${Font_color_suffix} 卸载 Brook
@@ -354,6 +388,7 @@ echo && echo -e "请输入一个数字来选择选项
 ————————————
  ${Green_font_prefix}7.${Font_color_suffix} 设置 Brook 账号
  ${Green_font_prefix}8.${Font_color_suffix} 查看 Brook 账号
+ ${Green_font_prefix}9.${Font_color_suffix} 查看 Brook 日志
 ————————————" && echo
 if [[ -e ${brook_file} ]]; then
 	check_pid
@@ -366,8 +401,11 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [1-8]:" num
+stty erase '^H' && read -p " 请输入数字 [1-9]:" num
 case "$num" in
+	1)
+	Update_Shell
+	;;
 	1)
 	Install_brook
 	;;
@@ -392,7 +430,10 @@ case "$num" in
 	8)
 	View_brook
 	;;
+	8)
+	View_Log
+	;;
 	*)
-	echo "请输入正确数字 [1-8]"
+	echo "请输入正确数字 [1-9]"
 	;;
 esac
