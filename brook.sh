@@ -430,7 +430,7 @@ case "$num" in
 	8)
 	View_brook
 	;;
-	8)
+	9)
 	View_Log
 	;;
 	*)
