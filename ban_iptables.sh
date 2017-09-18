@@ -28,7 +28,6 @@ BitTorrent
 announce_peer
 BitTorrent protocol
 announce.php?passkey=
-bt.
 magnet:"
 
 check_sys(){
