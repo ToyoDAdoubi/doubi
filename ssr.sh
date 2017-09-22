@@ -721,7 +721,7 @@ Uninstall_SSR(){
 }
 Install_Libsodium(){
 	if [[ -e ${Libsodiumr_file} ]]; then
-		echo -e "${Error} libsodium 已安装 , 是否重复安装(更新)？[y/N]" && echo
+		echo -e "${Error} libsodium 已安装 , 是否覆盖安装(更新)？[y/N]" && echo
 		stty erase '^H' && read -p "(默认: n):" yn
 		[[ -z ${yn} ]] && yn="n"
 		if [[ ${yn} == [Nn] ]]; then
@@ -732,17 +732,25 @@ Install_Libsodium(){
 	fi
 	if [[ ${release} == "centos" ]]; then
 		yum update
+		echo -e "${Info} 安装依赖..."
 		yum -y groupinstall "Development Tools"
 		yum install unzip autoconf libtool -y
-		wget  --no-check-certificate -N https://github.com/jedisct1/libsodium/archive/libsodium-master.zip
+		echo -e "${Info} 下载..."
+		wget  --no-check-certificate -O "libsodium-master.zip" https://github.com/jedisct1/libsodium/archive/master.zip
+		echo -e "${Info} 解压..."
 		unzip libsodium-master.zip && cd libsodium-master
+		echo -e "${Info} 编译安装..."
 		./autogen.sh && ./configure --disable-maintainer-mode && make -j2 && make install
 		echo /usr/local/lib > /etc/ld.so.conf.d/usr_local_lib.conf
 	else
 		apt-get update
+		echo -e "${Info} 安装依赖..."
 		apt-get install -y build-essential unzip autoconf libtool
-		wget  --no-check-certificate -N https://github.com/jedisct1/libsodium/archive/libsodium-master.zip
+		echo -e "${Info} 下载..."
+		wget  --no-check-certificate -O "libsodium-master.zip" https://github.com/jedisct1/libsodium/archive/master.zip
+		echo -e "${Info} 解压..."
 		unzip libsodium-master.zip && cd libsodium-master
+		echo -e "${Info} 编译安装..."
 		./autogen.sh && ./configure --disable-maintainer-mode && make -j2 && make install
 	fi
 	ldconfig
