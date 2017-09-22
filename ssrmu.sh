@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.12
+#	Version: 1.0.13
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.12"
+sh_ver="1.0.13"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -935,7 +935,7 @@ Install_Libsodium(){
 		yum update
 		echo -e "${Info} 安装依赖..."
 		yum -y groupinstall "Development Tools"
-		yum install unzip autoconf libtool -y
+		yum install unzip autoconf automake libtool -y
 		echo -e "${Info} 下载..."
 		wget  --no-check-certificate -O "libsodium-master.zip" https://github.com/jedisct1/libsodium/archive/master.zip
 		echo -e "${Info} 解压..."
@@ -946,7 +946,7 @@ Install_Libsodium(){
 	else
 		apt-get update
 		echo -e "${Info} 安装依赖..."
-		apt-get install -y build-essential unzip autoconf libtool
+		apt-get install -y build-essential unzip autoconf automake libtool
 		echo -e "${Info} 下载..."
 		wget  --no-check-certificate -O "libsodium-master.zip" https://github.com/jedisct1/libsodium/archive/master.zip
 		echo -e "${Info} 解压..."
