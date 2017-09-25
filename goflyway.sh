@@ -252,6 +252,7 @@ View_goflyway(){
 	echo -e " GoFlyway 信息 :" && echo
 	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
 	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
+	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
 	echo && echo "————————————————"
 }
 View_Log(){
