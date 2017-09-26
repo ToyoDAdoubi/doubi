@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: GoFlyway
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/goflyway-jc2/
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 Folder="/usr/local/goflyway"
 File="/usr/local/goflyway/goflyway"
 CONF="/usr/local/goflyway/goflyway.conf"
@@ -83,7 +83,7 @@ Download_goflyway(){
 		mv goflyway_linux_amd64.tar.gz goflyway_linux.tar.gz
 	else
 		wget --no-check-certificate -N "https://github.com/coyove/goflyway/releases/download/${new_ver}/goflyway_linux_386.tar.gz"
-		mv goflyway_linux_386 goflyway_linux.tar.gz
+		mv goflyway_linux_386.tar.gz goflyway_linux.tar.gz
 	fi
 	[[ ! -e "goflyway_linux.tar.gz" ]] && echo -e "${Error} GoFlyway 下载失败 !" && exit 1
 	tar -xzf goflyway_linux.tar.gz
