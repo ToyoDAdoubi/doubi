@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.14
+#	Version: 1.0.15
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.14"
+sh_ver="1.0.15"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -20,7 +20,7 @@ config_user_api_file="${ssr_folder}/userapiconfig.py"
 config_user_mudb_file="${ssr_folder}/mudb.json"
 ssr_log_file="${ssr_folder}/ssserver.log"
 Libsodiumr_file="/usr/local/lib/libsodium.so"
-Libsodiumr_ver_backup="1.0.13"
+Libsodiumr_ver_backup="1.0.15"
 Server_Speeder_file="/serverspeeder/bin/serverSpeeder.sh"
 LotServer_file="/appex/bin/serverSpeeder.sh"
 BBR_file="${file}/bbr.sh"
@@ -920,9 +920,15 @@ Uninstall_SSR(){
 		echo && echo " 卸载已取消..." && echo
 	fi
 }
+Check_Libsodium_ver(){
+	echo -e "${Info} 开始获取 libsodium 最新版本..."
+	Libsodiumr_ver=$(wget -qO- "https://github.com/jedisct1/libsodium/tags"|grep "/jedisct1/libsodium/releases/tag/"|head -1|sed -r 's/.*tag\/(.+)\">.*/\1/')
+	[[ -z ${Libsodiumr_ver} ]] && Libsodiumr_ver=${Libsodiumr_ver_backup}
+	echo -e "${Info} libsodium 最新版本为 ${Green_font_prefix}${Libsodiumr_ver}${Font_color_suffix} !"
+}
 Install_Libsodium(){
 	if [[ -e ${Libsodiumr_file} ]]; then
-		echo -e "${Error} libsodium 已安装 , 是否覆盖安装(更新)？[y/N]" && echo
+		echo -e "${Error} libsodium 已安装 , 是否覆盖安装(更新)？[y/N]"
 		stty erase '^H' && read -p "(默认: n):" yn
 		[[ -z ${yn} ]] && yn="n"
 		if [[ ${yn} == [Nn] ]]; then
@@ -931,31 +937,31 @@ Install_Libsodium(){
 	else
 		echo -e "${Info} libsodium 未安装，开始安装..."
 	fi
+	Check_Libsodium_ver
 	if [[ ${release} == "centos" ]]; then
 		yum update
 		echo -e "${Info} 安装依赖..."
 		yum -y groupinstall "Development Tools"
-		yum install unzip autoconf automake libtool -y
 		echo -e "${Info} 下载..."
-		wget  --no-check-certificate -O "libsodium-master.zip" https://github.com/jedisct1/libsodium/archive/master.zip
+		wget  --no-check-certificate -N "https://github.com/jedisct1/libsodium/releases/download/${Libsodiumr_ver}/libsodium-${Libsodiumr_ver}.tar.gz"
 		echo -e "${Info} 解压..."
-		unzip libsodium-master.zip && cd libsodium-master
+		tar -xzf libsodium-${Libsodiumr_ver}.tar.gz && cd libsodium-${Libsodiumr_ver}
 		echo -e "${Info} 编译安装..."
-		./autogen.sh && ./configure --disable-maintainer-mode && make -j2 && make install
+		./configure --disable-maintainer-mode && make -j2 && make install
 		echo /usr/local/lib > /etc/ld.so.conf.d/usr_local_lib.conf
 	else
 		apt-get update
 		echo -e "${Info} 安装依赖..."
-		apt-get install -y build-essential unzip autoconf automake libtool
+		apt-get install -y build-essential
 		echo -e "${Info} 下载..."
-		wget  --no-check-certificate -O "libsodium-master.zip" https://github.com/jedisct1/libsodium/archive/master.zip
+		wget  --no-check-certificate -N "https://github.com/jedisct1/libsodium/releases/download/${Libsodiumr_ver}/libsodium-${Libsodiumr_ver}.tar.gz"
 		echo -e "${Info} 解压..."
-		unzip libsodium-master.zip && cd libsodium-master
+		tar -xzf libsodium-${Libsodiumr_ver}.tar.gz && cd libsodium-${Libsodiumr_ver}
 		echo -e "${Info} 编译安装..."
-		./autogen.sh && ./configure --disable-maintainer-mode && make -j2 && make install
+		./configure --disable-maintainer-mode && make -j2 && make install
 	fi
 	ldconfig
-	cd .. && rm -rf libsodium-master.zip && rm -rf libsodium-master
+	cd .. && rm -rf libsodium-${Libsodiumr_ver}.tar.gz && rm -rf libsodium-${Libsodiumr_ver}
 	[[ ! -e ${Libsodiumr_file} ]] && echo -e "${Error} libsodium 安装失败 !" && exit 1
 	echo && echo -e "${Info} libsodium 安装成功 !" && echo
 }
