@@ -1339,7 +1339,7 @@ Other_functions(){
   ${Green_font_prefix}2.${Font_color_suffix} 配置 锐速(ServerSpeeder)
   ${Green_font_prefix}3.${Font_color_suffix} 配置 LotServer(锐速母公司)
   注意： 锐速/LotServer/BBR 不支持 OpenVZ！
-  注意： 锐速和LotServer不能同时安装/启动！
+  注意： 锐速/LotServer/BBR 不能共存！
 ————————————
   ${Green_font_prefix}4.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
   ${Green_font_prefix}5.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
