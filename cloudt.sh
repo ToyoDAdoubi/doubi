@@ -54,7 +54,7 @@ check_new_ver(){
 		stty erase '^H' && read -p "请输入版本号 [ 格式 x.x.xx , 如 0.8.21 ] :" ct_new_ver
 		[[ -z "${ct_new_ver}" ]] && echo "取消..." && exit 1
 	else
-		echo -e "${Info} 检测到 Cloud Torrent 最新版本为 ${ct_new_ver}"
+		echo -e "${Info} Cloud Torrent 目前最新版本为 ${ct_new_ver}"
 	fi
 }
 check_ver_comparison(){
@@ -105,7 +105,7 @@ Service_ct(){
 	echo -e "${Info} Cloud Torrent服务 管理脚本下载完成 !"
 }
 Installation_dependency(){
-	gzip_ver=${gzip -V}
+	gzip_ver=$(gzip -V)
 	if [[ -z ${gzip_ver} ]]; then
 		if [[ ${release} == "centos" ]]; then
 			yum update
@@ -217,22 +217,22 @@ Start_ct(){
 	check_installed_status
 	check_pid
 	[[ ! -z ${PID} ]] && echo -e "${Error} Cloud Torrent 正在运行，请检查 !" && exit 1
-	service cloudt start
+	/etc/init.d/cloudt start
 }
 Stop_ct(){
 	check_installed_status
 	check_pid
 	[[ -z ${PID} ]] && echo -e "${Error} Cloud Torrent 没有运行，请检查 !" && exit 1
-	service cloudt stop
+	/etc/init.d/cloudt stop
 }
 Restart_ct(){
 	check_installed_status
 	check_pid
-	[[ ! -z ${PID} ]] && service cloudt stop
-	service cloudt start
+	[[ ! -z ${PID} ]] && /etc/init.d/cloudt stop
+	/etc/init.d/cloudt start
 }
 Log_ct(){
-	if [[ ! -e ${file}"/ct.log" ]] && echo -e "${Error} Cloud Torrent 日志文件不存在 !" && exit 1
+	[[ ! -e ${file}"/ct.log" ]] && echo -e "${Error} Cloud Torrent 日志文件不存在 !" && exit 1
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
 	tail -f /etc/cloudtorrent/ct.log
 }
@@ -241,6 +241,7 @@ Update_ct(){
 	check_sys
 	check_new_ver
 	check_ver_comparison
+	/etc/init.d/cloudt start
 }
 Uninstall_ct(){
 	check_installed_status
