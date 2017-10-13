@@ -39,32 +39,31 @@ check_sys(){
 	elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
 		release="centos"
     fi
-	bit=`uname -m`
+	bit=$(uname -m)
 }
 check_installed_status(){
 	[[ ! -e ${ct_file} ]] && echo -e "${Error} Cloud Torrent 没有安装，请检查 !" && exit 1
 }
 check_pid(){
-	PID=`ps -ef | grep cloud-torrent | grep -v grep | awk '{print $2}'`
+	PID=$(ps -ef | grep cloud-torrent | grep -v grep | awk '{print $2}')
 }
 check_new_ver(){
-	ct_new_ver=`wget --no-check-certificate -qO- https://github.com/jpillora/cloud-torrent/releases/latest | grep "<title>" | sed -r 's/.*Release (.+) · jpillora.*/\1/'`
+	ct_new_ver=$(wget --no-check-certificate -qO- https://github.com/jpillora/cloud-torrent/releases/latest | grep "<title>" | sed -r 's/.*Release (.+) · jpillora.*/\1/')
 	if [[ -z ${ct_new_ver} ]]; then
 		echo -e "${Error} Cloud Torrent 最新版本获取失败，请手动获取最新版本号[ https://github.com/jpillora/cloud-torrent/releases ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式 x.x.xx , 如 0.8.16 ] :" ct_new_ver
+		stty erase '^H' && read -p "请输入版本号 [ 格式 x.x.xx , 如 0.8.21 ] :" ct_new_ver
 		[[ -z "${ct_new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 Cloud Torrent 最新版本为 ${ct_new_ver}"
 	fi
 }
 check_ver_comparison(){
-	ct_now_ver=`cat /etc/cloudtorrent/ct_ver.txt`
-	[[ -z ${ct_now_ver} ]] && echo "${ct_new_ver}" > /etc/cloudtorrent/ct_ver.txt
+	ct_now_ver=$(${ct_file} --version)
 	if [[ ${ct_now_ver} != ${ct_new_ver} ]]; then
 		echo -e "${Info} 发现 Cloud Torrent 已有新版本 [ ${ct_new_ver} ]"
 		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
 		[ -z "${yn}" ] && yn="y"
-		if [[ $yn == [Yy] ]]; then
+		if [[ ${yn} == [Yy] ]]; then
 			check_pid
 			[[ ! -z $PID ]] && kill -9 ${PID}
 			rm -rf ${ct_file}
@@ -77,32 +76,27 @@ check_ver_comparison(){
 }
 Download_ct(){
 	cd ${file}
-	if [ ${bit} == "x86_64" ]; then
+	if [[ ${bit} == "x86_64" ]]; then
 		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_amd64.gz"
-	elif [ ${bit} == "i386" ]; then
-		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_386.gz"
-	elif [ ${bit} == "i686" ]; then
-		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_386.gz"
 	else
-		echo -e "${Error} 不支持 ${bit} !" && exit 1
+		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_386.gz"
 	fi
 	[[ ! -e "cloud-torrent.gz" ]] && echo -e "${Error} Cloud Torrent 下载失败 !" && exit 1
 	gzip -d cloud-torrent.gz
 	[[ ! -e ${ct_file} ]] && echo -e "${Error} Cloud Torrent 解压失败(可能是 压缩包损坏 或者 没有安装 Gzip) !" && exit 1
 	rm -rf cloud-torrent.gz
 	chmod +x cloud-torrent
-	echo "${ct_new_ver}" > ct_ver.txt
 }
 Service_ct(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/cloudt_centos -O /etc/init.d/cloudt; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/cloudt_centos" -O /etc/init.d/cloudt; then
 			echo -e "${Error} Cloud Torrent服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/cloudt
 		chkconfig --add cloudt
 		chkconfig cloudt on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/cloudt_debian -O /etc/init.d/cloudt; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/cloudt_debian" -O /etc/init.d/cloudt; then
 			echo -e "${Error} Cloud Torrent服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/cloudt
@@ -111,7 +105,7 @@ Service_ct(){
 	echo -e "${Info} Cloud Torrent服务 管理脚本下载完成 !"
 }
 Installation_dependency(){
-	gzip_ver=`gzip -V`
+	gzip_ver=${gzip -V}
 	if [[ -z ${gzip_ver} ]]; then
 		if [[ ${release} == "centos" ]]; then
 			yum update
@@ -121,8 +115,6 @@ Installation_dependency(){
 			apt-get install -y gzip
 		fi
 	fi
-	echo "nameserver 8.8.8.8" > /etc/resolv.conf
-	echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 	mkdir ${file}
 	mkdir ${dl_file}
 }
@@ -240,13 +232,9 @@ Restart_ct(){
 	service cloudt start
 }
 Log_ct(){
-# 判断日志是否存在
-	if [ ! -e ${file}"/ct.log" ]; then
-		echo -e "${Error} Cloud Torrent 日志文件不存在 !" && exit 1
-	else
-		echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
-		tail -f /etc/cloudtorrent/ct.log
-	fi
+	if [[ ! -e ${file}"/ct.log" ]] && echo -e "${Error} Cloud Torrent 日志文件不存在 !" && exit 1
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
+	tail -f /etc/cloudtorrent/ct.log
 }
 Update_ct(){
 	check_installed_status
@@ -279,8 +267,16 @@ Uninstall_ct(){
 View_ct(){
 	check_installed_status
 	Read_config
-	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
-	[[ -z ${ip} ]] && ip="VPS_IP"
+	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+	if [[ -z "${ip}" ]]; then
+		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+		if [[ -z "${ip}" ]]; then
+			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+			if [[ -z "${ip}" ]]; then
+				ip="VPS_IP"
+			fi
+		fi
+	fi
 	if [[ -z ${user} ]]; then
 		clear && echo "————————————————" && echo
 		echo -e " 你的 Cloud Torrent 信息 :" && echo
