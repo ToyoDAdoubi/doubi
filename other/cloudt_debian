@@ -37,8 +37,16 @@ read_config(){
 	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
 }
 View_User(){
-	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
-	[[ -z ${ip} ]] && ip="VPS_IP"
+	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+	if [[ -z "${ip}" ]]; then
+		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+		if [[ -z "${ip}" ]]; then
+			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+			if [[ -z "${ip}" ]]; then
+				ip="VPS_IP"
+			fi
+		fi
+	fi
 	if [[ -z ${user} ]]; then
 		clear && echo "————————————————" && echo
 		echo -e " 你的 Cloud Torrent 信息 :" && echo
@@ -62,9 +70,9 @@ do_start(){
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
 		if [[ -z ${user} ]]; then
-			./cloud-torrent -p ${port} -l >> ct.log 2>&1 &
+			./cloud-torrent -t "Cloud Torrent - 逗比根据地" -p ${port} -l >> ct.log 2>&1 &
 		else
-			./cloud-torrent -p ${port} -l -a ${user}:${passwd}>> ct.log 2>&1 &
+			./cloud-torrent -t "Cloud Torrent - 逗比根据地" -p ${port} -l -a "${user}:${passwd}" >> ct.log 2>&1 &
 		fi
 		sleep 2s
 		check_running
