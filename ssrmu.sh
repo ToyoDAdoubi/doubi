@@ -112,16 +112,11 @@ Set_iptables(){
 		service ip6tables save
 		chkconfig --level 2345 iptables on
 		chkconfig --level 2345 ip6tables on
-	elif [[ ${release} == "debian" ]]; then
+	else
 		iptables-save > /etc/iptables.up.rules
 		ip6tables-save > /etc/ip6tables.up.rules
 		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules\n/sbin/ip6tables-restore < /etc/ip6tables.up.rules' > /etc/network/if-pre-up.d/iptables
 		chmod +x /etc/network/if-pre-up.d/iptables
-	elif [[ ${release} == "ubuntu" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		ip6tables-save > /etc/ip6tables.up.rules
-		echo -e '\npre-up iptables-restore < /etc/iptables.up.rules\npost-down iptables-save > /etc/iptables.up.rules\npre-up ip6tables-restore < /etc/ip6tables.up.rules\npost-down ip6tables-save > /etc/ip6tables.up.rules' >> /etc/network/interfaces
-		chmod +x /etc/network/interfaces
 	fi
 }
 # 读取 配置信息

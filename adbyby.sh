@@ -162,22 +162,15 @@ Save_iptables(){
 	fi
 }
 Set_iptables(){
-	echo "1" > /proc/sys/net/ipv4/ip_forward
+	echo -e "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	sysctl -p
 	if [[ ${release} == "centos" ]]; then
 		service iptables save
 		chkconfig --level 2345 iptables on
-	elif [[ ${release} == "debian" ]]; then
+	else
 		iptables-save > /etc/iptables.up.rules
-		cat > /etc/network/if-pre-up.d/iptables<<-EOF
-#!/bin/bash
-/sbin/iptables-restore < /etc/iptables.up.rules
-EOF
+		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
 		chmod +x /etc/network/if-pre-up.d/iptables
-	elif [[ ${release} == "ubuntu" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		echo -e "\npre-up iptables-restore < /etc/iptables.up.rules
-post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
-		chmod +x /etc/network/interfaces
 	fi
 }
 echo && echo -e "请输入一个数字来选择选项

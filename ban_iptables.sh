@@ -93,38 +93,15 @@ Save_iptables_v4_v6(){
 		fi
 		service iptables save
 		chkconfig --level 2345 iptables on
-	elif [[ ${release} == "debian" ]]; then
+	else
 		if [[ ! -z "$v6iptables" ]]; then
 			ip6tables-save > /etc/ip6tables.up.rules
-			echo -e "#!/bin/bash
-/sbin/iptables-restore < /etc/iptables.up.rules
-/sbin/ip6tables-restore < /etc/ip6tables.up.rules" > /etc/network/if-pre-up.d/iptables
+			echo -e "#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules\n/sbin/ip6tables-restore < /etc/ip6tables.up.rules" > /etc/network/if-pre-up.d/iptables
 		else
-			echo -e "#!/bin/bash
-/sbin/iptables-restore < /etc/iptables.up.rules" > /etc/network/if-pre-up.d/iptables
+			echo -e "#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules" > /etc/network/if-pre-up.d/iptables
 		fi
 		iptables-save > /etc/iptables.up.rules
 		chmod +x /etc/network/if-pre-up.d/iptables
-	elif [[ ${release} == "ubuntu" ]]; then
-		iptables_status_1=$(cat /etc/network/interfaces|grep "tables.up.rules")
-		if [[ -z "${iptables_status_1}" ]]; then
-			if [[ ! -z "$v6iptables" ]]; then
-				ip6tables-save > /etc/ip6tables.up.rules
-			echo -e "pre-up iptables-restore < /etc/iptables.up.rules
-post-down iptables-save > /etc/iptables.up.rules
-pre-up ip6tables-restore < /etc/ip6tables.up.rules
-post-down ip6tables-save > /etc/ip6tables.up.rules" >> /etc/network/interfaces
-			else
-				echo -e "pre-up iptables-restore < /etc/iptables.up.rules
-post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
-			fi
-		else
-			if [[ ! -z "$v6iptables" ]]; then
-				ip6tables-save > /etc/ip6tables.up.rules
-			fi
-		fi
-		iptables-save > /etc/iptables.up.rules
-		chmod +x /etc/network/interfaces
 	fi
 }
 Set_key_word() { $1 -t mangle -$3 OUTPUT -m string --string "$2" --algo bm --to 65535 -j DROP; }

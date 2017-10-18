@@ -79,7 +79,7 @@ Set_local_port(){
 	echo && echo -e "	本地监听端口 : ${Red_font_prefix}${local_port}${Font_color_suffix}" && echo
 }
 Set_local_ip(){
-	stty erase '^H' && read -p "请输入 本服务器的 网卡IP(注意是网卡绑定的IP，而不仅仅是公网IP，回车自动检测):" local_ip
+	stty erase '^H' && read -p "请输入 本服务器的 网卡IP(注意是网卡绑定的IP，而不仅仅是公网IP，回车自动检测外网IP):" local_ip
 	if [[ -z "${local_ip}" ]]; then
 		local_ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
 		if [[ -z "${local_ip}" ]]; then
@@ -236,14 +236,10 @@ Set_iptables(){
 	if [[ ${release} == "centos" ]]; then
 		service iptables save
 		chkconfig --level 2345 iptables on
-	elif [[ ${release} == "debian" ]]; then
+	else
 		iptables-save > /etc/iptables.up.rules
 		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
 		chmod +x /etc/network/if-pre-up.d/iptables
-	elif [[ ${release} == "ubuntu" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		echo -e '\npre-up iptables-restore < /etc/iptables.up.rules\npost-down iptables-save > /etc/iptables.up.rules' >> /etc/network/interfaces
-		chmod +x /etc/network/interfaces
 	fi
 }
 Update_Shell(){

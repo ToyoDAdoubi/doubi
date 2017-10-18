@@ -20,15 +20,9 @@ Save_iptables(){
 	iptables-save > /etc/iptables.up.rules
 }
 Set_iptables(){
-	if [[ ${release} == "debian" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
-		chmod +x /etc/network/if-pre-up.d/iptables
-	elif [[ ${release} == "ubuntu" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		echo -e '\npre-up iptables-restore < /etc/iptables.up.rules\npost-down iptables-save > /etc/iptables.up.rules' >> /etc/network/interfaces
-		chmod +x /etc/network/interfaces
-	fi
+	iptables-save > /etc/iptables.up.rules
+	echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
+	chmod +x /etc/network/if-pre-up.d/iptables
 }
 check_socat(){
 	[[ ! -e ${socat_file} ]] && echo -e "${Error} 没有安装Socat，请检查 !" && exit 1

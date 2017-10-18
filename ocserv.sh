@@ -472,19 +472,10 @@ Set_iptables(){
 		fi
 	fi
 	iptables -t nat -A POSTROUTING -o ${Network_card} -j MASQUERADE
-	if [[ ${release} == "debian" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		cat > /etc/network/if-pre-up.d/iptables<<-EOF
-#!/bin/bash
-/sbin/iptables-restore < /etc/iptables.up.rules
-EOF
-		chmod +x /etc/network/if-pre-up.d/iptables
-	elif [[ ${release} == "ubuntu" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		echo -e "\npre-up iptables-restore < /etc/iptables.up.rules
-post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
-		chmod +x /etc/network/interfaces
-	fi
+	
+	iptables-save > /etc/iptables.up.rules
+	echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
+	chmod +x /etc/network/if-pre-up.d/iptables
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
