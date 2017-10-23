@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.15
+#	Version: 1.0.16
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.15"
+sh_ver="1.0.16"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -328,7 +328,8 @@ View_User(){
 	done
 }
 View_User_info(){
-	Get_IP
+	ip=$(cat ${config_user_api_file}|grep "SERVER_PUB_ADDR = "|awk -F "\'" '{print $2}')
+	[[ -z "${ip}" ]] && Get_IP
 	ss_ssr_determine
 	clear && echo "===================================================" && echo
 	echo -e " 用户 [${user_name}] 的配置信息：" && echo
@@ -646,6 +647,36 @@ Set_config_enable(){
 		echo -e "${Error} 当前端口的禁用状态异常[${enable}] !" && exit 1
 	fi
 }
+Set_user_api_server_pub_addr(){
+	addr=$1
+	if [[ "${addr}" == "Modify" ]]; then
+		server_pub_addr=$(cat ${config_user_api_file}|grep "SERVER_PUB_ADDR = "|awk -F "\'" '{print $2}')
+		if [[ -z ${server_pub_addr} ]]; then
+			echo -e "${Error} 获取当前配置的 服务器IP或域名失败！" && exit 1
+		else
+			echo -e "${Info} 当前配置的服务器IP或域名为： ${Green_font_prefix}${server_pub_addr}${Font_color_suffix}"
+		fi
+	fi
+	echo "请输入用户配置中要显示的 服务器IP或域名 (当服务器有多个IP时，可以指定用户配置中显示的IP或者域名)"
+	stty erase '^H' && read -p "(默认自动检测外网IP):" ssr_server_pub_addr
+	if [[ -z "${ssr_server_pub_addr}" ]]; then
+		Get_IP
+		if [[ ${ip} == "VPS_IP" ]]; then
+			while true
+			do
+			stty erase '^H' && read -p "${Error} 自动检测外网IP失败，请手动输入服务器IP或域名" ssr_server_pub_addr
+			if [[ -z "$ssr_server_pub_addr" ]]; then
+				echo -e "${Error} 不能为空！"
+			else
+				break
+			fi
+			done
+		else
+			ssr_server_pub_addr="${ip}"
+		fi
+	fi
+	echo && echo ${Separator_1} && echo -e "	IP或域名 : ${Green_font_prefix}${ssr_server_pub_addr}${Font_color_suffix}" && echo ${Separator_1} && echo
+}
 Set_config_all(){
 	lal=$1
 	if [[ "${lal}" == "Modify" ]]; then
@@ -751,6 +782,9 @@ Modify_config_forbid(){
 Modify_config_enable(){
 	sed -i "${ssr_enable_num}"'s/"enable": '"$(echo ${enable})"',/"enable": '"$(echo ${ssr_enable})"',/' ${config_user_mudb_file}
 }
+Modify_user_api_server_pub_addr(){
+	sed -i "s/SERVER_PUB_ADDR = '${server_pub_addr}'/SERVER_PUB_ADDR = '${ssr_server_pub_addr}'/" ${config_user_api_file}
+}
 Modify_config_all(){
 	Modify_config_password
 	Modify_config_method
@@ -797,10 +831,10 @@ Download_SSR(){
 	cp "${ssr_folder}/mysql.json" "${ssr_folder}/usermysql.json"
 	cp "${ssr_folder}/apiconfig.py" "${config_user_api_file}"
 	[[ ! -e ${config_user_api_file} ]] && echo -e "${Error} ShadowsocksR服务端 apiconfig.py 复制失败 !" && exit 1
-	Get_IP
-	[[ $ip = "VPS_IP" ]] && ip="VPS_IP"
 	sed -i "s/API_INTERFACE = 'sspanelv2'/API_INTERFACE = 'mudbjson'/" ${config_user_api_file}
-	sed -i "s/SERVER_PUB_ADDR = '127.0.0.1'/SERVER_PUB_ADDR = '${ip}'/" ${config_user_api_file}
+	server_pub_addr="127.0.0.1"
+	Modify_user_api_server_pub_addr
+	#sed -i "s/SERVER_PUB_ADDR = '127.0.0.1'/SERVER_PUB_ADDR = '${ip}'/" ${config_user_api_file}
 	sed -i 's/ \/\/ only works under multi-user mode//g' "${config_user_file}"
 	echo -e "${Info} ShadowsocksR服务端 下载完成 !"
 }
@@ -858,6 +892,7 @@ Install_SSR(){
 	check_root
 	[[ -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR 文件夹已存在，请检查( 如安装失败或者存在旧版本，请先卸载 ) !" && exit 1
 	echo -e "${Info} 开始设置 ShadowsocksR账号配置..."
+	Set_user_api_server_pub_addr
 	Set_config_all
 	echo -e "${Info} 开始安装/配置 ShadowsocksR依赖..."
 	Installation_dependency
@@ -1092,6 +1127,8 @@ Modify_Config(){
  ${Green_font_prefix}10.${Font_color_suffix} 修改 用户总流量
  ${Green_font_prefix}11.${Font_color_suffix} 修改 用户禁用端口
  ${Green_font_prefix}12.${Font_color_suffix} 修改 全部配置
+————— 其他 —————
+ ${Green_font_prefix}13.${Font_color_suffix} 修改 用户配置中显示的IP或域名
  
  ${Tip} 用户的用户名和端口是无法修改，如果需要修改请使用脚本的 手动修改功能 !" && echo
 	stty erase '^H' && read -p "(默认: 取消):" ssr_modify
@@ -1140,8 +1177,11 @@ Modify_Config(){
 		Modify_port
 		Set_config_all "Modify"
 		Modify_config_all
+	elif [[ ${ssr_modify} == "13" ]]; then
+		Set_user_api_server_pub_addr "Modify"
+		Modify_user_api_server_pub_addr
 	else
-		echo -e "${Error} 请输入正确的数字(1-12)" && exit 1
+		echo -e "${Error} 请输入正确的数字(1-13)" && exit 1
 	fi
 }
 List_port_user(){
