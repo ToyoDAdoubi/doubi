@@ -22,6 +22,7 @@ else
 	echo -e "${Error} 找不到 SSH 的服务脚本文件！" && exit 1
 fi
 bak_text="（可通过备份SSH配置文件复原：[ ${Green_font_prefix}rm -rf /etc/ssh/sshd_config && mv /etc/ssh/sshd_config.bak /etc/ssh/sshd_config && rm -rf /etc/ssh/sshd_config.bak && ${SSH_init} restart${Font_color_suffix} ]）"
+over_text="${Tip} 当服务器存在外部防火墙时（如 阿里云、腾讯云、微软云、谷歌云、亚马逊云等），需要外部防火墙开放 新SSH端口TCP协议方可连接！"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}" && Error="${Red_font_prefix}[错误]${Font_color_suffix}" && Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
@@ -92,7 +93,8 @@ choose_the_way(){
  1. 直接修改（直接修改旧端口为新端口，并且防火墙禁止旧端口 开放新端口）
  2. 保守修改（不删除旧端口，先添加新端口，然后手动断开SSH链接并使用新端口尝试链接，如果链接正常，那么再次执行脚本删除旧端口配置）\n
  一般来说修改SSH端口不会出现什么问题，但保守起见，我做了两个修改方式。
- 如果不懂请选 ${Green_font_prefix}[2. 保守修改]${Font_color_suffix}，避免因为未知问题而导致修改后无法通过 新端口和旧端口 链接服务器！\n"
+ 如果不懂请选 ${Green_font_prefix}[2. 保守修改]${Font_color_suffix}，避免因为未知问题而导致修改后无法通过 新端口和旧端口 链接服务器！\n
+ ${over_text}\n"
 	stty erase '^H' && read -p "(默认: 2. 保守修改):" choose_the_way_num
 	[[ -z "${choose_the_way_num}" ]] && choose_the_way_num="2"
 	if [[ ${choose_the_way_num} == "1" ]]; then
@@ -127,6 +129,7 @@ Direct_modification(){
 				Set_iptables
 				rm -rf /etc/ssh/sshd_config.bak
 				echo -e "${Info} SSH 端口修改成功！新端口：[${Green_font_prefix}${new_port}${Font_color_suffix}]"
+				echo -e "${over_text}"
 			fi
 		fi
 }
@@ -148,7 +151,8 @@ Conservative_modifications(){
 				Set_iptables
 				echo "${new_port}|${port}" > "${file}/ssh_port.conf"
 				echo -e "${Info} SSH 端口添加成功 ! 
-请手动断开 SSH链接并使用新端口 ${Green_font_prefix}[${new_port}]${Font_color_suffix} 尝试链接，如无法链接 请通过旧端口 ${Green_font_prefix}[${port}]${Font_color_suffix} 链接，如链接正常 请链接后再次执行脚本${Green_font_prefix} [bash ${file}/ssh_port.sh end]${Font_color_suffix} 以删除旧端口配置！" && exit 0
+请手动断开 SSH链接并使用新端口 ${Green_font_prefix}[${new_port}]${Font_color_suffix} 尝试链接，如无法链接 请通过旧端口 ${Green_font_prefix}[${port}]${Font_color_suffix} 链接，如链接正常 请链接后再次执行脚本${Green_font_prefix} [bash ${file}/ssh_port.sh end]${Font_color_suffix} 以删除旧端口配置！"
+				echo -e "${over_text}"
 			fi
 		fi
 	else
@@ -168,6 +172,7 @@ Conservative_modifications(){
 			Set_iptables
 			rm -rf /etc/ssh/sshd_config.bak
 			echo -e "${Info} 所有配置完成！新端口：[${Green_font_prefix}${new_port}${Font_color_suffix}]"
+			echo -e "${over_text}"
 		fi
 	fi
 }
