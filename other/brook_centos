@@ -35,8 +35,6 @@ read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} Brook 配置文件不存在 !" && exit 1
 	port=`cat ${CONF}|grep "port"|awk -F "=" '{print $NF}'`
 	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
-	timeout=`cat ${CONF}|grep "timeout"|awk -F "=" '{print $NF}'`
-	deadline=`cat ${CONF}|grep "deadline"|awk -F "=" '{print $NF}'`
 }
 View_User(){
 	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
@@ -51,8 +49,7 @@ View_User(){
 	fi
 	clear && echo "————————————————" && echo
 	echo -e " Brook 信息 :" && echo
-	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
-	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
+	echo -e " 地址\t: ${Green_font_prefix}${ip}:${port}${Font_color_suffix}"
 	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
 	echo && echo "————————————————"
 }
@@ -64,7 +61,7 @@ do_start(){
 		read_config
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
-		nohup ./brook server -l :"${port}" -p "${passwd}" -t "${timeout}" -d "${deadline}" > "${LOG}" 2>&1 &
+		nohup ./brook server -l :"${port}" -p "${passwd}" > "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
