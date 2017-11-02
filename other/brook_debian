@@ -35,18 +35,23 @@ read_config(){
 	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
 	timeout=`cat ${CONF}|grep "timeout"|awk -F "=" '{print $NF}'`
 	deadline=`cat ${CONF}|grep "deadline"|awk -F "=" '{print $NF}'`
-	music=`cat ${CONF}|grep "music"|awk -F "=" '{print $NF}'`
 }
 View_User(){
-	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
-	[[ -z ${ip} ]] && ip="VPS_IP"
-	[[ -z ${music} ]] && music="无 (客户端留空)"
+	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+	if [[ -z "${ip}" ]]; then
+		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+		if [[ -z "${ip}" ]]; then
+			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+			if [[ -z "${ip}" ]]; then
+				ip="VPS_IP"
+			fi
+		fi
+	fi
 	clear && echo "————————————————" && echo
 	echo -e " Brook 信息 :" && echo
 	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
 	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
 	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
-	echo -e " 音乐\t: ${Green_font_prefix}${music}${Font_color_suffix}"
 	echo && echo "————————————————"
 }
 do_start(){
@@ -57,11 +62,7 @@ do_start(){
 		read_config
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
-		if [[ -z ${music} ]]; then
-			nohup ./brook bkserver -l :"${port}" -p "${passwd}" -t "${timeout}" -d "${deadline}" > "${LOG}" 2>&1 &
-		else
-			nohup ./brook bkserver -l :"${port}" -p "${passwd}" -t "${timeout}" -d "${deadline}" -m "${music}" > "${LOG}" 2>&1 &
-		fi
+		nohup ./brook server -l :"${port}" -p "${passwd}" -t "${timeout}" -d "${deadline}" > "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
