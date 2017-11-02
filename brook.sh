@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
@@ -58,12 +58,13 @@ check_new_ver(){
 	fi
 }
 check_ver_comparison(){
-	brook_now_ver=`cat ${brook_ver}`
-	[[ -z ${brook_now_ver} ]] && echo "${brook_new_ver}" > ${brook_ver}
-	if [[ ${brook_now_ver} != ${brook_new_ver} ]]; then
+	brook_now_ver=$(${brook_file} -v|awk '{print $3}')
+	[[ -z ${brook_now_ver} ]] && echo -e "${Error} Brook 当前版本获取失败 !" && exit 1
+	brook_now_ver="v${brook_now_ver}"
+	if [[ "${brook_now_ver}" != "${brook_new_ver}" ]]; then
 		echo -e "${Info} 发现 Brook 已有新版本 [ ${brook_new_ver} ]"
 		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
-		[ -z "${yn}" ] && yn="y"
+		[[ -z "${yn}" ]] && yn="y"
 		if [[ $yn == [Yy] ]]; then
 			check_pid
 			[[ ! -z $PID ]] && kill -9 ${PID}
@@ -85,7 +86,6 @@ Download_brook(){
 	fi
 	[[ ! -e "brook" ]] && echo -e "${Error} Brook 下载失败 !" && exit 1
 	chmod +x brook
-	echo "${brook_new_ver}" > ${brook_ver}
 }
 Service_brook(){
 	if [[ ${release} = "centos" ]]; then
@@ -113,16 +113,12 @@ port=${bk_port}
 passwd=${bk_passwd}
 timeout=${bk_timeout}
 deadline=${bk_deadline}
-music=${bk_music}
 EOF
 }
 Read_config(){
 	[[ ! -e ${brook_conf} ]] && echo -e "${Error} Brook 配置文件不存在 !" && exit 1
 	port=`cat ${brook_conf}|grep "port"|awk -F "=" '{print $NF}'`
 	passwd=`cat ${brook_conf}|grep "passwd"|awk -F "=" '{print $NF}'`
-	timeout=`cat ${brook_conf}|grep "timeout"|awk -F "=" '{print $NF}'`
-	deadline=`cat ${brook_conf}|grep "deadline"|awk -F "=" '{print $NF}'`
-	music=`cat ${brook_conf}|grep "music"|awk -F "=" '{print $NF}'`
 }
 Set_port(){
 	while true
@@ -153,68 +149,9 @@ Set_passwd(){
 	echo -e "	密码 : ${Red_background_prefix} ${bk_passwd} ${Font_color_suffix}"
 	echo "========================" && echo
 }
-Set_timeout(){
-	while true
-		do
-		echo -e "请输入 Brook 超时时间（0 代表不限，单位：秒）"
-		stty erase '^H' && read -p "(默认: 10):" bk_timeout
-		[[ -z "$bk_timeout" ]] && bk_timeout="10"
-		if [[ ${bk_timeout} -ge 0 ]] && [[ ${bk_timeout} -le 3600 ]]; then
-			echo && echo "========================"
-			echo -e "	端口 : ${Red_background_prefix} ${bk_timeout} 秒 ${Font_color_suffix}"
-			echo "========================" && echo
-			break
-		else
-			echo "输入错误, 请输入正确的数字。"
-		fi
-	done
-}
-Set_deadline(){
-	while true
-		do
-		echo -e "请输入 Brook 连接截止时间（0 代表不限，单位：秒）"
-		stty erase '^H' && read -p "(默认: 60):" bk_deadline
-		[[ -z "$bk_deadline" ]] && bk_deadline="60"
-		if [[ ${bk_deadline} -ge 0 ]] && [[ ${bk_deadline} -le 3600 ]]; then
-			echo && echo "========================"
-			echo -e "	端口 : ${Red_background_prefix} ${bk_deadline} 秒 ${Font_color_suffix}"
-			echo "========================" && echo
-			break
-		else
-			echo "输入错误, 请输入正确的数字。"
-		fi
-	done
-}
-Set_music(){
-	echo -e "请输入 Brook 音乐（黑人问号？不懂就直接回车
- ${Green_font_prefix}1.${Font_color_suffix} none (不使用)
- ${Green_font_prefix}2.${Font_color_suffix} chinamobile_sdc
- ${Green_font_prefix}3.${Font_color_suffix} chinaunicom_iread
- ${Green_font_prefix}4.${Font_color_suffix} chinaunicom_sales" && echo
-	stty erase '^H' && read -p "(默认: 1. none):" bk_music
-	[[ -z "${bk_music}" ]] && bk_music="1"
-	if [[ ${bk_music} == "1" ]]; then
-		bk_music="none"
-	elif [[ ${bk_music} == "2" ]]; then
-		bk_music="chinamobile_sdc"
-	elif [[ ${bk_music} == "3" ]]; then
-		bk_music="chinaunicom_iread"
-	elif [[ ${bk_music} == "4" ]]; then
-		bk_music="chinaunicom_sales"
-	else
-		bk_music="none"
-	fi
-	echo && echo "========================"
-	echo -e "	音乐 : ${Red_background_prefix} ${bk_music} ${Font_color_suffix}"
-	echo "========================" && echo
-	[[ ${bk_music} = "none" ]] && bk_music=""
-}
 Set_conf(){
 	Set_port
 	Set_passwd
-	Set_music
-	Set_timeout
-	Set_deadline
 }
 Set_brook(){
 	check_installed_status
@@ -299,15 +236,20 @@ Uninstall_brook(){
 View_brook(){
 	check_installed_status
 	Read_config
-	ip=`wget -qO- -t1 -T2 ipinfo.io/ip`
-	[[ -z ${ip} ]] && ip="VPS_IP"
-	[[ -z ${music} ]] && music="无 (客户端留空)"
+	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+	if [[ -z "${ip}" ]]; then
+		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+		if [[ -z "${ip}" ]]; then
+			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+			if [[ -z "${ip}" ]]; then
+				ip="VPS_IP"
+			fi
+		fi
+	fi
 	clear && echo "————————————————" && echo
 	echo -e " Brook 信息 :" && echo
-	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
-	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
+	echo -e " 地址\t: ${Green_font_prefix}${ip}:${port}${Font_color_suffix}"
 	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
-	echo -e " 音乐\t: ${Green_font_prefix}${music}${Font_color_suffix}"
 	echo && echo "————————————————"
 }
 View_Log(){
