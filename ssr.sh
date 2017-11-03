@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR server
-#	Version: 2.0.34
+#	Version: 2.0.35
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc42/
 #=================================================
 
-sh_ver="2.0.34"
+sh_ver="2.0.35"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -587,21 +587,28 @@ Centos_yum(){
 	yum update
 	cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
 	if [[ $? = 0 ]]; then
-		yum install -y vim git net-tools
+		yum install -y vim unzip net-tools
 	else
-		yum install -y vim git
+		yum install -y vim unzip
 	fi
 }
 Debian_apt(){
 	apt-get update
-	apt-get install -y vim git
+	apt-get install -y vim unzip
 }
 # 下载 ShadowsocksR
 Download_SSR(){
-	cd "/usr/local"
+	cd "/usr/local/"
+	wget -N --no-check-certificate "https://github.com/ToyoDAdoubi/shadowsocksr/archive/manyuser.zip"
 	#git config --global http.sslVerify false
-	env GIT_SSL_NO_VERIFY=true git clone -b manyuser https://github.com/ToyoDAdoubi/shadowsocksr.git
-	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
+	#env GIT_SSL_NO_VERIFY=true git clone -b manyuser https://github.com/ToyoDAdoubi/shadowsocksr.git
+	#[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
+	[[ ! -e "manyuser.zip" ]] && echo -e "${Error} ShadowsocksR服务端 压缩包 下载失败 !" && rm -rf manyuser.zip && exit 1
+	unzip "manyuser.zip"
+	[[ ! -e "/usr/local/shadowsocksr-manyuser/" ]] && echo -e "${Error} ShadowsocksR服务端 解压失败 !" && rm -rf manyuser.zip && exit 1
+	mv "/usr/local/shadowsocksr-manyuser/" "/usr/local/shadowsocksr/"
+	[[ ! -e "/usr/local/shadowsocksr/" ]] && echo -e "${Error} ShadowsocksR服务端 重命名失败 !" && rm -rf manyuser.zip && rm -rf "/usr/local/shadowsocksr-manyuser/" && exit 1
+	rm -rf manyuser.zip
 	[[ -e ${config_folder} ]] && rm -rf ${config_folder}
 	mkdir ${config_folder}
 	[[ ! -e ${config_folder} ]] && echo -e "${Error} ShadowsocksR配置文件的文件夹 建立失败 !" && exit 1
@@ -627,12 +634,15 @@ Service_SSR(){
 # 安装 JQ解析器
 JQ_install(){
 	if [[ ! -e ${jq_file} ]]; then
+		cd "${ssr_folder}"
 		if [[ ${bit} = "x86_64" ]]; then
-			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -O ${jq_file}
+			mv "jq-linux64" "jq"
+			#wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -O ${jq_file}
 		else
-			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux32" -O ${jq_file}
+			mv "jq-linux32" "jq"
+			#wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux32" -O ${jq_file}
 		fi
-		[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 下载失败，请检查 !" && exit 1
+		[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 重命名失败，请检查 !" && exit 1
 		chmod +x ${jq_file}
 		echo -e "${Info} JQ解析器 安装完成，继续..." 
 	else
@@ -646,7 +656,7 @@ Installation_dependency(){
 	else
 		Debian_apt
 	fi
-	[[ ! -e "/usr/bin/git" ]] && echo -e "${Error} 依赖 Git 安装失败，多半是软件包源的问题，请检查 !" && exit 1
+	[[ ! -e "/usr/bin/unzip" ]] && echo -e "${Error} 依赖 unzip(解压压缩包) 安装失败，多半是软件包源的问题，请检查 !" && exit 1
 	Check_python
 	#echo "nameserver 8.8.8.8" > /etc/resolv.conf
 	#echo "nameserver 8.8.4.4" >> /etc/resolv.conf
