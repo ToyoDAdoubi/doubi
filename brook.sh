@@ -111,8 +111,6 @@ Write_config(){
 	cat > ${brook_conf}<<-EOF
 port=${bk_port}
 passwd=${bk_passwd}
-timeout=${bk_timeout}
-deadline=${bk_deadline}
 EOF
 }
 Read_config(){
