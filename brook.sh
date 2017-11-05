@@ -324,7 +324,7 @@ Uninstall_brook(){
 		check_pid
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config
-		for((integer = 1; integer <= ${user_total}; integer++))
+		for((integer = 1; integer <= ${user_all_num}; integer++))
 			do
 				user_text=$(echo "${user_all}"|sed -n "${integer}p")
 				port=$(echo "${user_text}"|awk '{print $1}')
