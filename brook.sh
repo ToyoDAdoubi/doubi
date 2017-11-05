@@ -10,7 +10,7 @@ export PATH
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.0.3"
+sh_ver="1.1.0"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
@@ -105,25 +105,51 @@ Service_brook(){
 	echo -e "${Info} Brook服务 管理脚本下载完成 !"
 }
 Installation_dependency(){
+	cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	mkdir ${file}
 }
 Write_config(){
 	cat > ${brook_conf}<<-EOF
-port=${bk_port}
-passwd=${bk_passwd}
+${bk_protocol}
+${bk_port} ${bk_passwd}
 EOF
 }
 Read_config(){
 	[[ ! -e ${brook_conf} ]] && echo -e "${Error} Brook 配置文件不存在 !" && exit 1
-	port=`cat ${brook_conf}|grep "port"|awk -F "=" '{print $NF}'`
-	passwd=`cat ${brook_conf}|grep "passwd"|awk -F "=" '{print $NF}'`
+	user_all=$(cat ${brook_conf}|sed "1d")
+	user_all_num=$(echo "${user_all}"|wc -l)
+	[[ -z ${user_all} ]] && echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
+	protocol=$(cat ${brook_conf}|sed -n "1p")
+}
+Set_port_Modify(){
+	while true
+		do
+		echo -e "请选择并输入要修改的 Brook 账号端口 [1-65535]"
+		stty erase '^H' && read -p "(默认取消):" bk_port_Modify
+		[[ -z "${bk_port_Modify}" ]] && echo "取消..." && exit 1
+		expr ${bk_port_Modify} + 0 &>/dev/null
+		if [[ $? -eq 0 ]]; then
+			if [[ ${bk_port_Modify} -ge 1 ]] && [[ ${bk_port_Modify} -le 65535 ]]; then
+				check_port "${bk_port_Modify}"
+				if [[ $? == 0 ]]; then
+					break
+				else
+					echo -e "${Error} 该端口不存在 [${bk_port_Modify}] !"
+				fi
+			else
+				echo "输入错误, 请输入正确的端口。"
+			fi
+		else
+			echo "输入错误, 请输入正确的端口。"
+		fi
+		done
 }
 Set_port(){
 	while true
 		do
-		echo -e "请输入 Brook 监听端口 [1-65535]"
+		echo -e "请输入 Brook 端口 [1-65535]（端口不能重复，避免冲突）"
 		stty erase '^H' && read -p "(默认: 2333):" bk_port
-		[[ -z "$bk_port" ]] && bk_port="2333"
+		[[ -z "${bk_port}" ]] && bk_port="2333"
 		expr ${bk_port} + 0 &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${bk_port} -ge 1 ]] && [[ ${bk_port} -le 65535 ]]; then
@@ -147,25 +173,105 @@ Set_passwd(){
 	echo -e "	密码 : ${Red_background_prefix} ${bk_passwd} ${Font_color_suffix}"
 	echo "========================" && echo
 }
-Set_conf(){
-	Set_port
-	Set_passwd
+Set_protocol(){
+	echo -e "请选择 Brook 协议
+ ${Green_font_prefix}1.${Font_color_suffix} Brook（新版协议，即 [servers]）
+ ${Green_font_prefix}2.${Font_color_suffix} Brook Stream（旧版协议，即 [streamservers]，不推荐，除非使用新版协议速度慢）" && echo
+	stty erase '^H' && read -p "(默认: 1. Brook（新版协议）):" bk_protocol
+	[[ -z "${bk_protocol}" ]] && bk_protocol="1"
+	if [[ ${bk_protocol} == "1" ]]; then
+		bk_protocol="servers"
+	elif [[ ${bk_protocol} == "2" ]]; then
+		bk_protocol="streamservers"
+	else
+		bk_protocol="servers"
+	fi
+	echo && echo "========================"
+	echo -e "	协议 : ${Green_font_prefix}${bk_protocol}${Font_color_suffix}"
+	echo "========================" && echo
 }
 Set_brook(){
 	check_installed_status
-	check_pid
-	Set_conf
-	Read_config
-	Del_iptables
-	Write_config
-	Add_iptables
-	Save_iptables
+	echo && echo -e "你要做什么？
+ ${Green_font_prefix}1.${Font_color_suffix}  添加 用户配置
+ ${Green_font_prefix}2.${Font_color_suffix}  删除 用户配置
+ ${Green_font_prefix}3.${Font_color_suffix}  修改 用户配置
+ ${Green_font_prefix}4.${Font_color_suffix}  修改 混淆协议
+ 
+ ${Tip} 用户的端口是不能重复的，密码可以重复 !" && echo
+	stty erase '^H' && read -p "(默认: 取消):" bk_modify
+	[[ -z "${bk_modify}" ]] && echo "已取消..." && exit 1
+	if [[ ${bk_modify} == "1" ]]; then
+		Add_port_user
+	elif [[ ${bk_modify} == "2" ]]; then
+		Del_port_user
+	elif [[ ${bk_modify} == "3" ]]; then
+		Modify_port_user
+	elif [[ ${bk_modify} == "4" ]]; then
+		Modify_protocol
+	else
+		echo -e "${Error} 请输入正确的数字(1-4)" && exit 1
+	fi
+}
+check_port(){
+	check_port_1=$1
+	user_all=$(cat ${brook_conf}|sed '1d;/^\s*$/d')
+	[[ -z "${user_all}" ]] && echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
+	check_port_statu=$(echo "${user_all}"|awk '{print $1}'|grep -w "${check_port_1}")
+	if [[ ! -z "${check_port_statu}" ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+list_port(){
+	user_all=$(cat ${brook_conf}|sed '1d;/^\s*$/d')
+	[[ -z "${user_all}" ]] && echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
+	echo "当前所有已使用端口："
+	echo "${user_all}"|awk '{print $1}'
+	echo "========================" && echo
+}
+Add_port_user(){
+	list_port
+	Set_port
+	check_port "${bk_port}"
+	[[ $? == 0 ]] && echo -e "${Error} 该端口已存在 [${bk_port}] !" && exit 1
+	Set_passwd
+	echo "${bk_port} ${bk_passwd}" >> ${brook_conf}
+	Restart_brook
+}
+Del_port_user(){
+	list_port
+	Set_port
+	check_port "${bk_port}"
+	[[ $? == 1 ]] && echo -e "${Error} 该端口不存在 [${bk_port}] !" && exit 1
+	sed -i "/^${bk_port} /d" ${brook_conf}
+	Restart_brook
+}
+Modify_port_user(){
+	list_port
+	Set_port_Modify
+	echo -e "\n${Info} 开始输入新端口... \n"
+	Set_port
+	check_port "${bk_port}"
+	[[ $? == 0 ]] && echo -e "${Error} 该端口已存在 [${bk_port}] !" && exit 1
+	Set_passwd
+	sed -i "/^${bk_port_Modify} /d" ${brook_conf}
+	echo "${bk_port} ${bk_passwd}" >> ${brook_conf}
+	Restart_brook
+}
+Modify_protocol(){
+	Set_protocol
+	sed -i "1d" ${brook_conf}
+	sed -i '1i\'${bk_protocol} ${brook_conf}
 	Restart_brook
 }
 Install_brook(){
 	[[ -e ${brook_file} ]] && echo -e "${Error} 检测到 Brook 已安装 !" && exit 1
 	echo -e "${Info} 开始设置 用户配置..."
-	Set_conf
+	Set_port
+	Set_passwd
+	Set_protocol
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency
 	echo -e "${Info} 开始检测最新版本..."
@@ -218,7 +324,12 @@ Uninstall_brook(){
 		check_pid
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config
-		Del_iptables
+		for((integer = 1; integer <= ${user_total}; integer++))
+			do
+				user_text=$(echo "${user_all}"|sed -n "${integer}p")
+				port=$(echo "${user_text}"|awk '{print $1}')
+				Del_iptables
+		done
 		rm -rf ${file}
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del brook
@@ -244,11 +355,24 @@ View_brook(){
 			fi
 		fi
 	fi
-	clear && echo "————————————————" && echo
-	echo -e " Brook 信息 :" && echo
-	echo -e " 地址\t: ${Green_font_prefix}${ip}:${port}${Font_color_suffix}"
-	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
-	echo && echo "————————————————"
+	if [[ ${protocol} == "servers" ]]; then
+		protocol="Brook(新版)"
+	elif [[ ${protocol} == "streamservers" ]]; then
+		protocol="Brook Stream(旧版)"
+	fi
+	clear && echo
+	echo -e "Brook 用户配置："
+	for((integer = 1; integer <= ${user_all_num}; integer++))
+		do
+			user_text=$(echo "${user_all}"|sed -n "${integer}p")
+			port=$(echo "${user_text}"|awk '{print $1}')
+			password=$(echo "${user_text}"|awk '{print $2}')
+			echo -e "————————————————"
+			echo -e " 地址\t: ${Green_font_prefix}${ip}:${port}${Font_color_suffix}"
+			echo -e " 密码\t: ${Green_font_prefix}${password}${Font_color_suffix}"
+			echo -e " 协议\t: ${Green_font_prefix}${protocol}${Font_color_suffix}"
+	done
+	echo
 }
 View_Log(){
 	check_installed_status
