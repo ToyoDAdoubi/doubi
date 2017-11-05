@@ -33,10 +33,13 @@ check_running(){
 }
 read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} Brook 配置文件不存在 !" && exit 1
-	port=`cat ${CONF}|grep "port"|awk -F "=" '{print $NF}'`
-	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
+	user_all=$(cat ${CONF}|sed "1d")
+	user_all_num=$(echo "${user_all}"|wc -l)
+	[[ -z ${user_all} ]] && echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
+	protocol=$(cat ${CONF}|sed -n "1p")
 }
 View_User(){
+	read_config
 	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
 	if [[ -z "${ip}" ]]; then
 		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
@@ -47,11 +50,24 @@ View_User(){
 			fi
 		fi
 	fi
-	clear && echo "————————————————" && echo
-	echo -e " Brook 信息 :" && echo
-	echo -e " 地址\t: ${Green_font_prefix}${ip}:${port}${Font_color_suffix}"
-	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
-	echo && echo "————————————————"
+	if [[ ${protocol} == "servers" ]]; then
+		protocol="Brook(新版)"
+	elif [[ ${protocol} == "streamservers" ]]; then
+		protocol="Brook Stream(旧版)"
+	fi
+	clear && echo
+	echo -e "Brook 用户配置："
+	for((integer = 1; integer <= ${user_all_num}; integer++))
+		do
+			user_text=$(echo "${user_all}"|sed -n "${integer}p")
+			port=$(echo "${user_text}"|awk '{print $1}')
+			password=$(echo "${user_text}"|awk '{print $2}')
+			echo -e "————————————————"
+			echo -e " 地址\t: ${Green_font_prefix}${ip}:${port}${Font_color_suffix}"
+			echo -e " 密码\t: ${Green_font_prefix}${password}${Font_color_suffix}"
+			echo -e " 协议\t: ${Green_font_prefix}${protocol}${Font_color_suffix}"
+	done
+	echo
 }
 do_start(){
 	check_running
@@ -61,7 +77,15 @@ do_start(){
 		read_config
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
-		nohup ./brook server -l :"${port}" -p "${passwd}" > "${LOG}" 2>&1 &
+		servers_all=""
+		for((integer = 1; integer <= ${user_all_num}; integer++))
+		do
+			user_text=$(echo "${user_all}"|sed -n "${integer}p")
+			port=$(echo "${user_text}"|awk '{print $1}')
+			password=$(echo "${user_text}"|awk '{print $2}')
+			servers_all="${servers_all}-l \":${port} ${password}\" "
+		done
+		eval nohup ./brook ${protocol} $(echo ${servers_all}) > "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
