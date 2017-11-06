@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.0.3
+#	Version: 1.1.1
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.0"
+sh_ver="1.1.1"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
@@ -227,9 +227,8 @@ check_port(){
 list_port(){
 	user_all=$(cat ${brook_conf}|sed '1d;/^\s*$/d')
 	[[ -z "${user_all}" ]] && echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
-	echo "当前所有已使用端口："
-	echo "${user_all}"|awk '{print $1}'
-	echo "========================" && echo
+	port_all_1=$(echo "${user_all}"|awk '{print $1}')
+	echo -e "\n当前所有已使用端口：\n${port_all_1}\n========================\n"
 }
 Add_port_user(){
 	list_port
@@ -238,6 +237,8 @@ Add_port_user(){
 	[[ $? == 0 ]] && echo -e "${Error} 该端口已存在 [${bk_port}] !" && exit 1
 	Set_passwd
 	echo "${bk_port} ${bk_passwd}" >> ${brook_conf}
+	Add_iptables
+	Save_iptables
 	Restart_brook
 }
 Del_port_user(){
@@ -246,6 +247,9 @@ Del_port_user(){
 	check_port "${bk_port}"
 	[[ $? == 1 ]] && echo -e "${Error} 该端口不存在 [${bk_port}] !" && exit 1
 	sed -i "/^${bk_port} /d" ${brook_conf}
+	port=${bk_port}
+	Del_iptables
+	Save_iptables
 	Restart_brook
 }
 Modify_port_user(){
@@ -258,6 +262,10 @@ Modify_port_user(){
 	Set_passwd
 	sed -i "/^${bk_port_Modify} /d" ${brook_conf}
 	echo "${bk_port} ${bk_passwd}" >> ${brook_conf}
+	port=${bk_port_Modify}
+	Del_iptables
+	Add_iptables
+	Save_iptables
 	Restart_brook
 }
 Modify_protocol(){
