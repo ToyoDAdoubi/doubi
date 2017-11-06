@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.1
+#	Version: 1.1.2
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.1"
+sh_ver="1.1.2"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
@@ -331,13 +331,18 @@ Uninstall_brook(){
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
 		[[ ! -z $PID ]] && kill -9 ${PID}
-		Read_config
-		for((integer = 1; integer <= ${user_all_num}; integer++))
-			do
-				user_text=$(echo "${user_all}"|sed -n "${integer}p")
-				port=$(echo "${user_text}"|awk '{print $1}')
-				Del_iptables
-		done
+		if [[ -e ${brook_conf} ]]; then
+			user_all=$(cat ${brook_conf}|sed "1d")
+			user_all_num=$(echo "${user_all}"|wc -l)
+			if [[ ! -z ${user_all} ]]; then
+				for((integer = 1; integer <= ${user_all_num}; integer++))
+				do
+					user_text=$(echo "${user_all}"|sed -n "${integer}p")
+					port=$(echo "${user_text}"|awk '{print $1}')
+					Del_iptables
+				done
+			fi
+		fi
 		rm -rf ${file}
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del brook
