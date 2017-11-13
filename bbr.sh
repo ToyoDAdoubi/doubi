@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: TCP-BBR
-#	Version: 1.0.18
+#	Version: 1.0.19
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-16/
 #=================================================
@@ -70,9 +70,9 @@ get_latest_version(){
 check_deb_off(){
 	get_latest_new_version
 	deb_ver=`dpkg -l|grep linux-image | awk '{print $2}' | awk -F '-' '{print $3}' | grep '[4-9].[0-9]*.'`
-	deb_ver_2=$(echo "${deb_ver: -2}")
-	if [[ "${deb_ver_2}" == ".0" ]]; then
-		deb_ver=$(echo "${deb_ver}" |awk -F '.0' '{print $1}')
+	latest_version_2=$(echo "${latest_version}"|grep -o '\.'|wc -l)
+	if [[ "${latest_version_2}" == "1" ]]; then
+		latest_version="${latest_version}.0"
 	fi
 	if [[ "${deb_ver}" != "" ]]; then
 		if [[ "${deb_ver}" == "${latest_version}" ]]; then
@@ -96,8 +96,8 @@ del_deb(){
 			apt-get purge -y ${deb_del}
 			echo -e "${Info} 卸载 ${deb_del} 内核卸载完成，继续..."
 		done
-		deb_total=`dpkg -l|grep linux-image | awk '{print $2}' | grep -v "${latest_version}" | wc -l`
-		if [[ "${deb_total}" = "0" ]]; then
+		deb_total=`dpkg -l|grep linux-image | awk '{print $2}' | wc -l`
+		if [[ "${deb_total}" = "1" ]]; then
 			echo -e "${Info} 内核卸载完毕，继续..."
 		else
 			echo -e "${Error} 内核卸载异常，请检查 !" && exit 1
@@ -138,13 +138,7 @@ installbbr(){
 				exit 1
 			fi
 		else
-			deb_total=`dpkg -l|grep linux-image | awk '{print $2}' | grep -v "${latest_version}" | wc -l`
-			if [[ "${deb_total}" != "0" ]]; then
-				echo -e "${Info} 检测到内核数量异常，存在多余内核，开始删除..."
-				del_deb_over
-			else
-				echo -e "${Info} 检测到 当前内核版本 不是最新版本，升级(或降级)内核..."
-			fi
+			echo -e "${Info} 检测到 当前内核版本 不是最新版本，升级(或降级)内核..."
 		fi
 	else
 		echo -e "${Info} 检测到 当前内核版本 不支持开启BBR，开始安装..."
