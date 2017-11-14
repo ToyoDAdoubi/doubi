@@ -14,10 +14,11 @@
 
 NAME="Cloud Torrent"
 NAME_BIN="cloud-torrent"
-FILE="/etc/cloudtorrent"
+FILE="/usr/local/cloudtorrent"
 BIN="${FILE}/cloud-torrent"
 CONFIG="${FILE}/cloud-torrent.json"
 CONF="${FILE}/cloud-torrent.conf"
+LOG="/tmp/ct.log"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -34,30 +35,26 @@ check_running(){
 }
 read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} Cloud Torrent 配置文件不存在 !" && exit 1
+	host=`cat ${CONF}|grep "host"|awk -F "=" '{print $NF}'`
 	port=`cat ${CONF}|grep "port"|awk -F "=" '{print $NF}'`
 	user=`cat ${CONF}|grep "user"|awk -F "=" '{print $NF}'`
 	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
 }
 View_User(){
-	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
-	if [[ -z "${ip}" ]]; then
-		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
-		if [[ -z "${ip}" ]]; then
-			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
-			if [[ -z "${ip}" ]]; then
-				ip="VPS_IP"
-			fi
-		fi
+	if [[ "${port}" == "80" ]]; then
+		port=""
+	else
+		port=":${port}"
 	fi
 	if [[ -z ${user} ]]; then
 		clear && echo "————————————————" && echo
 		echo -e " 你的 Cloud Torrent 信息 :" && echo
-		echo -e " 地址\t: ${Green_font_prefix}http://${ip}:${port}${Font_color_suffix}"
+		echo -e " 地址\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
 		echo && echo "————————————————"
 	else
 		clear && echo "————————————————" && echo
 		echo -e " 你的 Cloud Torrent 信息 :" && echo
-		echo -e " 地址\t: ${Green_font_prefix}http://${ip}:${port}${Font_color_suffix}"
+		echo -e " 地址\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
 		echo -e " 用户\t: ${Green_font_prefix}${user}${Font_color_suffix}"
 		echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
 		echo && echo "————————————————"
@@ -72,9 +69,9 @@ do_start(){
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
 		if [[ -z ${user} ]]; then
-			./cloud-torrent -t "Cloud Torrent - 逗比根据地" -p ${port} -l >> ct.log 2>&1 &
+			./cloud-torrent -t "Cloud Torrent - 逗比根据地" -h "${host}" -p ${port} -l >> "${LOG}" 2>&1 &
 		else
-			./cloud-torrent -t "Cloud Torrent - 逗比根据地" -p ${port} -l -a "${user}:${passwd}" >> ct.log 2>&1 &
+			./cloud-torrent -t "Cloud Torrent - 逗比根据地" -h "${host}" -p ${port} -l -a "${user}:${passwd}" >> "${LOG}" 2>&1 &
 		fi
 		sleep 2s
 		check_running
