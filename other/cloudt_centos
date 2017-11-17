@@ -35,12 +35,24 @@ check_running(){
 }
 read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} Cloud Torrent 配置文件不存在 !" && exit 1
-	host=`cat ${CONF}|grep "host"|awk -F "=" '{print $NF}'`
-	port=`cat ${CONF}|grep "port"|awk -F "=" '{print $NF}'`
-	user=`cat ${CONF}|grep "user"|awk -F "=" '{print $NF}'`
-	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
+	host=`cat ${CONF}|grep "host"|awk -F "host=" '{print $NF}'`
+	port=`cat ${CONF}|grep "port"|awk -F "port=" '{print $NF}'`
+	user=`cat ${CONF}|grep "user"|awk -F "user=" '{print $NF}'`
+	passwd=`cat ${CONF}|grep "passwd"|awk -F "passwd=" '{print $NF}'`
 }
 View_User(){
+	if [[ "${host}" == "0.0.0.0" ]]; then
+		host=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+		if [[ -z "${host}" ]]; then
+			host=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+			if [[ -z "${host}" ]]; then
+				host=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+				if [[ -z "${host}" ]]; then
+					host="VPS_IP"
+				fi
+			fi
+		fi
+	fi
 	if [[ "${port}" == "80" ]]; then
 		port=""
 	else
