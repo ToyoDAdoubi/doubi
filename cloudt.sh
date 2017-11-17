@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Cloud Torrent
-#	Version: 1.2.0
+#	Version: 1.2.1
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-12/
 #=================================================
@@ -129,28 +129,15 @@ EOF
 }
 Read_config(){
 	[[ ! -e ${ct_conf} ]] && echo -e "${Error} Cloud Torrent 配置文件不存在 !" && exit 1
-	host=`cat ${ct_conf}|grep "host"|awk -F "=" '{print $NF}'`
-	port=`cat ${ct_conf}|grep "port"|awk -F "=" '{print $NF}'`
-	user=`cat ${ct_conf}|grep "user"|awk -F "=" '{print $NF}'`
-	passwd=`cat ${ct_conf}|grep "passwd"|awk -F "=" '{print $NF}'`
+	host=`cat ${ct_conf}|grep "host"|awk -F "host=" '{print $NF}'`
+	port=`cat ${ct_conf}|grep "port"|awk -F "port=" '{print $NF}'`
+	user=`cat ${ct_conf}|grep "user"|awk -F "user=" '{print $NF}'`
+	passwd=`cat ${ct_conf}|grep "passwd"|awk -F "passwd=" '{print $NF}'`
 }
 Set_host(){
 	echo -e "请输入 Cloud Torrent 监听域名或IP（当你要绑定域名前，记得先做好域名解析，目前只支持http://访问，不要写http://，只写域名！）"
-	stty erase '^H' && read -p "(默认回车自动获取外网IP绑定):" ct_host
-	if [[ -z "${ct_host}" ]]; then
-		ct_host=$(wget -qO- -t1 -T2 ipinfo.io/ip)
-		if [[ -z "${ct_host}" ]]; then
-			ct_host=$(wget -qO- -t1 -T2 api.ip.sb/ip)
-			if [[ -z "${ct_host}" ]]; then
-				ct_host=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
-				if [[ -z "${ct_host}" ]]; then
-					echo -e "${Error} 自动获取外网IP失败！请手动输入本服务器外网IP："
-					stty erase '^H' && read -p "(请输入外网IP):" ct_host
-					[[ -z "${ct_host}" ]] && echo -e "${Error} 外网IP不能为空！" && exit 1
-				fi
-			fi
-		fi
-	fi
+	stty erase '^H' && read -p "(默认: 0.0.0.0 监听网卡所有IP):" ct_host
+	[[ -z "${ct_host}" ]] && ct_host="0.0.0.0"
 	echo && echo "========================"
 	echo -e "	端口 : ${Red_background_prefix} ${ct_host} ${Font_color_suffix}"
 	echo "========================" && echo
@@ -293,25 +280,32 @@ Uninstall_ct(){
 View_ct(){
 	check_installed_status
 	Read_config
-	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
-	if [[ -z "${ip}" ]]; then
-		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
-		if [[ -z "${ip}" ]]; then
-			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
-			if [[ -z "${ip}" ]]; then
-				ip="VPS_IP"
+	if [[ "${host}" == "0.0.0.0" ]]; then
+		host=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+		if [[ -z "${host}" ]]; then
+			host=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+			if [[ -z "${host}" ]]; then
+				host=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+				if [[ -z "${host}" ]]; then
+					host="VPS_IP"
+				fi
 			fi
 		fi
+	fi
+	if [[ "${port}" == "80" ]]; then
+		port=""
+	else
+		port=":${port}"
 	fi
 	if [[ -z ${user} ]]; then
 		clear && echo "————————————————" && echo
 		echo -e " 你的 Cloud Torrent 信息 :" && echo
-		echo -e " 地址\t: ${Green_font_prefix}http://${ip}:${port}${Font_color_suffix}"
+		echo -e " 地址\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
 		echo && echo "————————————————"
 	else
 		clear && echo "————————————————" && echo
 		echo -e " 你的 Cloud Torrent 信息 :" && echo
-		echo -e " 地址\t: ${Green_font_prefix}http://${ip}:${port}${Font_color_suffix}"
+		echo -e " 地址\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
 		echo -e " 用户\t: ${Green_font_prefix}${user}${Font_color_suffix}"
 		echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
 		echo && echo "————————————————"
