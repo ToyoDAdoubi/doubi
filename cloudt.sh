@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Cloud Torrent
-#	Version: 1.2.1
+#	Version: 1.2.2
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-12/
 #=================================================
@@ -121,25 +121,25 @@ Installation_dependency(){
 }
 Write_config(){
 	cat > ${ct_conf}<<-EOF
-host=${ct_host}
-port=${ct_port}
-user=${ct_user}
-passwd=${ct_passwd}
+host = ${ct_host}
+port = ${ct_port}
+user = ${ct_user}
+passwd = ${ct_passwd}
 EOF
 }
 Read_config(){
 	[[ ! -e ${ct_conf} ]] && echo -e "${Error} Cloud Torrent 配置文件不存在 !" && exit 1
-	host=`cat ${ct_conf}|grep "host"|awk -F "host=" '{print $NF}'`
-	port=`cat ${ct_conf}|grep "port"|awk -F "port=" '{print $NF}'`
-	user=`cat ${ct_conf}|grep "user"|awk -F "user=" '{print $NF}'`
-	passwd=`cat ${ct_conf}|grep "passwd"|awk -F "passwd=" '{print $NF}'`
+	host=`cat ${ct_conf}|grep "host = "|awk -F "host = " '{print $NF}'`
+	port=`cat ${ct_conf}|grep "port = "|awk -F "port = " '{print $NF}'`
+	user=`cat ${ct_conf}|grep "user = "|awk -F "user = " '{print $NF}'`
+	passwd=`cat ${ct_conf}|grep "passwd = "|awk -F "passwd = " '{print $NF}'`
 }
 Set_host(){
 	echo -e "请输入 Cloud Torrent 监听域名或IP（当你要绑定域名前，记得先做好域名解析，目前只支持http://访问，不要写http://，只写域名！）"
 	stty erase '^H' && read -p "(默认: 0.0.0.0 监听网卡所有IP):" ct_host
 	[[ -z "${ct_host}" ]] && ct_host="0.0.0.0"
 	echo && echo "========================"
-	echo -e "	端口 : ${Red_background_prefix} ${ct_host} ${Font_color_suffix}"
+	echo -e "	主机 : ${Red_background_prefix} ${ct_host} ${Font_color_suffix}"
 	echo "========================" && echo
 }
 Set_port(){
