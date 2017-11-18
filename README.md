@@ -307,6 +307,18 @@ adbyby.sh
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/adbyby.sh && chmod +x adbyby.sh && bash adbyby.sh
 ```
 
+libsodium.sh
+======
+
+- 脚本说明: libsodium 一键安装脚本
+- 系统支持: CentOS6+ / Debian6+ / Ubuntu14+
+- 使用方法: https://doub.io/shell-jc6/
+
+### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/libsodium.sh && chmod +x libsodium.sh && bash libsodium.sh
+```
+
 ban_iptables.sh
 ======
 
