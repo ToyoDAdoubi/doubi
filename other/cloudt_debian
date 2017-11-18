@@ -33,10 +33,10 @@ check_running(){
 }
 read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} Cloud Torrent 配置文件不存在 !" && exit 1
-	host=`cat ${CONF}|grep "host"|awk -F "host=" '{print $NF}'`
-	port=`cat ${CONF}|grep "port"|awk -F "port=" '{print $NF}'`
-	user=`cat ${CONF}|grep "user"|awk -F "user=" '{print $NF}'`
-	passwd=`cat ${CONF}|grep "passwd"|awk -F "passwd=" '{print $NF}'`
+	host=`cat ${CONF}|grep "host = "|awk -F "host = " '{print $NF}'`
+	port=`cat ${CONF}|grep "port = "|awk -F "port = " '{print $NF}'`
+	user=`cat ${CONF}|grep "user = "|awk -F "user = " '{print $NF}'`
+	passwd=`cat ${CONF}|grep "passwd = "|awk -F "passwd = " '{print $NF}'`
 }
 View_User(){
 	if [[ "${host}" == "0.0.0.0" ]]; then
@@ -89,7 +89,7 @@ do_start(){
 			echo -e "${Info} $NAME 启动成功 !"
 			View_User
 		else
-			echo -e "${Error} $NAME 启动失败 !"
+			echo -e "${Error} $NAME 启动失败(请运行脚本查看日志错误输出) !"
 		fi
 	fi
 }
