@@ -1552,8 +1552,7 @@ Configure_BBR(){
 echo -e "${Green_font_prefix} [安装前 请注意] ${Font_color_suffix}
 1. 安装开启BBR，需要更换内核，存在更换失败等风险(重启后无法开机)
 2. 本脚本仅支持 Debian / Ubuntu 系统更换内核，OpenVZ和Docker 不支持更换内核
-3. Debian 更换内核过程中会提示 [ 是否终止卸载内核 ] ，请选择 ${Green_font_prefix} NO ${Font_color_suffix}
-4. 安装BBR并重启服务器后，需要重新运行脚本 启动BBR" && echo
+3. Debian 更换内核过程中会提示 [ 是否终止卸载内核 ] ，请选择 ${Green_font_prefix} NO ${Font_color_suffix}" && echo
 	stty erase '^H' && read -p "(默认: 取消):" bbr_num
 	[[ -z "${bbr_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${bbr_num} == "1" ]]; then
