@@ -3,6 +3,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
 PAC_URL="https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt"
+Output_URL="/home/wwwroot/softs.pw/Other/pac.txt"
 prefix_suffix(){
 PAC_TAME="/*
  * Last Updated:$(date '+%Y-%m-%d %H:%M:%S')
@@ -25,7 +26,7 @@ var ipv6_proxy = function(){ return nowall_proxy(); };
  
 /*
  * Copyright (C) 2017 Toyo
- * https://softs.pw/Other/pac.txt
+ * https://softs.fun/Other/pac.txt
  */
 
 var rules = [
@@ -866,5 +867,6 @@ urlsafe_base64_d(){
 PAC_TEXT=$(curl -m 10 -s "${PAC_URL}")
 PAC_BASE64=$(urlsafe_base64_d "${PAC_TEXT}"|grep -v "!"|sed '1d;s/\\/\\\\/g;/^\s*$/d;s/^/	"&/g;s/$/&",/g;$s/.$//')
 PAC_NUM=$(echo "${PAC_BASE64}"|wc -l)
-echo "${PAC_TAME}${PAC_prefix}${PAC_BASE64}${PAC_suffix}" > /home/wwwroot/softs.pw/Other/pac.txt
+echo "${PAC_TAME}${PAC_prefix}${PAC_BASE64}${PAC_suffix}" > "${Output_URL}"
+sed -i 's/$/\r/' "${Output_URL}"
 echo "${PAC_NUM}"
