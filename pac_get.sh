@@ -3,7 +3,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
 PAC_URL="https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt"
-Output_URL="/home/wwwroot/softs.pw/Other/pac.txt"
+Output_URL="pac.txt"
 prefix_suffix(){
 PAC_TAME="/*
  * Last Updated:$(date '+%Y-%m-%d %H:%M:%S')
