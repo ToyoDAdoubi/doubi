@@ -78,7 +78,7 @@ check_deb_off(){
 		if [[ "${deb_ver}" == "${latest_version}" ]]; then
 			echo -e "${Info} 检测到 当前内核版本[${deb_ver}] 已满足要求，继续..."
 		else
-			echo -e "${Tip} 检测到 当前内核版本[${deb_ver}] 不是最新版本，可以使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来升级内核 !"
+			echo -e "${Tip} 检测到 当前内核版本[${deb_ver}] 不是最新版本，可以使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来升级内核 !(注意：并不是越新的内核越好，4.9 以上版本的内核 目前皆为测试版，不保证稳定性，旧版本如使用无问题 建议不要升级！)"
 		fi
 	else
 		echo -e "${Error} 检测到 当前内核版本[${deb_ver}] 不支持开启BBR，请使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来更换最新内核 !" && exit 1
@@ -110,7 +110,7 @@ del_deb_over(){
 	del_deb
 	update-grub
 	addsysctl
-	echo -e "${Tip} 重启VPS后，请重新运行脚本查看BBR是否加载成功 ${Green_background_prefix} bash ${file}/bbr.sh status ${Font_color_suffix}"
+	echo -e "${Tip} 重启VPS后，请重新运行脚本查看BBR是否加载成功，运行命令： ${Green_background_prefix} bash ${file}/bbr.sh status ${Font_color_suffix}"
 	stty erase '^H' && read -p "需要重启VPS后，才能开启BBR，是否现在重启 ? [Y/n] :" yn
 	[[ -z "${yn}" ]] && yn="y"
 	if [[ $yn == [Yy] ]]; then
