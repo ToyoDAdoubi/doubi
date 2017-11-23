@@ -247,6 +247,18 @@ socat.sh
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/socat.sh && chmod +x socat.sh && bash socat.sh
 ```
 
+tinymapper.sh
+======
+
+- 脚本说明: tinyPortMapper 一键安装/管理脚本
+- 系统支持: CentOS6+ / Debian6+ / Ubuntu14+
+- 使用方法: https://doub.io/wlzy-36/
+
+### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/tinymapper.sh && chmod +x tinymapper.sh && bash tinymapper.sh
+```
+
 haproxy.sh
 ======
 
