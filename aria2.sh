@@ -107,7 +107,7 @@ Installation_dependency(){
 	if [[ ${release} = "centos" ]]; then
 		yum update
 		yum -y groupinstall "Development Tools"
-	elif [[ ${release} = "debian" ]]; then
+	else
 		apt-get update
 		apt-get install build-essential -y
 	fi
