@@ -30,6 +30,37 @@ check_running(){
 		return 1
 	fi
 }
+Read_config(){
+	[[ ! -e ${CONFIG} ]] && echo -e "${Error} ${NAME} 配置文件不存在 !" && exit 1
+	Download_dir=$(cat ${CONFIG}|grep -v '#'|grep "dir=")
+	[[ ! -z "${Download_dir}" ]] && Download_dir=$(echo "${Download_dir}"|awk -F '=' '{print $2}')
+	RPC_listen_port=$(cat ${CONFIG}|grep -v '#'|grep "rpc-listen-port=")
+	[[ ! -z "${RPC_listen_port}" ]] && RPC_listen_port=$(echo "${RPC_listen_port}"|awk -F '=' '{print $2}')
+	RPC_secret=$(cat ${CONFIG}|grep -v '#'|grep "rpc-secret=")
+	[[ ! -z "${RPC_secret}" ]] && RPC_secret=$(echo "${RPC_secret}"|awk -F '=' '{print $2}')
+}
+View_Config(){
+	Read_config
+	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+	if [[ -z "${ip}" ]]; then
+		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+		if [[ -z "${ip}" ]]; then
+			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+			if [[ -z "${ip}" ]]; then
+				ip="VPS_IP(外网IP检测失败)"
+			fi
+		fi
+	fi
+	[[ -z "${Download_dir}" ]] && Download_dir="/usr/local/aria2/"
+	[[ -z "${RPC_listen_port}" ]] && RPC_listen_port="6800"
+	[[ -z "${RPC_secret}" ]] && RPC_secret="无令牌密码"
+	clear
+	echo -e "\nAria2 简单配置信息：\n
+ 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}
+ 端口\t: ${Green_font_prefix}${RPC_listen_port}${Font_color_suffix}
+ 密码\t: ${Green_font_prefix}${RPC_secret}${Font_color_suffix}
+ 目录\t: ${Green_font_prefix}${Download_dir}${Font_color_suffix}\n"
+}
 do_start(){
 	check_running
 	if [[ $? -eq 0 ]]; then
@@ -39,6 +70,7 @@ do_start(){
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
+			View_Config
 			echo -e "${Info} $NAME 启动成功 !"
 		else
 			echo -e "${Error} $NAME 启动失败 !"
@@ -63,6 +95,7 @@ do_stop(){
 do_status(){
 	check_running
 	if [[ $? -eq 0 ]]; then
+		View_Config
 		echo -e "${Info} $NAME (PID $(echo ${PID})) 正在运行..."
 	else
 		echo -e "${Info} $NAME 未运行 !"
