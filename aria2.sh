@@ -181,14 +181,17 @@ Uninstall_aria2(){
 		Read_config
 		Del_iptables
 		Save_iptables
+		cd "${Folder}"
+		make uninstall
+		cd ..
+		rm -rf "${Folder}"
+		rm -rf "${file}"
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del aria2
-			yum remove aria2 -y
 		else
 			update-rc.d -f aria2 remove
-			apt-get remove --purge aria2 -y
 		fi
-		rm -rf ${file}
+		rm -rf "/etc/init.d/aria2"
 		echo && echo "Aria2 卸载完成 !" && echo
 	else
 		echo && echo "卸载已取消..." && echo
