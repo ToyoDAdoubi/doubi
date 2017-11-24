@@ -5,14 +5,15 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 1.0.4
+#	Version: 1.1.0
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc4/
 #=================================================
-sh_ver="1.0.4"
+sh_ver="1.1.0"
 file="/root/.aria2"
-aria2_conf="${file}/aria2.conf"
+aria2_conf="/root/.aria2/aria2.conf"
 aria2_log="/root/.aria2/aria2.log"
+Folder="/usr/local/aria2"
 aria2c="/usr/bin/aria2c"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
@@ -46,7 +47,38 @@ check_installed_status(){
 check_pid(){
 	PID=`ps -ef| grep "aria2c"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
 }
+check_new_ver(){
+	aria2_new_ver=$(wget -qO- "https://github.com/q3aql/aria2-static-builds/tags"| grep "/q3aql/aria2-static-builds/releases/tag/"| head -n 1| awk -F "/tag/v" '{print $2}'| sed 's/\">//')
+	if [[ -z ${aria2_new_ver} ]]; then
+		echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/q3aql/aria2-static-builds/releases ]"
+		stty erase '^H' && read -p "请输入版本号 [ 格式如 1.33.1 ] :" aria2_new_ver
+		[[ -z "${aria2_new_ver}" ]] && echo "取消..." && exit 1
+	else
+		echo -e "${Info} 检测到 Aria2 最新版本为 [ ${aria2_new_ver} ]"
+	fi
+}
 Download_aria2(){
+	cd "/usr/local"
+	if [[ ${bit} == "x86_64" ]]; then
+		wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-64bit-build1.tar.bz2"
+		Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-64bit-build1"
+	else
+		wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-32bit-build1.tar.bz2"
+		Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-32bit-build1"
+	fi
+	[[ ! -e "${Aria2_Name}.tar.bz2" ]] && echo -e "${Error} Aria2 压缩包下载失败 !" && exit 1
+	tar jxvf "${Aria2_Name}.tar.bz2"
+	[[ ! -e "/usr/local/${Aria2_Name}" ]] && echo -e "${Error} Aria2 解压失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && exit 1
+	mv "/usr/local/${Aria2_Name}" "${Folder}"
+	[[ ! -e "${Folder}" ]] && echo -e "${Error} Aria2 文件夹重命名失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && rm -rf "/usr/local/${Aria2_Name}" && exit 1
+	rm -rf "${Aria2_Name}.tar.bz2"
+	cd "${Folder}"
+	make install
+	[[ ! -e ${aria2c} ]] && echo -e "${Error} Aria2 主程序安装失败！" && rm -rf "${Folder}" && exit 1
+	chmod +x aria2c
+	echo -e "${Info} Aria2 主程序安装完毕！开始下载配置文件..."
+}
+Download_aria2_conf(){
 	mkdir "${file}" && cd "${file}"
 	wget --no-check-certificate -N "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/Aria2/aria2.conf"
 	[[ ! -s "aria2.conf" ]] && echo -e "${Error} Aria2 配置文件下载失败 !" && rm -rf "${file}" && exit 1
@@ -73,37 +105,23 @@ Service_aria2(){
 }
 Installation_dependency(){
 	if [[ ${release} = "centos" ]]; then
-		cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
-		if [[ $? = 1 ]]; then
-			echo -e "${Error} CentOS6 系统不支持安装 Aria2（源没有Aria2包），请更换 CentOS7 或其他系统安装 !" && exit 1
-		fi
-		wget -N --no-check-certificate http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-		[[ ! -e "epel-release-latest-7.noarch.rpm" ]] && echo -e "${Error} CentOS7 EPEL 源下载失败 !" && exit 1
-		rpm -ivh epel-release-latest-7.noarch.rpm
-		rm -rf epel-release-latest-7.noarch.rpm
 		yum update
-		yum install aria2 curl unzip vim -y
+		yum -y groupinstall "Development Tools"
 	elif [[ ${release} = "debian" ]]; then
-		mv /etc/apt/sources.list /etc/apt/sources.list.bak
-		wget --no-check-certificate -O "/etc/apt/sources.list" "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/sources/us.sources_stretch.list"
 		apt-get update
-		apt-get install aria2 curl unzip vim -y
-		rm -rf /etc/apt/sources.list
-		mv /etc/apt/sources.list.bak /etc/apt/sources.list
-		apt-get update
-	else
-		apt-get update
-		apt-get install aria2 curl unzip vim -y
+		apt-get install build-essential -y
 	fi
-	[[ ! -e ${aria2c} ]] && echo -e "${Error} Aria2 安装失败，请检查 !" && exit 1
 }
 Install_aria2(){
 	[[ -e ${aria2c} ]] && echo -e "${Error} Aria2 已安装，请检查 !" && exit 1
 	check_sys
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency
-	echo -e "${Info} 开始下载/安装 配置文件..."
+	echo -e "${Info} 开始下载/安装 主程序..."
+	check_new_ver
 	Download_aria2
+	echo -e "${Info} 开始下载/安装 配置文件..."
+	Download_aria2_conf
 	echo -e "${Info} 开始下载/安装 服务脚本(init)..."
 	Service_aria2
 	Read_config
