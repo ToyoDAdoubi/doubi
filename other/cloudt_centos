@@ -81,9 +81,9 @@ do_start(){
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
 		if [[ -z ${user} ]]; then
-			./cloud-torrent -t "Cloud Torrent - 逗比根据地" -h "${host}" -p ${port} -l >> "${LOG}" 2>&1 &
+			./cloud-torrent -t "Cloud Torrent - DOUBI" -h "${host}" -p ${port} -l >> "${LOG}" 2>&1 &
 		else
-			./cloud-torrent -t "Cloud Torrent - 逗比根据地" -h "${host}" -p ${port} -l -a "${user}:${passwd}" >> "${LOG}" 2>&1 &
+			./cloud-torrent -t "Cloud Torrent - DOUBI" -h "${host}" -p ${port} -l -a "${user}:${passwd}" >> "${LOG}" 2>&1 &
 		fi
 		sleep 2s
 		check_running
