@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: TCP-BBR
-#	Version: 1.0.19
+#	Version: 1.0.20
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-16/
 #=================================================
@@ -103,7 +103,7 @@ del_deb(){
 			echo -e "${Error} 内核卸载异常，请检查 !" && exit 1
 		fi
 	else
-		echo -e "${Error} 检测到 内核 数量不正确，请检查 !" && exit 1
+		echo -e "${Info} 检测到 除刚安装的内核以外已无多余内核，跳过卸载多余内核步骤 !"
 	fi
 }
 del_deb_over(){
