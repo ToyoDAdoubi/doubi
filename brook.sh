@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.2
+#	Version: 1.1.3
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.2"
+sh_ver="1.1.3"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
@@ -216,7 +216,7 @@ Set_brook(){
 check_port(){
 	check_port_1=$1
 	user_all=$(cat ${brook_conf}|sed '1d;/^\s*$/d')
-	[[ -z "${user_all}" ]] && echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
+	#[[ -z "${user_all}" ]] && echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
 	check_port_statu=$(echo "${user_all}"|awk '{print $1}'|grep -w "${check_port_1}")
 	if [[ ! -z "${check_port_statu}" ]]; then
 		return 0
@@ -225,13 +225,18 @@ check_port(){
 	fi
 }
 list_port(){
+	port_Type=$1
 	user_all=$(cat ${brook_conf}|sed '1d;/^\s*$/d')
-	[[ -z "${user_all}" ]] && echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
+	if [[ -z "${user_all}" ]]; then
+		if [[ "${port_Type}" != "ADD" ]]; then
+			echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
+		fi
+	fi
 	port_all_1=$(echo "${user_all}"|awk '{print $1}')
 	echo -e "\n当前所有已使用端口：\n${port_all_1}\n========================\n"
 }
 Add_port_user(){
-	list_port
+	list_port "ADD"
 	Set_port
 	check_port "${bk_port}"
 	[[ $? == 0 ]] && echo -e "${Error} 该端口已存在 [${bk_port}] !" && exit 1
@@ -250,7 +255,13 @@ Del_port_user(){
 	port=${bk_port}
 	Del_iptables
 	Save_iptables
-	Restart_brook
+	port_num=$(cat ${brook_conf}|sed '1d;/^\s*$/d'|wc -l)
+	if [[ ${port_num} == 0 ]]; then
+		echo -e "${Error} 已无任何端口 !"
+		Stop_brook
+	else
+		Restart_brook
+	fi
 }
 Modify_port_user(){
 	list_port
