@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.20
+#	Version: 1.0.21
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.20"
+sh_ver="1.0.21"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -257,6 +257,23 @@ Get_User_transfer(){
 		transfer_enable_Used_2="${transfer_enable_Used_2} TB"
 	fi
 	#echo "transfer_enable_Used_2=${transfer_enable_Used_2}"
+}
+Get_User_transfer_all(){
+	if [[ ${transfer_enable_Used_233} -lt 1024 ]]; then
+		transfer_enable_Used_233_2="${transfer_enable_Used_233} B"
+	elif [[ ${transfer_enable_Used_233} -lt 1048576 ]]; then
+		transfer_enable_Used_233_2=$(awk 'BEGIN{printf "%.2f\n",'${transfer_enable_Used_233}'/'1024'}')
+		transfer_enable_Used_233_2="${transfer_enable_Used_233_2} KB"
+	elif [[ ${transfer_enable_Used_233} -lt 1073741824 ]]; then
+		transfer_enable_Used_233_2=$(awk 'BEGIN{printf "%.2f\n",'${transfer_enable_Used_233}'/'1048576'}')
+		transfer_enable_Used_233_2="${transfer_enable_Used_233_2} MB"
+	elif [[ ${transfer_enable_Used_233} -lt 1099511627776 ]]; then
+		transfer_enable_Used_233_2=$(awk 'BEGIN{printf "%.2f\n",'${transfer_enable_Used_233}'/'1073741824'}')
+		transfer_enable_Used_233_2="${transfer_enable_Used_233_2} GB"
+	elif [[ ${transfer_enable_Used_233} -lt 1125899906842624 ]]; then
+		transfer_enable_Used_233_2=$(awk 'BEGIN{printf "%.2f\n",'${transfer_enable_Used_233}'/'1099511627776'}')
+		transfer_enable_Used_233_2="${transfer_enable_Used_233_2} TB"
+	fi
 }
 urlsafe_base64(){
 	date=$(echo -n "$1"|base64|sed ':a;N;s/\n/ /g;ta'|sed 's/ //g;s/=//g;s/+/-/g;s/\//_/g')
@@ -1204,10 +1221,13 @@ List_port_user(){
 		user_port=$(echo "${user_info}"|sed -n "${integer}p"|awk '{print $4}')
 		user_username=$(echo "${user_info}"|sed -n "${integer}p"|awk '{print $2}'|sed 's/\[//g;s/\]//g')
 		Get_User_transfer "${user_port}"
+		transfer_enable_Used_233=$(expr $transfer_enable_Used_233 + $transfer_enable_Used_2_1)
 		user_list_all=${user_list_all}"用户名: ${Green_font_prefix} "${user_username}"${Font_color_suffix}\t 端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 流量使用情况(已用+剩余=总): ${Green_font_prefix}${transfer_enable_Used_2}${Font_color_suffix} + ${Green_font_prefix}${transfer_enable_Used}${Font_color_suffix} = ${Green_font_prefix}${transfer_enable}${Font_color_suffix}\n"
 	done
+	Get_User_transfer_all
 	echo && echo -e "=== 用户总数 ${Green_background_prefix} "${user_total}" ${Font_color_suffix}"
 	echo -e ${user_list_all}
+	echo -e "=== 当前所有用户已使用流量总和: ${Green_background_prefix} ${transfer_enable_Used_233_2} ${Font_color_suffix}\n"
 }
 Add_port_user(){
 	lalal=$1
