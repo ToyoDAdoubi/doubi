@@ -135,13 +135,13 @@ Installation_dependency(){
 		mv /etc/apt/sources.list /etc/apt/sources.list.bak
 		wget --no-check-certificate -O "/etc/apt/sources.list" "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/sources/us.sources.list"
 		apt-get update
-		apt-get install pkg-config build-essential libgnutls28-dev libwrap0-dev liblz4-dev libseccomp-dev libreadline-dev libnl-nf-3-dev libev-dev gnutls-bin -y
+		apt-get install vim pkg-config build-essential libgnutls28-dev libwrap0-dev liblz4-dev libseccomp-dev libreadline-dev libnl-nf-3-dev libev-dev gnutls-bin -y
 		rm -rf /etc/apt/sources.list
 		mv /etc/apt/sources.list.bak /etc/apt/sources.list
 		apt-get update
 	else
 		apt-get update
-		apt-get install pkg-config build-essential libgnutls28-dev libwrap0-dev liblz4-dev libseccomp-dev libreadline-dev libnl-nf-3-dev libev-dev gnutls-bin -y
+		apt-get install vim pkg-config build-essential libgnutls28-dev libwrap0-dev liblz4-dev libseccomp-dev libreadline-dev libnl-nf-3-dev libev-dev gnutls-bin -y
 	fi
 }
 Install_ocserv(){
