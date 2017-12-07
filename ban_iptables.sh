@@ -4,11 +4,11 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: iptables 封禁 BT、PT、SPAM（垃圾邮件）和自定义端口、关键词
-#       Version: 1.0.8
+#       Version: 1.0.9
 #       Blog: https://doub.io/shell-jc2/
 #=================================================
 
-sh_ver="1.0.8"
+sh_ver="1.0.9"
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
@@ -111,10 +111,21 @@ Set_tcp_port() {
 }
 Set_udp_port() { $1 -t filter -$3 OUTPUT -p udp -m multiport --dports "$2" -j DROP; }
 Set_SPAM_Code_v4(){
-	for i in ${smtp_port} ${pop3_port} ${imap_port} ${other_port}; do Set_tcp_port $v4iptables "$i" $s && Set_udp_port $v4iptables "$i" $s; done
+	for i in ${smtp_port} ${pop3_port} ${imap_port} ${other_port}
+		do
+		Set_tcp_port $v4iptables "$i" $s
+		Set_udp_port $v4iptables "$i" $s
+	done
 }
 Set_SPAM_Code_v4_v6(){
-	for i in ${smtp_port} ${pop3_port} ${imap_port} ${other_port}; do for j in $v4iptables $v6iptables; do Set_tcp_port $j "$i" $s && Set_udp_port $j "$i" $s; done; done
+	for i in ${smtp_port} ${pop3_port} ${imap_port} ${other_port}
+	do
+		for j in $v4iptables $v6iptables
+		do
+			Set_tcp_port $j "$i" $s
+			Set_udp_port $j "$i" $s
+		done
+	done
 }
 Set_PORT(){
 	if [[ -n "$v4iptables" ]] && [[ -n "$v6iptables" ]]; then
