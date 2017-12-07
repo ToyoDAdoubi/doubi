@@ -248,11 +248,14 @@ UnBan_ALL(){
 }
 ENTER_Ban_KEY_WORDS_type(){
 	Type=$1
-	echo -e "请选择输入类型：
+	Type_1=$2
+	if [[ $Type_1 != "ban_1" ]]; then
+		echo -e "请选择输入类型：
  1. 手动输入（只支持单个关键词）
  2. 本地文件读取（支持批量读取关键词，每行一个关键词）
  3. 网络地址读取（支持批量读取关键词，每行一个关键词）" && echo
-	stty erase '^H' && read -p "(默认: 1. 手动输入):" key_word_type
+		stty erase '^H' && read -p "(默认: 1. 手动输入):" key_word_type
+	fi
 	[[ -z "${key_word_type}" ]] && key_word_type="1"
 	if [[ ${key_word_type} == "1" ]]; then
 		if [[ $Type == "ban" ]]; then
@@ -279,7 +282,7 @@ ENTER_Ban_PORT(){
  多端口：25,26,465,587（多个端口用英文逗号分割）
  连续端口段：25:587（25-587之间的所有端口）" && echo
 	stty erase '^H' && read -p "(回车默认取消):" PORT
-	[[ -z "${PORT}" ]] && echo "已取消..." && exit 0
+	[[ -z "${PORT}" ]] && echo "已取消..." && View_ALL && exit 0
 }
 ENTER_Ban_KEY_WORDS(){
 	echo -e "请输入欲封禁的 关键词（域名等，仅支持单个关键词）
@@ -289,7 +292,7 @@ ENTER_Ban_KEY_WORDS(){
  关键词：www.youtube.com，即禁止访问任何包含关键词 www.youtube.com 的域名（子域名屏蔽）。
  更多效果自行测试（如关键词 .zip 即可禁止下载任何 .zip 后缀的文件）。" && echo
 	stty erase '^H' && read -p "(回车默认取消):" key_word
-	[[ -z "${key_word}" ]] && echo "已取消..." && exit 0
+	[[ -z "${key_word}" ]] && echo "已取消..." && View_ALL && exit 0
 }
 ENTER_Ban_KEY_WORDS_file(){
 	echo -e "请输入欲封禁/解封的 关键词本地文件（请使用绝对路径）" && echo
@@ -297,42 +300,52 @@ ENTER_Ban_KEY_WORDS_file(){
 	[[ -z "${key_word}" ]] && key_word="key_word.txt"
 	if [[ -e "${key_word}" ]]; then
 		key_word=$(cat "${key_word}")
-		[[ -z ${key_word} ]] && echo -e "${Error} 文件内容为空 !" && exit 0
+		[[ -z ${key_word} ]] && echo -e "${Error} 文件内容为空 !" && View_ALL && exit 0
 	else
-		echo -e "${Error} 没有找到文件 ${key_word} !"
+		echo -e "${Error} 没有找到文件 ${key_word} !" && View_ALL && exit 0
 	fi
 }
 ENTER_Ban_KEY_WORDS_url(){
 	echo -e "请输入欲封禁/解封的 关键词网络文件地址（例如 http://xxx.xx/key_word.txt）" && echo
 	stty erase '^H' && read -p "(回车默认取消):" key_word
-	[[ -z "${key_word}" ]] && echo "已取消..." && exit 0
+	[[ -z "${key_word}" ]] && echo "已取消..." && View_ALL && exit 0
 	key_word=$(wget --no-check-certificate -t3 -T5 -qO- "${key_word}")
-	[[ -z ${key_word} ]] && echo -e "${Error} 网络文件内容为空或访问超时 !" && exit 0
+	[[ -z ${key_word} ]] && echo -e "${Error} 网络文件内容为空或访问超时 !" && View_ALL && exit 0
 }
 ENTER_UnBan_KEY_WORDS(){
 	View_KEY_WORDS
 	echo -e "请输入欲解封的 关键词（根据上面的列表输入完整准确的 关键词）" && echo
 	stty erase '^H' && read -p "(回车默认取消):" key_word
-	[[ -z "${key_word}" ]] && echo "已取消..." && exit 0
+	[[ -z "${key_word}" ]] && echo "已取消..." && View_ALL && exit 0
 }
 ENTER_UnBan_PORT(){
 	echo -e "请输入欲解封的 端口（根据上面的列表输入完整准确的 端口，包括逗号、冒号）" && echo
 	stty erase '^H' && read -p "(回车默认取消):" PORT
-	[[ -z "${PORT}" ]] && echo "已取消..." && exit 0
+	[[ -z "${PORT}" ]] && echo "已取消..." && View_ALL && exit 0
 }
 Ban_PORT(){
 	s="A"
 	ENTER_Ban_PORT
 	Set_PORT
+	while true
+	do
+		ENTER_Ban_PORT
+		Set_PORT
+		echo -e "${Info} 已封禁端口 [ ${PORT} ] !\n"
+	done
 	View_ALL
-	echo -e "${Info} 已封禁端口 [ ${PORT} ] !"
 }
 Ban_KEY_WORDS(){
 	s="A"
 	ENTER_Ban_KEY_WORDS_type "ban"
 	Set_KEY_WORDS
+	while true
+	do
+		ENTER_Ban_KEY_WORDS_type "ban" "ban_1"
+		Set_KEY_WORDS
+		echo -e "${Info} 已封禁关键词 [ ${key_word} ] !\n"
+	done
 	View_ALL
-	echo -e "${Info} 已封禁关键词 [ ${key_word} ] !"
 }
 UnBan_PORT(){
 	s="D"
@@ -340,8 +353,15 @@ UnBan_PORT(){
 	[[ -z ${Ban_PORT_list} ]] && echo -e "${Error} 检测到未封禁任何 端口，请检查 !" && exit 0
 	ENTER_UnBan_PORT
 	Set_PORT
+	while true
+	do
+		View_PORT
+		[[ -z ${Ban_PORT_list} ]] && echo -e "${Error} 检测到未封禁任何 端口，请检查 !" && exit 0
+		ENTER_UnBan_PORT
+		Set_PORT
+		echo -e "${Info} 已解封端口 [ ${PORT} ] !\n"
+	done
 	View_ALL
-	echo -e "${Info} 已解封端口 [ ${PORT} ] !"
 }
 UnBan_KEY_WORDS(){
 	s="D"
@@ -349,8 +369,15 @@ UnBan_KEY_WORDS(){
 	[[ -z ${Ban_KEY_WORDS_list} ]] && echo -e "${Error} 检测到未封禁任何 关键词，请检查 !" && exit 0
 	ENTER_Ban_KEY_WORDS_type "unban"
 	Set_KEY_WORDS
+	while true
+	do
+		Cat_KEY_WORDS
+		[[ -z ${Ban_KEY_WORDS_list} ]] && echo -e "${Error} 检测到未封禁任何 关键词，请检查 !" && exit 0
+		ENTER_Ban_KEY_WORDS_type "unban" "ban_1"
+		Set_KEY_WORDS
+		echo -e "${Info} 已解封关键词 [ ${key_word} ] !\n"
+	done
 	View_ALL
-	echo -e "${Info} 已解封关键词 [ ${key_word} ] !"
 }
 UnBan_KEY_WORDS_ALL(){
 	Cat_KEY_WORDS
