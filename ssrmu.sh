@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.22
+#	Version: 1.0.23
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.22"
+sh_ver="1.0.23"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -1045,10 +1045,10 @@ debian_View_user_connection_info(){
 			fi
 		fi
 		user_info_233=$(python mujson_mgr.py -l|grep -w "${user_port}"|awk '{print $2}'|sed 's/\[//g;s/\]//g')
-		user_list_all=${user_list_all}"用户名: ${Green_font_prefix}"${user_info_233}"${Font_color_suffix} , 端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix} , 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix} , 当前链接IP: ${Green_font_prefix}${user_IP}${Font_color_suffix}\n"
+		user_list_all=${user_list_all}"用户名: ${Green_font_prefix}"${user_info_233}"${Font_color_suffix}\t 端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: ${Green_font_prefix}${user_IP}${Font_color_suffix}\n"
 		user_IP=""
 	done
-	echo -e "用户总数: ${Green_background_prefix} "${user_total}" ${Font_color_suffix} , 链接IP总数: ${Green_background_prefix} "${IP_total}" ${Font_color_suffix} "
+	echo -e "用户总数: ${Green_background_prefix} "${user_total}" ${Font_color_suffix} 链接IP总数: ${Green_background_prefix} "${IP_total}" ${Font_color_suffix} "
 	echo -e "${user_list_all}"
 }
 centos_View_user_connection_info(){
@@ -1073,10 +1073,10 @@ centos_View_user_connection_info(){
 			fi
 		fi
 		user_info_233=$(python mujson_mgr.py -l|grep -w "${user_port}"|awk '{print $2}'|sed 's/\[//g;s/\]//g')
-		user_list_all=${user_list_all}"用户名: ${Green_font_prefix}"${user_info_233}"${Font_color_suffix} , 端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix} , 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix} , 当前链接IP: ${Green_font_prefix}${user_IP}${Font_color_suffix}\n"
+		user_list_all=${user_list_all}"用户名: ${Green_font_prefix}"${user_info_233}"${Font_color_suffix}\t 端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: ${Green_font_prefix}${user_IP}${Font_color_suffix}\n"
 		user_IP=""
 	done
-	echo -e "用户总数: ${Green_background_prefix} "${user_total}" ${Font_color_suffix} , 链接IP总数: ${Green_background_prefix} "${IP_total}" ${Font_color_suffix} "
+	echo -e "用户总数: ${Green_background_prefix} "${user_total}" ${Font_color_suffix} 链接IP总数: ${Green_background_prefix} "${IP_total}" ${Font_color_suffix} "
 	echo -e "${user_list_all}"
 }
 View_user_connection_info(){
