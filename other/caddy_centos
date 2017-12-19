@@ -37,7 +37,7 @@ do_start(){
 		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
 		ulimit -n 51200
-		nohup "$BIN"  --conf="$CONF" &>/tmp/caddy.log &
+		nohup "$BIN" --conf="$CONF" &>/tmp/caddy.log &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
