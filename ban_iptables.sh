@@ -28,7 +28,11 @@ BitTorrent
 announce_peer
 BitTorrent protocol
 announce.php?passkey=
-magnet:"
+magnet:
+xunlei
+sandai
+Thunder
+XLLiveUD"
 
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
