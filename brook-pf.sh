@@ -7,7 +7,7 @@ export PATH
 #	Description: Brook
 #	Version: 1.0.0
 #	Author: Toyo
-#	Blog: https://doub.io/brook-jc5/
+#	Blog: https://doub.io/wlzy-jc37/
 #=================================================
 
 sh_ver="1.0.0"
@@ -540,7 +540,7 @@ Update_Shell(){
 }
 check_sys
 echo && echo -e "  Brook 端口转发 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  ---- Toyo | doub.io/brook-jc5 ----
+  ---- Toyo | doub.io/wlzy-jc37 ----
   
  ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
 ————————————
