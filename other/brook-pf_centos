@@ -1,9 +1,11 @@
 #!/bin/bash
+# chkconfig: 2345 90 10
+# description: Brook-pf
 
 ### BEGIN INIT INFO
 # Provides:          Brook-pf
-# Required-Start:    $network $local_fs $remote_fs
-# Required-Stop:     $network $local_fs $remote_fs
+# Required-Start:    $network $syslog
+# Required-Stop:     $network
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Lightweight port forwarding tool
@@ -84,7 +86,7 @@ do_start(){
 			user_port_pf=$(echo "${user_all}"|sed -n "${integer}p"|awk '{print $3}')
 			servers_all="${servers_all}-l \":${user_port} ${user_ip_pf}:${user_port_pf}\" "
 		done
-		eval nohup ./brook relays $(echo ${servers_all}) > "${LOG}" 2>&1 &
+		eval nohup ./brook ${protocol} $(echo ${servers_all}) > "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
@@ -130,7 +132,7 @@ case "$1" in
 	do_$1
 	;;
 	*)
-	echo "使用方法: $0 { start | stop | restart | status }"
+	echo -e "使用方法: $0 { start | stop | restart | status }"
 	RETVAL=1
 	;;
 esac
