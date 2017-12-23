@@ -428,7 +428,7 @@ Install_brook(){
 	echo "" > ${brook_conf}
 	echo -e "${Info} 开始设置 iptables防火墙..."
 	Set_iptables
-	echo -e "${Info} Brook 配置完成 !"
+	echo -e "${Info} Brook 安装完成！默认配置文件为空，请选择 [7.设置 Brook 端口转发 - 1.添加 端口转发] 来添加端口转发。"
 }
 Start_brook(){
 	check_installed_status
