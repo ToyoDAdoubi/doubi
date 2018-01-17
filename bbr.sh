@@ -78,7 +78,7 @@ check_deb_off(){
 		if [[ "${deb_ver}" == "${latest_version}" ]]; then
 			echo -e "${Info} 检测到 当前内核版本[${deb_ver}] 已满足要求，继续..."
 		else
-			echo -e "${Tip} 检测到 当前内核版本[${deb_ver}] 不是最新版本，可以使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来升级内核 !(注意：并不是越新的内核越好，4.9 以上版本的内核 目前皆为测试版，不保证稳定性，旧版本如使用无问题 建议不要升级！)"
+			echo -e "${Tip} 检测到 当前内核版本[${deb_ver}] 支持开启BBR单不是最新内核版本，可以使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来升级内核 !(注意：并不是越新的内核越好，4.9 以上版本的内核 目前皆为测试版，不保证稳定性，旧版本如使用无问题 建议不要升级！)"
 		fi
 	else
 		echo -e "${Error} 检测到 当前内核版本[${deb_ver}] 不支持开启BBR，请使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来更换最新内核 !" && exit 1
@@ -138,7 +138,7 @@ installbbr(){
 				exit 1
 			fi
 		else
-			echo -e "${Info} 检测到 当前内核版本 不是最新版本，升级(或降级)内核..."
+			echo -e "${Info} 检测到 当前内核版本支持开启BBR 但不是最新内核版本，升级(或降级)内核..."
 		fi
 	else
 		echo -e "${Info} 检测到 当前内核版本 不支持开启BBR，开始安装..."
