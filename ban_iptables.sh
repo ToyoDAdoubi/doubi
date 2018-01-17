@@ -4,11 +4,11 @@ export PATH
 #=================================================
 #       System Required: CentOS/Debian/Ubuntu
 #       Description: iptables 封禁 BT、PT、SPAM（垃圾邮件）和自定义端口、关键词
-#       Version: 1.0.9
+#       Version: 1.0.10
 #       Blog: https://doub.io/shell-jc2/
 #=================================================
 
-sh_ver="1.0.9"
+sh_ver="1.0.10"
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
@@ -280,21 +280,25 @@ ENTER_Ban_KEY_WORDS_type(){
 	fi
 }
 ENTER_Ban_PORT(){
-	echo -e "请输入欲封禁的 端口（单端口/多端口/连续端口段）
- ${Green_font_prefix}========示例说明========${Font_color_suffix}
+	echo -e "请输入欲封禁的 端口（单端口/多端口/连续端口段）"
+	if [[ ${Ban_PORT_Type_1} != "1" ]]; then
+	echo -e "${Green_font_prefix}========示例说明========${Font_color_suffix}
  单端口：25（单个端口）
  多端口：25,26,465,587（多个端口用英文逗号分割）
  连续端口段：25:587（25-587之间的所有端口）" && echo
+	fi
 	stty erase '^H' && read -p "(回车默认取消):" PORT
 	[[ -z "${PORT}" ]] && echo "已取消..." && View_ALL && exit 0
 }
 ENTER_Ban_KEY_WORDS(){
-	echo -e "请输入欲封禁的 关键词（域名等，仅支持单个关键词）
- ${Green_font_prefix}========示例说明========${Font_color_suffix}
+	echo -e "请输入欲封禁的 关键词（域名等，仅支持单个关键词）"
+	if [[ ${Type_1} != "ban_1" ]]; then
+	echo -e "${Green_font_prefix}========示例说明========${Font_color_suffix}
  关键词：youtube，即禁止访问任何包含关键词 youtube 的域名。
  关键词：youtube.com，即禁止访问任何包含关键词 youtube.com 的域名（泛域名屏蔽）。
  关键词：www.youtube.com，即禁止访问任何包含关键词 www.youtube.com 的域名（子域名屏蔽）。
  更多效果自行测试（如关键词 .zip 即可禁止下载任何 .zip 后缀的文件）。" && echo
+	fi
 	stty erase '^H' && read -p "(回车默认取消):" key_word
 	[[ -z "${key_word}" ]] && echo "已取消..." && View_ALL && exit 0
 }
@@ -331,6 +335,8 @@ Ban_PORT(){
 	s="A"
 	ENTER_Ban_PORT
 	Set_PORT
+	echo -e "${Info} 已封禁端口 [ ${PORT} ] !\n"
+	Ban_PORT_Type_1="1"
 	while true
 	do
 		ENTER_Ban_PORT
@@ -343,6 +349,7 @@ Ban_KEY_WORDS(){
 	s="A"
 	ENTER_Ban_KEY_WORDS_type "ban"
 	Set_KEY_WORDS
+	echo -e "${Info} 已封禁关键词 [ ${key_word} ] !\n"
 	while true
 	do
 		ENTER_Ban_KEY_WORDS_type "ban" "ban_1"
@@ -354,13 +361,14 @@ Ban_KEY_WORDS(){
 UnBan_PORT(){
 	s="D"
 	View_PORT
-	[[ -z ${Ban_PORT_list} ]] && echo -e "${Error} 检测到未封禁任何 端口，请检查 !" && exit 0
+	[[ -z ${Ban_PORT_list} ]] && echo -e "${Error} 检测到未封禁任何 端口 !" && exit 0
 	ENTER_UnBan_PORT
 	Set_PORT
+	echo -e "${Info} 已解封端口 [ ${PORT} ] !\n"
 	while true
 	do
 		View_PORT
-		[[ -z ${Ban_PORT_list} ]] && echo -e "${Error} 检测到未封禁任何 端口，请检查 !" && exit 0
+		[[ -z ${Ban_PORT_list} ]] && echo -e "${Error} 检测到未封禁任何 端口 !" && exit 0
 		ENTER_UnBan_PORT
 		Set_PORT
 		echo -e "${Info} 已解封端口 [ ${PORT} ] !\n"
@@ -370,13 +378,14 @@ UnBan_PORT(){
 UnBan_KEY_WORDS(){
 	s="D"
 	Cat_KEY_WORDS
-	[[ -z ${Ban_KEY_WORDS_list} ]] && echo -e "${Error} 检测到未封禁任何 关键词，请检查 !" && exit 0
+	[[ -z ${Ban_KEY_WORDS_list} ]] && echo -e "${Error} 检测到未封禁任何 关键词 !" && exit 0
 	ENTER_Ban_KEY_WORDS_type "unban"
 	Set_KEY_WORDS
+	echo -e "${Info} 已解封关键词 [ ${key_word} ] !\n"
 	while true
 	do
 		Cat_KEY_WORDS
-		[[ -z ${Ban_KEY_WORDS_list} ]] && echo -e "${Error} 检测到未封禁任何 关键词，请检查 !" && exit 0
+		[[ -z ${Ban_KEY_WORDS_list} ]] && echo -e "${Error} 检测到未封禁任何 关键词 !" && exit 0
 		ENTER_Ban_KEY_WORDS_type "unban" "ban_1"
 		Set_KEY_WORDS
 		echo -e "${Info} 已解封关键词 [ ${key_word} ] !\n"
