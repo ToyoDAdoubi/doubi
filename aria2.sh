@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 1.1.0
+#	Version: 1.1.1
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc4/
 #=================================================
-sh_ver="1.1.0"
+sh_ver="1.1.1"
 file="/root/.aria2"
 aria2_conf="/root/.aria2/aria2.conf"
 aria2_log="/root/.aria2/aria2.log"
@@ -107,9 +107,10 @@ Installation_dependency(){
 	if [[ ${release} = "centos" ]]; then
 		yum update
 		yum -y groupinstall "Development Tools"
+		yum install vim -y
 	else
 		apt-get update
-		apt-get install build-essential -y
+		apt-get install vim build-essential -y
 	fi
 }
 Install_aria2(){
