@@ -40,7 +40,7 @@ check_sys(){
 }
 # 本段获取最新版本的代码来源自: https://teddysun.com/489.html
 Set_latest_new_version(){
-	echo -e "请输入 要下载安装的Linux内核版本(BBR) [ 格式: x.xx.xx ，例如: 4.10.12 ]
+	echo -e "请输入 要下载安装的Linux内核版本(BBR) [ 格式: x.xx.xx ，例如: 4.9.75 ]
 ${Tip} 内核版本列表请去这里获取：[ http://kernel.ubuntu.com/~kernel-ppa/mainline/ ]
 如果只在乎稳定，那么不需要追求最新版本（新版本不会保证稳定性），可以选择 4.9.XX 稳定版本。"
 	stty erase '^H' && read -p "(默认回车，自动获取最新版本):" latest_version
@@ -129,7 +129,7 @@ installbbr(){
 	fi
 	if [[ "${deb_ver}" != "" ]]; then	
 		if [[ "${deb_ver}" == "${latest_version}" ]]; then
-			echo -e "${Info} 检测到 当前内核版本 已是最新版本，无需继续安装 !"
+			echo -e "${Info} 检测到 当前内核版本 已是最新版本，无需继续 !"
 			deb_total=`dpkg -l|grep linux-image | awk '{print $2}' | grep -v "${latest_version}" | wc -l`
 			if [[ "${deb_total}" != "0" ]]; then
 				echo -e "${Info} 检测到内核数量异常，存在多余内核，开始删除..."
@@ -141,7 +141,7 @@ installbbr(){
 			echo -e "${Info} 检测到 当前内核版本支持开启BBR 但不是最新内核版本，升级(或降级)内核..."
 		fi
 	else
-		echo -e "${Info} 检测到 当前内核版本 不支持开启BBR，开始安装..."
+		echo -e "${Info} 检测到 当前内核版本 不支持开启BBR，开始..."
 		virt=`virt-what`
 		if [[ -z ${virt} ]]; then
 			apt-get update && apt-get install virt-what -y
