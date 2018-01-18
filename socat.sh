@@ -5,11 +5,12 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: Socat
-#	Version: 1.0.4
+#	Version: 1.0.5
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-18/
 #=================================================
 
+sh_ver="1.0.5"
 socat_file="/usr/bin/socat"
 socat_log_file="/tmp/socat.log"
 
@@ -51,13 +52,13 @@ installSocat(){
 	apt-get install -y socat
 	Set_iptables
 	chmod +x /etc/rc.local
-	echo "nameserver 8.8.8.8" > /etc/resolv.conf
-	echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+	# echo "nameserver 8.8.8.8" > /etc/resolv.conf
+	# echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 	socat_exist=`socat -h`
 	if [[ ! -e ${socat_file} ]]; then
 		echo -e "${Error} 安装Socat失败，请检查 !" && exit 1
 	else
-		echo -e "${Info} Socat 安装完成 ! 可以通过${Green_background_prefix} bash socat.sh add {Font_color_suffix}来添加端口转发规则 !"
+		echo -e "${Info} Socat 安装完成 !"
 	fi
 }
 addSocat(){
@@ -301,16 +302,75 @@ uninstallSocat(){
 		echo && echo "卸载已取消..." && echo
 	fi
 }
+Update_Shell(){
+	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.fun/Bash/socat.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/socat.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
+	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" yn
+		[[ -z "${yn}" ]] && yn="y"
+		if [[ ${yn} == [Yy] ]]; then
+			if [[ $sh_new_type == "softs" ]]; then
+				wget -N --no-check-certificate https://softs.fun/Bash/socat.sh && chmod +x socat.sh
+			else
+				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/socat.sh && chmod +x socat.sh
+			fi
+			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
+	fi
+}
 check_sys
 [[ ${release} != "debian" ]] && [[ ${release} != "ubuntu" ]] && echo -e "${Error} 本脚本不支持当前系统 ${release} !" && exit 1
-action=$1
-[[ -z $1 ]] && action=install
-case "$action" in
-	install|add|del|list|tail|uninstall)
-	${action}Socat
+echo && echo -e "  SoCat 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+  -- Toyo | doub.io/wlzy-18 --
+  
+ ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+————————————
+ ${Green_font_prefix}1.${Font_color_suffix} 安装 SoCat
+ ${Green_font_prefix}2.${Font_color_suffix} 卸载 SoCat
+————————————
+ ${Green_font_prefix}3.${Font_color_suffix} 新增 SoCat
+ ${Green_font_prefix}4.${Font_color_suffix} 删除 SoCat
+————————————
+ ${Green_font_prefix}5.${Font_color_suffix} 查看 SoCat 信息
+ ${Green_font_prefix}6.${Font_color_suffix} 查看 SoCat 日志
+————————————" && echo
+if [[ -e ${socat_file} ]]; then
+	echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix}"
+else
+	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
+fi
+echo
+stty erase '^H' && read -p " 请输入数字 [0-9]:" num
+case "$num" in
+	0)
+	Update_Shell
+	;;
+	1)
+	installSocat
+	;;
+	2)
+	uninstallSocat
+	;;
+	3)
+	addSocat
+	;;
+	4)
+	delSocat
+	;;
+	5)
+	listSocat
+	;;
+	6)
+	tailSocat
 	;;
 	*)
-	echo "输入错误 !"
-	echo "用法: {install | add | del | list | tail | uninstall}"
+	echo "请输入正确数字 [0-6]"
 	;;
 esac
