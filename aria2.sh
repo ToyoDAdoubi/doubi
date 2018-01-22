@@ -175,7 +175,7 @@ Set_aria2(){
 	elif [[ ${aria2_modify} == "5" ]]; then
 		Set_aria2_vim_conf
 	else
-		echo -e "${Error} 请输入正确的数字(1-4)" && exit 1
+		echo -e "${Error} 请输入正确的数字(1-5)" && exit 1
 	fi
 }
 Set_aria2_RPC_passwd(){
@@ -472,7 +472,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-7]:" num
+stty erase '^H' && read -p " 请输入数字 [0-8]:" num
 case "$num" in
 	0)
 	Update_Shell
@@ -502,6 +502,6 @@ case "$num" in
 	View_Log
 	;;
 	*)
-	echo "请输入正确数字 [0-7]"
+	echo "请输入正确数字 [0-8]"
 	;;
 esac
