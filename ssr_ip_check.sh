@@ -7,6 +7,7 @@ export PATH
 #	Description: ShadowsocksR Port-IP Check
 #	Version: 1.0.6
 #	Author: Toyo
+#	Blog: https://doub.io/ss-jc50/
 #=================================================
 # ——————————————————————————————
 IP_threshold=3
