@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 1.1.3
+#	Version: 1.1.4
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc4/
 #=================================================
-sh_ver="1.1.3"
+sh_ver="1.1.4"
 file="/root/.aria2"
 aria2_conf="/root/.aria2/aria2.conf"
 aria2_log="/root/.aria2/aria2.log"
@@ -339,11 +339,18 @@ ${Green_font_prefix}4.${Font_color_suffix} 如果你打算在本地编辑配置�
 	Restart_aria2
 }
 Read_config(){
-	[[ ! -e ${aria2_conf} ]] && echo -e "${Error} Aria2 配置文件不存在 !" && exit 1
-	conf_text=$(cat ${aria2_conf}|grep -v '#')
-	aria2_dir=$(echo -e "${conf_text}"|grep "dir="|awk -F "=" '{print $NF}')
-	aria2_port=$(echo -e "${conf_text}"|grep "rpc-listen-port="|awk -F "=" '{print $NF}')
-	aria2_passwd=$(echo -e "${conf_text}"|grep "rpc-secret="|awk -F "=" '{print $NF}')
+	status_type=$1
+	if [[ ! -e ${aria2_conf} ]]; then
+		if [[ ${status_type} != "un" ]]; then
+			echo -e "${Error} Aria2 配置文件不存在 !" && exit 1
+		fi
+	else
+		conf_text=$(cat ${aria2_conf}|grep -v '#')
+		aria2_dir=$(echo -e "${conf_text}"|grep "dir="|awk -F "=" '{print $NF}')
+		aria2_port=$(echo -e "${conf_text}"|grep "rpc-listen-port="|awk -F "=" '{print $NF}')
+		aria2_passwd=$(echo -e "${conf_text}"|grep "rpc-secret="|awk -F "=" '{print $NF}')
+	fi
+	
 }
 View_Aria2(){
 	check_installed_status
@@ -382,7 +389,7 @@ Uninstall_aria2(){
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
 		[[ ! -z $PID ]] && kill -9 ${PID}
-		Read_config
+		Read_config "un"
 		Del_iptables
 		Save_iptables
 		cd "${Folder}"
