@@ -36,37 +36,6 @@ read_config(){
 	[[ -z ${user_all} ]] && echo -e "${Error} Brook 配置文件中用户配置为空 !" && exit 1
 	protocol=$(cat ${CONF}|sed -n "1p")
 }
-View_User(){
-	read_config
-	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
-	if [[ -z "${ip}" ]]; then
-		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
-		if [[ -z "${ip}" ]]; then
-			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
-			if [[ -z "${ip}" ]]; then
-				ip="VPS_IP"
-			fi
-		fi
-	fi
-	if [[ ${protocol} == "servers" ]]; then
-		protocol="Brook(新版)"
-	elif [[ ${protocol} == "streamservers" ]]; then
-		protocol="Brook Stream(旧版)"
-	fi
-	clear && echo
-	echo -e "Brook 用户配置："
-	for((integer = 1; integer <= ${user_all_num}; integer++))
-		do
-			user_text=$(echo "${user_all}"|sed -n "${integer}p")
-			port=$(echo "${user_text}"|awk '{print $1}')
-			password=$(echo "${user_text}"|awk '{print $2}')
-			echo -e "————————————————"
-			echo -e " 地址\t: ${Green_font_prefix}${ip}:${port}${Font_color_suffix}"
-			echo -e " 密码\t: ${Green_font_prefix}${password}${Font_color_suffix}"
-			echo -e " 协议\t: ${Green_font_prefix}${protocol}${Font_color_suffix}"
-	done
-	echo
-}
 do_start(){
 	check_running
 	if [[ $? -eq 0 ]]; then
@@ -88,7 +57,6 @@ do_start(){
 		check_running
 		if [[ $? -eq 0 ]]; then
 			echo -e "${Info} $NAME 启动成功 !"
-			View_User
 		else
 			echo -e "${Error} $NAME 启动失败 !"
 		fi
@@ -112,8 +80,6 @@ do_stop(){
 do_status(){
 	check_running
 	if [[ $? -eq 0 ]]; then
-		read_config
-		View_User
 		echo -e "${Info} $NAME (PID ${PID}) 正在运行..."
 	else
 		echo -e "${Info} $NAME 未运行 !"
