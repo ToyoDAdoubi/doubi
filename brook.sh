@@ -5,16 +5,15 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.3
+#	Version: 1.1.4
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.3"
+sh_ver="1.1.4"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
-brook_ver="/usr/local/brook/ver.txt"
 brook_log="/usr/local/brook/brook.log"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
@@ -61,7 +60,7 @@ check_ver_comparison(){
 	brook_now_ver=$(${brook_file} -v|awk '{print $3}')
 	[[ -z ${brook_now_ver} ]] && echo -e "${Error} Brook 当前版本获取失败 !" && exit 1
 	brook_now_ver="v${brook_now_ver}"
-	if [[ "${brook_now_ver}" != "${brook_new_ver}" ]]; then
+	if [[ "v${brook_now_ver}" != "${brook_new_ver}" ]]; then
 		echo -e "${Info} 发现 Brook 已有新版本 [ ${brook_new_ver} ]"
 		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
 		[[ -z "${yn}" ]] && yn="y"
@@ -269,7 +268,11 @@ Modify_port_user(){
 	echo -e "\n${Info} 开始输入新端口... \n"
 	Set_port
 	check_port "${bk_port}"
-	[[ $? == 0 ]] && echo -e "${Error} 该端口已存在 [${bk_port}] !" && exit 1
+	if [[ $? == 0 ]]; then
+		if [[ "${bk_port_Modify}" != "${bk_port}" ]]; then
+		echo -e "${Error} 该端口已存在 [${bk_port}] !" && exit 1
+		fi
+	fi
 	Set_passwd
 	sed -i "/^${bk_port_Modify} /d" ${brook_conf}
 	echo "${bk_port} ${bk_passwd}" >> ${brook_conf}
@@ -315,6 +318,8 @@ Start_brook(){
 	check_pid
 	[[ ! -z ${PID} ]] && echo -e "${Error} Brook 正在运行，请检查 !" && exit 1
 	/etc/init.d/brook start
+	sleep 1s
+	[[ ! -z ${PID} ]] && View_brook
 }
 Stop_brook(){
 	check_installed_status
@@ -327,6 +332,8 @@ Restart_brook(){
 	check_pid
 	[[ ! -z ${PID} ]] && /etc/init.d/brook stop
 	/etc/init.d/brook start
+	sleep 1s
+	[[ ! -z ${PID} ]] && View_brook
 }
 Update_brook(){
 	check_installed_status
@@ -391,12 +398,28 @@ View_brook(){
 			user_text=$(echo "${user_all}"|sed -n "${integer}p")
 			port=$(echo "${user_text}"|awk '{print $1}')
 			password=$(echo "${user_text}"|awk '{print $2}')
+			brook_link
 			echo -e "————————————————"
-			echo -e " 地址\t: ${Green_font_prefix}${ip}:${port}${Font_color_suffix}"
+			echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
+			echo -e " 打开\t: ${Green_font_prefix}${port}${Font_color_suffix}"
 			echo -e " 密码\t: ${Green_font_prefix}${password}${Font_color_suffix}"
 			echo -e " 协议\t: ${Green_font_prefix}${protocol}${Font_color_suffix}"
+			echo -e "${Brook_link_1}"
 	done
 	echo
+	echo -e "${Tip} Brook链接 仅适用于Windows系统的 Brook Tools客户端（https://doub.io/dbrj-7/）。"
+	echo
+}
+brook_link(){
+	if [[ "${protocol}" == "Brook(新版)" ]]; then
+		Brook_URL_1="default ${ip}:${port} ${password}"
+	else
+		Brook_URL_1="stream ${ip}:${port} ${password}"
+	fi
+	#printf $(echo -n "xxx" | sed 's/\\/\\\\/g;s/\(%\)\([0-9a-fA-F][0-9a-fA-F]\)/\\x\2/g')"\n"
+	Brook_URL_1=$(echo "${Brook_URL_1}"|sed 's/ /%20/g;s/!/%21/g;s/#/%23/g;s/\$/%24/g;s/&/%26/g;s/'"'"'/%27/g;s/(/%28/g;s/)/%29/g;s/*/%2A/g;s/+/%2B/g;s/,/%2C/g;s/\//%2F/g;s/:/%3A/g;s/;/%3B/g;s/=/%3D/g;s/?/%3F/g;s/@/%40/g;s/\[/%5B/g;s/\]/%5D/g')
+	Brook_URL="brook://${Brook_URL_1}"
+	Brook_link_1=" Brook 链接 : ${Green_font_prefix}${Brook_URL}${Font_color_suffix}"
 }
 View_Log(){
 	check_installed_status
@@ -439,7 +462,7 @@ Update_Shell(){
 		stty erase '^H' && read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
-			if [[ $sh_new_type == "softs" ]]; then
+			if [[ ${sh_new_type} == "softs" ]]; then
 				wget -N --no-check-certificate https://softs.fun/Bash/brook.sh && chmod +x brook.sh
 			else
 				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook.sh && chmod +x brook.sh
