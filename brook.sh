@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.4
+#	Version: 1.1.5
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.4"
+sh_ver="1.1.5"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
@@ -44,7 +44,7 @@ check_installed_status(){
 	[[ ! -e ${brook_file} ]] && echo -e "${Error} Brook 没有安装，请检查 !" && exit 1
 }
 check_pid(){
-	PID=`ps -ef| grep "brook"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
+	PID=`ps -ef| grep "brook"| grep -v "grep" | grep -v ".sh"| grep -v "init.d" |grep -v "service" |awk '{print $2}'`
 }
 check_new_ver(){
 	brook_new_ver=`wget -qO- https://github.com/txthinking/brook/tags| grep "/txthinking/brook/releases/tag/"| head -n 1| awk -F "/tag/" '{print $2}'| sed 's/\">//'`
@@ -88,17 +88,17 @@ Download_brook(){
 }
 Service_brook(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/brook_centos -O /etc/init.d/brook; then
+		if ! wget --no-check-certificate "https://softs.fun/Bash/other/brook_centos" -O /etc/init.d/brook; then
 			echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
 		fi
-		chmod +x /etc/init.d/brook
+		chmod +x "/etc/init.d/brook"
 		chkconfig --add brook
 		chkconfig brook on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/brook_debian -O /etc/init.d/brook; then
+		if ! wget --no-check-certificate "https://softs.fun/Bash/other/brook_debian" -O /etc/init.d/brook; then
 			echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
 		fi
-		chmod +x /etc/init.d/brook
+		chmod +x "/etc/init.d/brook"
 		update-rc.d -f brook defaults
 	fi
 	echo -e "${Info} Brook服务 管理脚本下载完成 !"
@@ -319,6 +319,7 @@ Start_brook(){
 	[[ ! -z ${PID} ]] && echo -e "${Error} Brook 正在运行，请检查 !" && exit 1
 	/etc/init.d/brook start
 	sleep 1s
+	check_pid
 	[[ ! -z ${PID} ]] && View_brook
 }
 Stop_brook(){
@@ -333,6 +334,7 @@ Restart_brook(){
 	[[ ! -z ${PID} ]] && /etc/init.d/brook stop
 	/etc/init.d/brook start
 	sleep 1s
+	check_pid
 	[[ ! -z ${PID} ]] && View_brook
 }
 Update_brook(){
@@ -361,13 +363,13 @@ Uninstall_brook(){
 				done
 			fi
 		fi
-		rm -rf ${file}
+		rm -rf "${file}"
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del brook
 		else
 			update-rc.d -f brook remove
 		fi
-		rm -rf /etc/init.d/brook
+		rm -rf "/etc/init.d/brook"
 		echo && echo "Brook 卸载完成 !" && echo
 	else
 		echo && echo "卸载已取消..." && echo
