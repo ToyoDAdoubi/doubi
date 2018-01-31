@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.5
+#	Version: 1.1.6
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.5"
+sh_ver="1.1.6"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
@@ -60,7 +60,7 @@ check_ver_comparison(){
 	brook_now_ver=$(${brook_file} -v|awk '{print $3}')
 	[[ -z ${brook_now_ver} ]] && echo -e "${Error} Brook 当前版本获取失败 !" && exit 1
 	brook_now_ver="v${brook_now_ver}"
-	if [[ "v${brook_now_ver}" != "${brook_new_ver}" ]]; then
+	if [[ "${brook_now_ver}" != "${brook_new_ver}" ]]; then
 		echo -e "${Info} 发现 Brook 已有新版本 [ ${brook_new_ver} ]"
 		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
 		[[ -z "${yn}" ]] && yn="y"
