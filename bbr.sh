@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: TCP-BBR
-#	Version: 1.0.20
+#	Version: 1.0.21
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-16/
 #=================================================
@@ -172,7 +172,7 @@ installbbr(){
 	fi
 }
 bbrstatus(){
-	check_bbr_status_on=`sysctl net.ipv4.tcp_available_congestion_control | awk '{print $3}'`
+	check_bbr_status_on=`sysctl net.ipv4.tcp_congestion_control | awk '{print $3}'`
 	if [[ "${check_bbr_status_on}" = "bbr" ]]; then
 		echo -e "${Info} 检测到 BBR 已开启 !"
 		# 检查是否启动BBR
