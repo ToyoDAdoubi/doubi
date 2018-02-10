@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.7
+#	Version: 1.1.8
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.7"
+sh_ver="1.1.8"
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
@@ -477,6 +477,7 @@ debian_View_user_connection_info(){
 }
 centos_View_user_connection_info(){
 	format_1=$1
+	Read_config
 	IP_total=`netstat -anp |grep 'ESTABLISHED' |grep 'brook' |grep 'tcp' | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u |wc -l`
 	echo -e "用户总数: ${Green_background_prefix} "${user_all_num}" ${Font_color_suffix} 链接IP总数: ${Green_background_prefix} "${IP_total}" ${Font_color_suffix} "
 	
