@@ -15,8 +15,8 @@
 NAME="Brook"
 NAME_BIN="brook"
 FILE="/usr/local/brook"
-CONF="${FILE}/brook.conf"
-LOG="${FILE}/brook.log"
+CONF="/usr/local/brook/brook.conf"
+LOG="/usr/local/brook/brook.log"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -54,7 +54,7 @@ do_start(){
 			password=$(echo "${user_text}"|awk '{print $2}')
 			servers_all="${servers_all}-l \":${port} ${password}\" "
 		done
-		eval nohup ./brook ${protocol} $(echo ${servers_all}) > "${LOG}" 2>&1 &
+		eval nohup ./brook ${protocol} $(echo ${servers_all}) >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
