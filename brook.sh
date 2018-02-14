@@ -5,16 +5,19 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.8
+#	Version: 1.1.9
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.8"
+sh_ver="1.1.9"
+filepath=$(cd "$(dirname "$0")"; pwd)
+file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/brook"
 brook_file="/usr/local/brook/brook"
 brook_conf="/usr/local/brook/brook.conf"
 brook_log="/usr/local/brook/brook.log"
+Crontab_file="/usr/bin/crontab"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -42,6 +45,21 @@ check_sys(){
 }
 check_installed_status(){
 	[[ ! -e ${brook_file} ]] && echo -e "${Error} Brook 没有安装，请检查 !" && exit 1
+}
+check_crontab_installed_status(){
+	if [[ ! -e ${Crontab_file} ]]; then
+		echo -e "${Error} Crontab 没有安装，开始安装..." && exit 1
+		if [[ ${release} == "centos" ]]; then
+			yum install crond -y
+		else
+			apt-get install cron -y
+		fi
+		if [[ ! -e ${Crontab_file} ]]; then
+			echo -e "${Error} Crontab 安装失败，请检查！" && exit 1
+		else
+			echo -e "${Info} Crontab 安装成功！"
+		fi
+	fi
 }
 check_pid(){
 	PID=`ps -ef| grep "brook"| grep -v "grep" | grep -v ".sh"| grep -v "init.d" |grep -v "service" |awk '{print $2}'`
@@ -215,6 +233,8 @@ Set_brook(){
  ${Green_font_prefix}2.${Font_color_suffix}  删除 用户配置
  ${Green_font_prefix}3.${Font_color_suffix}  修改 用户配置
  ${Green_font_prefix}4.${Font_color_suffix}  修改 混淆协议
+————————————————
+ ${Green_font_prefix}5.${Font_color_suffix}  监控 运行状态
  
  ${Tip} 用户的端口是不能重复的，密码可以重复 !" && echo
 	stty erase '^H' && read -p "(默认: 取消):" bk_modify
@@ -227,8 +247,10 @@ Set_brook(){
 		Modify_port_user
 	elif [[ ${bk_modify} == "4" ]]; then
 		Modify_protocol
+	elif [[ ${bk_modify} == "5" ]]; then
+		Set_crontab_monitor_brook
 	else
-		echo -e "${Error} 请输入正确的数字(1-4)" && exit 1
+		echo -e "${Error} 请输入正确的数字(1-5)" && exit 1
 	fi
 }
 check_port(){
@@ -548,6 +570,74 @@ get_IP_address(){
 		done
 	fi
 }
+Set_crontab_monitor_brook(){
+	check_crontab_installed_status
+	crontab_monitor_brook_status=$(crontab -l|grep "brook.sh monitor")
+	if [[ -z "${crontab_monitor_brook_status}" ]]; then
+		echo && echo -e "当前监控模式: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
+		echo -e "确定要开启 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" crontab_monitor_brook_status_ny
+		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="y"
+		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
+			crontab_monitor_brook_cron_start
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo && echo -e "当前监控模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
+		echo -e "确定要关闭 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[y/N]"
+		stty erase '^H' && read -p "(默认: n):" crontab_monitor_brook_status_ny
+		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="n"
+		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
+			crontab_monitor_brook_cron_stop
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	fi
+}
+crontab_monitor_brook_cron_start(){
+	crontab -l > "$file_1/crontab.bak"
+	sed -i "/brook.sh monitor/d" "$file_1/crontab.bak"
+	echo -e "\n* * * * * /bin/bash $file_1/brook.sh monitor" >> "$file_1/crontab.bak"
+	crontab "$file_1/crontab.bak"
+	rm -r "$file_1/crontab.bak"
+	cron_config=$(crontab -l | grep "brook.sh monitor")
+	if [[ -z ${cron_config} ]]; then
+		echo -e "${Error} Brook 服务端运行状态监控功能 启动失败 !" && exit 1
+	else
+		echo -e "${Info} Brook 服务端运行状态监控功能 启动成功 !"
+	fi
+}
+crontab_monitor_brook_cron_stop(){
+	crontab -l > "$file_1/crontab.bak"
+	sed -i "/brook.sh monitor/d" "$file_1/crontab.bak"
+	crontab "$file_1/crontab.bak"
+	rm -r "$file_1/crontab.bak"
+	cron_config=$(crontab -l | grep "brook.sh monitor")
+	if [[ ! -z ${cron_config} ]]; then
+		echo -e "${Error} Brook 服务端运行状态监控功能 停止失败 !" && exit 1
+	else
+		echo -e "${Info} Brook 服务端运行状态监控功能 停止成功 !"
+	fi
+}
+crontab_monitor_brook(){
+	check_installed_status
+	check_pid
+	echo "${PID}"
+	if [[ -z ${PID} ]]; then
+		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 Brook服务端 未运行 , 开始启动..." | tee -a ${brook_log}
+		/etc/init.d/brook start
+		sleep 1s
+		check_pid
+		if [[ -z ${PID} ]]; then
+			echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] Brook服务端 启动失败..." | tee -a ${brook_log}
+		else
+			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] Brook服务端 启动成功..." | tee -a ${brook_log}
+		fi
+	else
+		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] Brook服务端 进程运行正常..." | tee -a ${brook_log}
+	fi
+}
 Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${bk_port} -j ACCEPT
 	iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${bk_port} -j ACCEPT
@@ -597,10 +687,14 @@ Update_Shell(){
 	fi
 }
 check_sys
-echo && echo -e "  Brook 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+action=$1
+if [[ "${action}" == "monitor" ]]; then
+	crontab_monitor_brook
+else
+	echo && echo -e "  Brook 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   ---- Toyo | doub.io/brook-jc3 ----
   
- ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+ ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
  ${Green_font_prefix} 1.${Font_color_suffix} 安装 Brook
  ${Green_font_prefix} 2.${Font_color_suffix} 升级 Brook
@@ -615,53 +709,54 @@ echo && echo -e "  Brook 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font
  ${Green_font_prefix} 9.${Font_color_suffix} 查看 日志信息
  ${Green_font_prefix}10.${Font_color_suffix} 查看 链接信息
 ————————————" && echo
-if [[ -e ${brook_file} ]]; then
-	check_pid
-	if [[ ! -z "${PID}" ]]; then
-		echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}"
+	if [[ -e ${brook_file} ]]; then
+		check_pid
+		if [[ ! -z "${PID}" ]]; then
+			echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}"
+		else
+			echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}"
+		fi
 	else
-		echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}"
+		echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 	fi
-else
-	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
+	echo
+	stty erase '^H' && read -p " 请输入数字 [0-10]:" num
+	case "$num" in
+		0)
+		Update_Shell
+		;;
+		1)
+		Install_brook
+		;;
+		2)
+		Update_brook
+		;;
+		3)
+		Uninstall_brook
+		;;
+		4)
+		Start_brook
+		;;
+		5)
+		Stop_brook
+		;;
+		6)
+		Restart_brook
+		;;
+		7)
+		Set_brook
+		;;
+		8)
+		View_brook
+		;;
+		9)
+		View_Log
+		;;
+		10)
+		View_user_connection_info
+		;;
+		*)
+		echo "请输入正确数字 [0-10]"
+		;;
+	esac
 fi
-echo
-stty erase '^H' && read -p " 请输入数字 [0-10]:" num
-case "$num" in
-	0)
-	Update_Shell
-	;;
-	1)
-	Install_brook
-	;;
-	2)
-	Update_brook
-	;;
-	3)
-	Uninstall_brook
-	;;
-	4)
-	Start_brook
-	;;
-	5)
-	Stop_brook
-	;;
-	6)
-	Restart_brook
-	;;
-	7)
-	Set_brook
-	;;
-	8)
-	View_brook
-	;;
-	9)
-	View_Log
-	;;
-	10)
-	View_user_connection_info
-	;;
-	*)
-	echo "请输入正确数字 [0-10]"
-	;;
-esac
