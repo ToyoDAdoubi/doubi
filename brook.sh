@@ -444,7 +444,7 @@ View_brook(){
 			brook_link
 			echo -e "————————————————"
 			echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
-			echo -e " 打开\t: ${Green_font_prefix}${port}${Font_color_suffix}"
+			echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
 			echo -e " 密码\t: ${Green_font_prefix}${password}${Font_color_suffix}"
 			echo -e " 协议\t: ${Green_font_prefix}${protocol}${Font_color_suffix}"
 			echo -e "${Brook_link_1}"
