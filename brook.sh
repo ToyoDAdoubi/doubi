@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.9
+#	Version: 1.1.10
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.9"
+sh_ver="1.1.10"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/brook"
@@ -62,7 +62,7 @@ check_crontab_installed_status(){
 	fi
 }
 check_pid(){
-	PID=`ps -ef| grep "brook"| grep -v "grep" | grep -v ".sh"| grep -v "init.d" |grep -v "service" |awk '{print $2}'`
+	PID=`ps -ef| grep "./brook "| grep -v "grep" | grep -v "init.d" |grep -v "service" |awk '{print $2}'`
 }
 check_new_ver(){
 	brook_new_ver=`wget -qO- https://github.com/txthinking/brook/tags| grep "/txthinking/brook/releases/tag/"| head -n 1| awk -F "/tag/" '{print $2}'| sed 's/\">//'`
