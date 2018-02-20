@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: GoFlyway
-#	Version: 1.0.1
+#	Version: 1.0.2
 #	Author: Toyo
 #	Blog: https://doub.io/goflyway-jc2/
 #=================================================
 
-sh_ver="1.0.1"
+sh_ver="1.0.2"
 Folder="/usr/local/goflyway"
 File="/usr/local/goflyway/goflyway"
 CONF="/usr/local/goflyway/goflyway.conf"
@@ -48,7 +48,7 @@ check_pid(){
 	PID=$(ps -ef| grep "goflyway"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}')
 }
 check_new_ver(){
-	new_ver=$(wget -qO- "https://github.com/coyove/goflyway/tags"| grep "/goflyway/releases/tag/"| head -n 1| awk -F "/tag/" '{print $2}'| sed 's/\">//')
+	new_ver=$(wget -qO- "https://github.com/coyove/goflyway/tags"|grep "/goflyway/releases/tag/"|grep -v '\-apk'|head -n 1|awk -F "/tag/" '{print $2}'|sed 's/\">//')
 	if [[ -z ${new_ver} ]]; then
 		echo -e "${Error} GoFlyway 最新版本获取失败，请手动获取最新版本号[ https://github.com/coyove/goflyway/releases ]"
 		stty erase '^H' && read -p "请输入版本号 [ 格式如 v1.0.0 ] :" new_ver
@@ -280,18 +280,10 @@ Set_iptables(){
 	if [[ ${release} == "centos" ]]; then
 		service iptables save
 		chkconfig --level 2345 iptables on
-	elif [[ ${release} == "debian" ]]; then
+	else
 		iptables-save > /etc/iptables.up.rules
-		cat > /etc/network/if-pre-up.d/iptables<<-EOF
-#!/bin/bash
-/sbin/iptables-restore < /etc/iptables.up.rules
-EOF
+		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
 		chmod +x /etc/network/if-pre-up.d/iptables
-	elif [[ ${release} == "ubuntu" ]]; then
-		iptables-save > /etc/iptables.up.rules
-		echo -e "\npre-up iptables-restore < /etc/iptables.up.rules
-post-down iptables-save > /etc/iptables.up.rules" >> /etc/network/interfaces
-		chmod +x /etc/network/interfaces
 	fi
 }
 Update_Shell(){
