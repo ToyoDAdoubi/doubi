@@ -261,7 +261,7 @@ View_goflyway(){
 	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
 	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
 	echo -e "${link}"
-	echo -e "${Tip} 链接仅适用于Windows系统的 Goflyway Tools 客户端（https://doub.io/dbrj-8/）。"
+	echo -e "${Tip} 链接仅适用于Windows系统的 Goflyway Tools 客户端（https://doub.io/dbrj-11/）。"
 	echo && echo "————————————————"
 }
 urlsafe_base64(){
