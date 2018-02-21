@@ -265,7 +265,7 @@ View_goflyway(){
 	echo && echo "————————————————"
 }
 urlsafe_base64(){
-	date=$(echo -n "$1"|base64|sed ':a;N;s/\n//g;s/=//g;s/+/-/g;s/\//_/g;ta')
+	date=$(echo -n "$1"|base64|sed ':a;N;s/\n//g;ta'|sed 's/=//g;s/+/-/g;s/\//_/g')
 	echo -e "${date}"
 }
 link_qr(){
