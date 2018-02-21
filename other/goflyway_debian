@@ -34,24 +34,6 @@ read_config(){
 	port=`cat ${CONF}|grep "port"|awk -F "=" '{print $NF}'`
 	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
 }
-View_User(){
-	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
-	if [[ -z "${ip}" ]]; then
-		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
-		if [[ -z "${ip}" ]]; then
-			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
-			if [[ -z "${ip}" ]]; then
-				ip="VPS_IP"
-			fi
-		fi
-	fi
-	clear && echo "————————————————" && echo
-	echo -e " GoFlyway 信息 :" && echo
-	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
-	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
-	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
-	echo && echo "————————————————"
-}
 do_start(){
 	check_running
 	if [[ $? -eq 0 ]]; then
@@ -65,7 +47,6 @@ do_start(){
 		check_running
 		if [[ $? -eq 0 ]]; then
 			echo -e "${Info} $NAME 启动成功 !"
-			View_User
 		else
 			echo -e "${Error} $NAME 启动失败 !"
 		fi
@@ -89,8 +70,6 @@ do_stop(){
 do_status(){
 	check_running
 	if [[ $? -eq 0 ]]; then
-		read_config
-		View_User
 		echo -e "${Info} $NAME (PID ${PID}) 正在运行..."
 	else
 		echo -e "${Info} $NAME 未运行 !"
