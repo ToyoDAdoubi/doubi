@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: GoFlyway
-#	Version: 1.0.3
+#	Version: 1.0.4
 #	Author: Toyo
 #	Blog: https://doub.io/goflyway-jc2/
 #=================================================
 
-sh_ver="1.0.3"
+sh_ver="1.0.4"
 Folder="/usr/local/goflyway"
 File="/usr/local/goflyway/goflyway"
 CONF="/usr/local/goflyway/goflyway.conf"
@@ -115,17 +115,19 @@ Write_config(){
 	cat > ${CONF}<<-EOF
 port=${new_port}
 passwd=${new_passwd}
+proxy_pass=${new_proxy_pass}
 EOF
 }
 Read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} GoFlyway 配置文件不存在 !" && exit 1
 	port=`cat ${CONF}|grep "port"|awk -F "=" '{print $NF}'`
 	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
+	proxy_pass=`cat ${CONF}|grep "proxy_pass"|awk -F "=" '{print $NF}'`
 }
 Set_port(){
 	while true
 		do
-		echo -e "请输入 GoFlyway 监听端口 [1-65535]"
+		echo -e "请输入 GoFlyway 监听端口 [1-65535]（如果要伪装或者套CDN，那么只能使用端口：80 8080 8880 2052 2082 2086 2095）"
 		stty erase '^H' && read -p "(默认: 2333):" new_port
 		[[ -z "${new_port}" ]] && new_port="2333"
 		expr ${new_port} + 0 &>/dev/null
@@ -151,9 +153,19 @@ Set_passwd(){
 	echo -e "	密码 : ${Red_background_prefix} ${new_passwd} ${Font_color_suffix}"
 	echo "========================" && echo
 }
+Set_proxy_pass(){
+	echo "请输入 GoFlyway 要伪装(反向代理，只支持 HTTP:// 网站)"
+	stty erase '^H' && read -p "(默认不伪装):" new_proxy_pass
+	if [[ ! -z ${new_proxy_pass} ]]; then
+		echo && echo "========================"
+		echo -e "	伪装 : ${Red_background_prefix} ${new_proxy_pass} ${Font_color_suffix}"
+		echo "========================" && echo
+	fi
+}
 Set_conf(){
 	Set_port
 	Set_passwd
+	Set_proxy_pass
 }
 Set_goflyway(){
 	check_installed_status
@@ -254,12 +266,14 @@ View_goflyway(){
 			fi
 		fi
 	fi
+	[[ -z ${proxy_pass} ]] && proxy_pass="无"
 	link_qr
 	clear && echo "————————————————" && echo
 	echo -e " GoFlyway 信息 :" && echo
 	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
 	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
 	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
+	echo -e " 伪装\t: ${Green_font_prefix}${proxy_pass}${Font_color_suffix}"
 	echo -e "${link}"
 	echo -e "${Tip} 链接仅适用于Windows系统的 Goflyway Tools 客户端（https://doub.io/dbrj-11/）。"
 	echo && echo "————————————————"
