@@ -35,6 +35,7 @@ read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} GoFlyway 配置文件不存在 !" && exit 1
 	port=`cat ${CONF}|grep "port"|awk -F "=" '{print $NF}'`
 	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
+	proxy_pass=`cat ${CONF}|grep "proxy_pass"|awk -F "=" '{print $NF}'`
 }
 do_start(){
 	check_running
@@ -44,7 +45,11 @@ do_start(){
 		read_config
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
-		nohup ./goflyway -k="${passwd}" -l=":${port}" > "${LOG}" 2>&1 &
+		if [[ -z ${proxy_pass} ]]; then
+			nohup ./goflyway -k="${passwd}" -l=":${port}" > "${LOG}" 2>&1 &
+		else
+			nohup ./goflyway -k="${passwd}" -l=":${port}" -proxy-pass="${proxy_pass}" > "${LOG}" 2>&1 &
+		fi
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
