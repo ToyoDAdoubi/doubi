@@ -83,6 +83,7 @@ do_status(){
 }
 do_restart(){
 	do_stop
+	sleep 2s
 	do_start
 }
 case "$1" in
