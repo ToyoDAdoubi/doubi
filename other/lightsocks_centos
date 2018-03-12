@@ -13,9 +13,9 @@
 ### END INIT INFO
 
 NAME="Lightsocks"
-NAME_BIN="lightsocks-server"
+NAME_BIN="lightsocks"
 FILE="/usr/local/lightsocks"
-CONF=$(echo ${HOME})"/.lightsocks.conf"
+CONF=$(echo ${HOME})"/.lightsocks.json"
 LOG="/usr/local/lightsocks/lightsocks.log"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
@@ -31,22 +31,14 @@ check_running(){
 		return 1
 	fi
 }
-read_config(){
-	[[ ! -e ${CONF} ]] && echo -e "${Error} Lightsocks 配置文件不存在 !" && exit 1
-	user_all=$(cat ${CONF}|sed "1d;$d")
-	[[ -z ${user_all} ]] && echo -e "${Error} Lightsocks 配置文件中用户配置为空 !" && exit 1
-	port=$(echo "${user_all}"|grep "listen"|awk -F ': ' '{print $NF}'|sed 's/\"//g;s/://g;s/,//g')
-	password=$(echo "${user_all}"|grep "password"|awk -F ': ' '{print $NF}'|sed 's/\"//g')
-}
 do_start(){
 	check_running
 	if [[ $? -eq 0 ]]; then
 		echo -e "${Info} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
-		read_config
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
-		nohup ./lightsocks-server >> "${LOG}" 2>&1 &
+		nohup ./lightsocks >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
@@ -82,6 +74,7 @@ do_status(){
 }
 do_restart(){
 	do_stop
+	sleep 2s
 	do_start
 }
 case "$1" in
