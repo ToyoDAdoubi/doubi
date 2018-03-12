@@ -331,7 +331,7 @@ View_lightsocks(){
 		echo -e " 密码\t: ${Green_font_prefix}${password}${Font_color_suffix}"
 		echo -e "${Lightsocks_link_1}"
 	echo
-	echo -e "${Tip} Lightsocks链接 仅适用于Windows系统的 Lightsocks Tools客户端[https://doub.io/lightsocks-jc2/]。"
+	echo -e "${Tip} Lightsocks链接 仅适用于Windows系统的 Lightsocks Tools客户端[https://doub.io/dbrj-12/]。"
 	echo
 }
 urlsafe_base64(){
