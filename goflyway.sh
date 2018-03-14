@@ -154,7 +154,7 @@ Set_passwd(){
 	echo "========================" && echo
 }
 Set_proxy_pass(){
-	echo "请输入 GoFlyway 要伪装(反向代理，只支持 HTTP:// 网站)"
+	echo "请输入 GoFlyway 要伪装的网站(反向代理，只支持 HTTP:// 网站)"
 	stty erase '^H' && read -p "(默认不伪装):" new_proxy_pass
 	if [[ ! -z ${new_proxy_pass} ]]; then
 		echo && echo "========================"
