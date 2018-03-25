@@ -48,7 +48,7 @@ check_installed_status(){
 }
 check_crontab_installed_status(){
 	if [[ ! -e ${Crontab_file} ]]; then
-		echo -e "${Error} Crontab 没有安装，开始安装..." && exit 1
+		echo -e "${Error} Crontab 没有安装，开始安装..."
 		if [[ ${release} == "centos" ]]; then
 			yum install crond -y
 		else
