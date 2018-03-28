@@ -93,7 +93,11 @@ install_caddy(){
 	fi
 	Download_caddy
 	Service_caddy
-	echo && echo -e " Caddy 配置文件：${caddy_conf_file} \n 使用说明：service caddy start | stop | restart | status \n ${Info_font_prefix}[信息]${Font_suffix} Caddy 安装完成！" && echo
+	echo && echo -e " Caddy 配置文件：${caddy_conf_file}
+ Caddy 日志文件：/tmp/caddy.log
+ 使用说明：service caddy start | stop | restart | status
+ 或者使用：/etc/init.d/caddy start | stop | restart | status
+ ${Info_font_prefix}[信息]${Font_suffix} Caddy 安装完成！" && echo
 }
 uninstall_caddy(){
 	check_installed_status
