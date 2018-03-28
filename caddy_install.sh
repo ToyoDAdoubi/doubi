@@ -112,6 +112,7 @@ uninstall_caddy(){
 		else
 			update-rc.d -f caddy remove
 		fi
+		[[ -s /tmp/caddy.log ]] && rm -rf /tmp/caddy.log
 		rm -rf ${caddy_file}
 		rm -rf ${caddy_conf_file}
 		rm -rf /etc/init.d/caddy
