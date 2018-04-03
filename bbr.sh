@@ -40,7 +40,7 @@ check_sys(){
 }
 # 本段获取最新版本的代码来源自: https://teddysun.com/489.html
 Set_latest_new_version(){
-	echo -e "请输入 要下载安装的Linux内核版本(BBR) [ 格式: x.xx.xx ，例如: 4.9.75 ]
+	echo -e "请输入 要下载安装的Linux内核版本(BBR) [ 格式: x.xx.xx ，例如: 4.9.92 ]
 ${Tip} 内核版本列表请去这里获取：[ http://kernel.ubuntu.com/~kernel-ppa/mainline/ ]
 如果只在乎稳定，那么不需要追求最新版本（新版本不会保证稳定性），可以选择 4.9.XX 稳定版本。"
 	stty erase '^H' && read -p "(默认回车，自动获取最新版本):" latest_version

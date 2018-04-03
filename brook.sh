@@ -68,7 +68,7 @@ check_new_ver(){
 	brook_new_ver=`wget -qO- https://github.com/txthinking/brook/tags| grep "/txthinking/brook/releases/tag/"| head -n 1| awk -F "/tag/" '{print $2}'| sed 's/\">//'`
 	if [[ -z ${brook_new_ver} ]]; then
 		echo -e "${Error} Brook 最新版本获取失败，请手动获取最新版本号[ https://github.com/txthinking/brook/releases ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 v20170330 ] :" brook_new_ver
+		stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 v20180401 ] :" brook_new_ver
 		[[ -z "${brook_new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 Brook 最新版本为 [ ${brook_new_ver} ]"
