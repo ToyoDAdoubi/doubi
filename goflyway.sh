@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: GoFlyway
-#	Version: 1.0.5
+#	Version: 1.0.6
 #	Author: Toyo
 #	Blog: https://doub.io/goflyway-jc2/
 #=================================================
 
-sh_ver="1.0.5"
+sh_ver="1.0.6"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 Folder="/usr/local/goflyway"
@@ -365,6 +365,95 @@ View_Log(){
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
 	tail -f ${Log_File}
 }
+# 显示 连接信息
+debian_View_user_connection_info(){
+	format_1=$1
+	Read_config
+	user_port=${port}
+	user_IP_1=$(netstat -anp |grep 'ESTABLISHED' |grep 'goflyway' |grep 'tcp6' |grep ":${user_port} " |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}")
+	if [[ -z ${user_IP_1} ]]; then
+		user_IP_total="0"
+		echo -e "端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: "
+	else
+		user_IP_total=`echo -e "${user_IP_1}"|wc -l`
+		if [[ ${format_1} == "IP_address" ]]; then
+			echo -e "端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: "
+			get_IP_address
+			echo
+		else
+			user_IP=$(echo -e "\n${user_IP_1}")
+			echo -e "端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: ${Green_font_prefix}${user_IP}${Font_color_suffix}\n"
+		fi
+	fi
+	user_IP=""
+}
+centos_View_user_connection_info(){
+	format_1=$1
+	Read_config
+	user_port=${port}
+	user_IP_1=`netstat -anp |grep 'ESTABLISHED' |grep 'goflyway' |grep 'tcp' |grep ":${user_port} "|grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u |grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`
+	if [[ -z ${user_IP_1} ]]; then
+		user_IP_total="0"
+		echo -e "端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: "
+	else
+		user_IP_total=`echo -e "${user_IP_1}"|wc -l`
+		if [[ ${format_1} == "IP_address" ]]; then
+			echo -e "端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: "
+			get_IP_address
+			echo
+		else
+			user_IP=$(echo -e "\n${user_IP_1}")
+			echo -e "端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: ${Green_font_prefix}${user_IP}${Font_color_suffix}\n"
+		fi
+	fi
+	user_IP=""
+}
+View_user_connection_info(){
+	check_installed_status
+	echo && echo -e "请选择要显示的格式：
+ ${Green_font_prefix}1.${Font_color_suffix} 显示 IP 格式
+ ${Green_font_prefix}2.${Font_color_suffix} 显示 IP+IP归属地 格式" && echo
+	stty erase '^H' && read -p "(默认: 1):" goflyway_connection_info
+	[[ -z "${goflyway_connection_info}" ]] && goflyway_connection_info="1"
+	if [[ "${goflyway_connection_info}" == "1" ]]; then
+		View_user_connection_info_1 ""
+	elif [[ "${goflyway_connection_info}" == "2" ]]; then
+		echo -e "${Tip} 检测IP归属地(ipip.net)，如果IP较多，可能时间会比较长..."
+		View_user_connection_info_1 "IP_address"
+	else
+		echo -e "${Error} 请输入正确的数字(1-2)" && exit 1
+	fi
+}
+View_user_connection_info_1(){
+	format=$1
+	if [[ ${release} = "centos" ]]; then
+		cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+		if [[ $? = 0 ]]; then
+			debian_View_user_connection_info "$format"
+		else
+			centos_View_user_connection_info "$format"
+		fi
+	else
+		debian_View_user_connection_info "$format"
+	fi
+}
+get_IP_address(){
+	#echo "user_IP_1=${user_IP_1}"
+	if [[ ! -z ${user_IP_1} ]]; then
+	#echo "user_IP_total=${user_IP_total}"
+		for((integer_1 = ${user_IP_total}; integer_1 >= 1; integer_1--))
+		do
+			IP=$(echo "${user_IP_1}" |sed -n "$integer_1"p)
+			#echo "IP=${IP}"
+			IP_address=$(wget -qO- -t1 -T2 http://freeapi.ipip.net/${IP}|sed 's/\"//g;s/,//g;s/\[//g;s/\]//g')
+			#echo "IP_address=${IP_address}"
+			#user_IP="${user_IP}\n${IP}(${IP_address})"
+			echo -e "${Green_font_prefix}${IP}${Font_color_suffix} (${IP_address})"
+			#echo "user_IP=${user_IP}"
+			sleep 1s
+		done
+	fi
+}
 Set_crontab_monitor_goflyway(){
 	check_crontab_installed_status
 	crontab_monitor_goflyway_status=$(crontab -l|grep "goflyway.sh monitor")
@@ -489,19 +578,20 @@ else
 echo && echo -e "  GoFlyway 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- Toyo | doub.io/goflyway-jc2 --
   
- ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+ ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
- ${Green_font_prefix}1.${Font_color_suffix} 安装 GoFlyway
- ${Green_font_prefix}2.${Font_color_suffix} 升级 GoFlyway
- ${Green_font_prefix}3.${Font_color_suffix} 卸载 GoFlyway
+ ${Green_font_prefix} 1.${Font_color_suffix} 安装 GoFlyway
+ ${Green_font_prefix} 2.${Font_color_suffix} 升级 GoFlyway
+ ${Green_font_prefix} 3.${Font_color_suffix} 卸载 GoFlyway
 ————————————
- ${Green_font_prefix}4.${Font_color_suffix} 启动 GoFlyway
- ${Green_font_prefix}5.${Font_color_suffix} 停止 GoFlyway
- ${Green_font_prefix}6.${Font_color_suffix} 重启 GoFlyway
+ ${Green_font_prefix} 4.${Font_color_suffix} 启动 GoFlyway
+ ${Green_font_prefix} 5.${Font_color_suffix} 停止 GoFlyway
+ ${Green_font_prefix} 6.${Font_color_suffix} 重启 GoFlyway
 ————————————
- ${Green_font_prefix}7.${Font_color_suffix} 设置 GoFlyway 账号
- ${Green_font_prefix}8.${Font_color_suffix} 查看 GoFlyway 账号
- ${Green_font_prefix}9.${Font_color_suffix} 查看 GoFlyway 日志
+ ${Green_font_prefix} 7.${Font_color_suffix} 设置 账号配置
+ ${Green_font_prefix} 8.${Font_color_suffix} 查看 账号信息
+ ${Green_font_prefix} 9.${Font_color_suffix} 查看 日志信息
+ ${Green_font_prefix}10.${Font_color_suffix} 查看 链接信息
 ————————————" && echo
 if [[ -e ${File} ]]; then
 	check_pid
@@ -546,8 +636,11 @@ case "$num" in
 	9)
 	View_Log
 	;;
+	10)
+	View_user_connection_info
+	;;
 	*)
-	echo "请输入正确数字 [0-9]"
+	echo "请输入正确数字 [0-10]"
 	;;
 esac
 fi
