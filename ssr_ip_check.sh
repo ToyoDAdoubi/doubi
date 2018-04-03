@@ -55,13 +55,13 @@ scan_port_debian(){
 	[[ ${port_num} = 0 ]] && echo -e "${Error} 没有发现正在链接的端口 !" && exit 1
 }
 scan_ip_centos(){
-	ip=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u`
+	ip=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp' | grep '::ffff:' |awk '{print $5}' |awk -F ":" '{print $4}' |sort -u |grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`
 	ip_num=`echo "${ip}" |wc -l`
 	[[ -z ${ip} ]] && echo -e "${Error} 没有发现正在链接的IP !" && exit 1
 	[[ ${ip_num} = 0 ]] && echo -e "${Error} 没有发现正在链接的IP !" && exit 1
 }
 scan_ip_debian(){
-	ip=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u`
+	ip=`netstat -anp |grep 'ESTABLISHED' |grep 'python' |grep 'tcp6' |awk '{print $5}' |awk -F ":" '{print $1}' |sort -u |grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`
 	ip_num=`echo "${ip}" |wc -l`
 	[[ -z ${ip} ]] && echo -e "${Error} 没有发现正在链接的IP !" && exit 1
 	[[ ${ip_num} = 0 ]] && echo -e "${Error} 没有发现正在链接的IP !" && exit 1
