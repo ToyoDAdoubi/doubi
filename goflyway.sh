@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: GoFlyway
-#	Version: 1.0.6
+#	Version: 1.0.7
 #	Author: Toyo
 #	Blog: https://doub.io/goflyway-jc2/
 #=================================================
 
-sh_ver="1.0.6"
+sh_ver="1.0.7"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 Folder="/usr/local/goflyway"
@@ -79,15 +79,17 @@ check_ver_comparison(){
 	now_ver=$(cat ${Now_ver_File})
 	[[ -z ${now_ver} ]] && echo "${new_ver}" > ${Now_ver_File}
 	if [[ ${now_ver} != ${new_ver} ]]; then
-		echo -e "${Info} 发现 GoFlyway 已有新版本 [ ${new_ver} ]"
+		echo -e "${Info} 发现 GoFlyway 已有新版本 [ ${new_ver} ]，当前版本 [ ${now_ver} ]"
 		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ $yn == [Yy] ]]; then
 			check_pid
 			[[ ! -z $PID ]] && kill -9 ${PID}
+			cp "${CONF}" "/tmp/goflyway.conf"
 			rm -rf ${Folder}
 			mkdir ${Folder}
 			Download_goflyway
+			mv "/tmp/goflyway.conf" "${CONF}"
 			Start_goflyway
 		fi
 	else
