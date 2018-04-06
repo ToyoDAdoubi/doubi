@@ -107,8 +107,10 @@ Download_goflyway(){
 	fi
 	[[ ! -e "goflyway_linux.tar.gz" ]] && echo -e "${Error} GoFlyway 下载失败 !" && exit 1
 	tar -xzf goflyway_linux.tar.gz
-	[[ ! -e "goflyway" ]] && echo -e "${Error} GoFlyway 解压失败 !" && exit 1
+	[[ ! -e "goflyway" ]] && echo -e "${Error} GoFlyway 解压失败 !" && rm -f goflyway_linux.tar.gz && exit 1
+	rm -f goflyway_linux.tar.gz
 	chmod +x goflyway
+	./goflyway -gen-ca
 	echo "${new_ver}" > ${Now_ver_File}
 }
 Service_goflyway(){
