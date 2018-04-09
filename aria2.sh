@@ -436,6 +436,7 @@ crontab_update_start(){
 		echo -e "${Error} Aria2 自动更新 BT-Tracker服务器 开启失败 !" && exit 1
 	else
 		echo -e "${Info} Aria2 自动更新 BT-Tracker服务器 开启成功 !"
+		Update_bt_tracker_cron
 	fi
 }
 crontab_update_stop(){
