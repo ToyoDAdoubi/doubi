@@ -49,7 +49,7 @@ ${Tip} 内核版本列表请去这里获取：[ http://kernel.ubuntu.com/~kernel
 }
 get_latest_new_version(){
 	echo -e "${Info} 检测内核最新版本中..."
-	latest_version=$(wget -qO- "http://kernel.ubuntu.com/~kernel-ppa/mainline/" | awk -F'\"v' '/v[4-9].[0-9]*.[0-9]/{print $2}' |grep -v '\-rc'| cut -d/ -f1 | sort -V | tail -1)
+	latest_version=$(wget -qO- -t1 -T2 "http://kernel.ubuntu.com/~kernel-ppa/mainline/" | awk -F'\"v' '/v[4-9].[0-9]*.[0-9]/{print $2}' |grep -v '\-rc'| cut -d/ -f1 | sort -V | tail -1)
 	[[ -z ${latest_version} ]] && echo -e "${Error} 检测内核最新版本失败 !" && exit 1
 	echo -e "${Info} 当前内核最新版本为 : ${latest_version}"
 }
