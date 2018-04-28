@@ -5,7 +5,7 @@ export PATH
 #=================================================
 #	System Required: Debian/Ubuntu
 #	Description: TCP-BBR
-#	Version: 1.0.21
+#	Version: 1.0.22
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-16/
 #=================================================
@@ -57,7 +57,7 @@ get_latest_version(){
 	Set_latest_new_version
 	bit=`uname -m`
 	if [[ ${bit} == "x86_64" ]]; then
-		deb_name=$(wget -qO- http://kernel.ubuntu.com/~kernel-ppa/mainline/v${latest_version}/ | grep "linux-image" | grep "generic" | awk -F'\">' '/amd64.deb/{print $2}' | cut -d'<' -f1 | head -1)
+		deb_name=$(wget -qO- http://kernel.ubuntu.com/~kernel-ppa/mainline/v${latest_version}/ | grep "linux-image" | grep "generic" | awk -F'\">' '/amd64.deb/{print $2}' | cut -d'<' -f1 | head -1 )
 		deb_kernel_url="http://kernel.ubuntu.com/~kernel-ppa/mainline/v${latest_version}/${deb_name}"
 		deb_kernel_name="linux-image-${latest_version}-amd64.deb"
 	else
@@ -69,7 +69,7 @@ get_latest_version(){
 #检查内核是否满足
 check_deb_off(){
 	get_latest_new_version
-	deb_ver=`dpkg -l|grep linux-image | awk '{print $2}' | awk -F '-' '{print $3}' | grep '[4-9].[0-9]*.'`
+	deb_ver=`dpkg -l|grep linux-image | awk '{print $2}' | grep '[4-9].[0-9]*.'`
 	latest_version_2=$(echo "${latest_version}"|grep -o '\.'|wc -l)
 	if [[ "${latest_version_2}" == "1" ]]; then
 		latest_version="${latest_version}.0"
@@ -78,7 +78,7 @@ check_deb_off(){
 		if [[ "${deb_ver}" == "${latest_version}" ]]; then
 			echo -e "${Info} 检测到 当前内核版本[${deb_ver}] 已满足要求，继续..."
 		else
-			echo -e "${Tip} 检测到 当前内核版本[${deb_ver}] 支持开启BBR单不是最新内核版本，可以使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来升级内核 !(注意：并不是越新的内核越好，4.9 以上版本的内核 目前皆为测试版，不保证稳定性，旧版本如使用无问题 建议不要升级！)"
+			echo -e "${Tip} 检测到 当前内核版本[${deb_ver}] 支持开启BBR 但不是最新内核版本，可以使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来升级内核 !(注意：并不是越新的内核越好，4.9 以上版本的内核 目前皆为测试版，不保证稳定性，旧版本如使用无问题 建议不要升级！)"
 		fi
 	else
 		echo -e "${Error} 检测到 当前内核版本[${deb_ver}] 不支持开启BBR，请使用${Green_font_prefix} bash ${file}/bbr.sh ${Font_color_suffix}来更换最新内核 !" && exit 1
@@ -110,7 +110,7 @@ del_deb_over(){
 	del_deb
 	update-grub
 	addsysctl
-	echo -e "${Tip} 重启VPS后，请重新运行脚本查看BBR是否加载成功，运行命令： ${Green_background_prefix} bash ${file}/bbr.sh status ${Font_color_suffix}"
+	echo -e "${Tip} 重启VPS后，请运行脚本查看 BBR 是否正常加载，运行命令： ${Green_background_prefix} bash ${file}/bbr.sh status ${Font_color_suffix}"
 	stty erase '^H' && read -p "需要重启VPS后，才能开启BBR，是否现在重启 ? [Y/n] :" yn
 	[[ -z "${yn}" ]] && yn="y"
 	if [[ $yn == [Yy] ]]; then
@@ -122,14 +122,14 @@ del_deb_over(){
 installbbr(){
 	check_root
 	get_latest_version
-	deb_ver=`dpkg -l|grep linux-image | awk '{print $2}' | awk -F '-' '{print $3}' | grep '[4-9].[0-9]*.'`
+	deb_ver=`dpkg -l|grep linux-image | awk '{print $2}' | grep '[4-9].[0-9]*.'`
 	latest_version_2=$(echo "${latest_version}"|grep -o '\.'|wc -l)
 	if [[ "${latest_version_2}" == "1" ]]; then
 		latest_version="${latest_version}.0"
 	fi
 	if [[ "${deb_ver}" != "" ]]; then	
 		if [[ "${deb_ver}" == "${latest_version}" ]]; then
-			echo -e "${Info} 检测到 当前内核版本 已是最新版本，无需继续 !"
+			echo -e "${Info} 检测到当前内核版本 已是最新版本，无需继续 !"
 			deb_total=`dpkg -l|grep linux-image | awk '{print $2}' | grep -v "${latest_version}" | wc -l`
 			if [[ "${deb_total}" != "0" ]]; then
 				echo -e "${Info} 检测到内核数量异常，存在多余内核，开始删除..."
@@ -138,17 +138,17 @@ installbbr(){
 				exit 1
 			fi
 		else
-			echo -e "${Info} 检测到 当前内核版本支持开启BBR 但不是最新内核版本，升级(或降级)内核..."
+			echo -e "${Info} 检测到当前内核版本支持开启BBR 但不是最新内核版本，升级(或降级)内核..."
 		fi
 	else
-		echo -e "${Info} 检测到 当前内核版本 不支持开启BBR，开始..."
+		echo -e "${Info} 检测到当前内核版本不支持开启BBR，开始..."
 		virt=`virt-what`
 		if [[ -z ${virt} ]]; then
 			apt-get update && apt-get install virt-what -y
 			virt=`virt-what`
 		fi
 		if [[ ${virt} == "openvz" ]]; then
-			echo -e "${Error} BBR 不支持 OpenVZ 虚拟化 !" && exit 1
+			echo -e "${Error} BBR 不支持 OpenVZ 虚拟化(不支持更换内核) !" && exit 1
 		fi
 	fi
 	echo "nameserver 8.8.8.8" > /etc/resolv.conf
@@ -156,19 +156,19 @@ installbbr(){
 	
 	wget -O "${deb_kernel_name}" "${deb_kernel_url}"
 	if [[ -s ${deb_kernel_name} ]]; then
-		echo -e "${Info} 内核文件下载成功，开始安装内核..."
+		echo -e "${Info} 内核安装包下载成功，开始安装内核..."
 		dpkg -i ${deb_kernel_name}
 		rm -rf ${deb_kernel_name}
 	else
-		echo -e "${Error} 内核文件下载失败，请检查 !" && exit 1
+		echo -e "${Error} 内核安装包下载失败，请检查 !" && exit 1
 	fi
 	#判断内核是否安装成功
-	deb_ver=`dpkg -l | grep linux-image | awk '{print $2}' | awk -F '-' '{print $3}' | grep "${latest_version}"`
+	deb_ver=`dpkg -l | grep linux-image | awk '{print $2}' | grep "${latest_version}"`
 	if [[ "${deb_ver}" != "" ]]; then
-		echo -e "${Info} 检测到 内核 已安装成功，开始卸载其余内核..."
+		echo -e "${Info} 检测到 内核 安装成功，开始卸载其余内核..."
 		del_deb_over
 	else
-		echo -e "${Error} 检测到 内核版本 安装失败，请检查 !" && exit 1
+		echo -e "${Error} 检测到 内核 安装失败，请检查 !" && exit 1
 	fi
 }
 bbrstatus(){
@@ -178,7 +178,7 @@ bbrstatus(){
 		# 检查是否启动BBR
 		check_bbr_status_off=`lsmod | grep bbr`
 		if [[ "${check_bbr_status_off}" = "" ]]; then
-			echo -e "${Error} 检测到 BBR 已开启但未正常启动，请检查(可能是存着兼容性问题，虽然内核配置中打开了BBR，但是内核加载BBR模块失败) !"
+			echo -e "${Error} 检测到 BBR 已开启但未正常启动，请尝试使用低版本内核(可能是存着兼容性问题，虽然内核配置中打开了BBR，但是内核加载BBR模块失败) !"
 		else
 			echo -e "${Info} 检测到 BBR 已开启并已正常启动 !"
 		fi
