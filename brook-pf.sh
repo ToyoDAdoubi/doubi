@@ -49,7 +49,7 @@ check_pid(){
 }
 check_new_ver(){
 	if [[ "${Download_type}" == "1" ]]; then
-		brook_new_ver=$(wget -qO- "https://softs.fun/?dir=%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux"|grep 'data-name="Brook-x64-v'|head -n 1|awk -F 'Linux/Brook-x64-' '{print $2}'|sed 's/\">//')
+		brook_new_ver=$(wget -qO- "https://softs.loan/?dir=%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux"|grep 'data-name="Brook-x64-v'|head -n 1|awk -F 'Linux/Brook-x64-' '{print $2}'|sed 's/\">//')
 		if [[ -z ${brook_new_ver} ]]; then
 			echo -e "${Error} Brook 最新版本获取失败，请手动获取最新版本号[ https://github.com/txthinking/brook/releases ]"
 			stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 v20170330 ] :" brook_new_ver
@@ -91,10 +91,10 @@ Download_brook(){
 	cd ${file}
 	if [[ "${Download_type}" == "1" ]]; then
 		if [[ ${bit} == "x86_64" ]]; then
-			wget --no-check-certificate -N "https://softs.fun/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux/Brook-x64-${brook_new_ver}"
+			wget --no-check-certificate -N "https://softs.loan/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux/Brook-x64-${brook_new_ver}"
 			mv "Brook-x64-${brook_new_ver}" brook
 		else
-			wget --no-check-certificate -N "https://softs.fun/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux/Brook-x32-${brook_new_ver}"
+			wget --no-check-certificate -N "https://softs.loan/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux/Brook-x32-${brook_new_ver}"
 			mv "Brook-x32-${brook_new_ver}" brook
 		fi
 	else
@@ -111,14 +111,14 @@ Download_brook(){
 Service_brook(){
 	if [[ "${Download_type}" == "1" ]]; then
 		if [[ ${release} = "centos" ]]; then
-			if ! wget --no-check-certificate "https://softs.fun/Bash/other/brook-pf_centos" -O /etc/init.d/brook-pf; then
+			if ! wget --no-check-certificate "https://softs.loan/Bash/other/brook-pf_centos" -O /etc/init.d/brook-pf; then
 				echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
 			fi
 			chmod +x /etc/init.d/brook-pf
 			chkconfig --add brook-pf
 			chkconfig brook-pf on
 		else
-			if ! wget --no-check-certificate "https://softs.fun/Bash/other/brook-pf_debian" -O /etc/init.d/brook-pf; then
+			if ! wget --no-check-certificate "https://softs.loan/Bash/other/brook-pf_debian" -O /etc/init.d/brook-pf; then
 				echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
 			fi
 			chmod +x /etc/init.d/brook-pf
@@ -581,7 +581,7 @@ Set_iptables(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.fun/Bash/brook-pf.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.loan/Bash/brook-pf.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
 	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook-pf.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
@@ -590,7 +590,7 @@ Update_Shell(){
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
 			if [[ $sh_new_type == "softs" ]]; then
-				wget -N --no-check-certificate https://softs.fun/Bash/brook-pf.sh && chmod +x brook.sh
+				wget -N --no-check-certificate https://softs.loan/Bash/brook-pf.sh && chmod +x brook.sh
 			else
 				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook-pf.sh && chmod +x brook.sh
 			fi

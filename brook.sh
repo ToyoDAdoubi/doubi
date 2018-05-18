@@ -106,14 +106,14 @@ Download_brook(){
 }
 Service_brook(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate "https://softs.fun/Bash/other/brook_centos" -O /etc/init.d/brook; then
+		if ! wget --no-check-certificate "https://softs.loan/Bash/other/brook_centos" -O /etc/init.d/brook; then
 			echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x "/etc/init.d/brook"
 		chkconfig --add brook
 		chkconfig brook on
 	else
-		if ! wget --no-check-certificate "https://softs.fun/Bash/other/brook_debian" -O /etc/init.d/brook; then
+		if ! wget --no-check-certificate "https://softs.loan/Bash/other/brook_debian" -O /etc/init.d/brook; then
 			echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x "/etc/init.d/brook"
@@ -666,7 +666,7 @@ Set_iptables(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.fun/Bash/brook.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.loan/Bash/brook.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
 	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
@@ -675,7 +675,7 @@ Update_Shell(){
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
 			if [[ ${sh_new_type} == "softs" ]]; then
-				wget -N --no-check-certificate https://softs.fun/Bash/brook.sh && chmod +x brook.sh
+				wget -N --no-check-certificate https://softs.loan/Bash/brook.sh && chmod +x brook.sh
 			else
 				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook.sh && chmod +x brook.sh
 			fi
