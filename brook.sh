@@ -579,7 +579,7 @@ Set_crontab_monitor_brook(){
 	crontab_monitor_brook_status=$(crontab -l|grep "brook.sh monitor")
 	if [[ -z "${crontab_monitor_brook_status}" ]]; then
 		echo && echo -e "当前监控模式: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
-		echo -e "确定要开启 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[Y/n]"
+		echo -e "确定要开启 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Brook 服务端)[Y/n]"
 		stty erase '^H' && read -p "(默认: y):" crontab_monitor_brook_status_ny
 		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="y"
 		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
@@ -589,7 +589,7 @@ Set_crontab_monitor_brook(){
 		fi
 	else
 		echo && echo -e "当前监控模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
-		echo -e "确定要关闭 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[y/N]"
+		echo -e "确定要关闭 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Brook 服务端)[y/N]"
 		stty erase '^H' && read -p "(默认: n):" crontab_monitor_brook_status_ny
 		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="n"
 		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
