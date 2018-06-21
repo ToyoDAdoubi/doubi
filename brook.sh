@@ -404,6 +404,9 @@ Uninstall_brook(){
 				done
 			fi
 		fi
+		if [[ ! -z $(crontab -l | grep "brook.sh monitor") ]]; then
+			crontab_monitor_brook_cron_stop
+		fi
 		rm -rf "${file}"
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del brook

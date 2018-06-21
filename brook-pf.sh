@@ -5,17 +5,19 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.0.1
+#	Version: 1.0.2
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-jc37/
 #=================================================
 
-sh_ver="1.0.1"
+sh_ver="1.0.2"
+filepath=$(cd "$(dirname "$0")"; pwd)
+file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/brook-pf"
 brook_file="/usr/local/brook-pf/brook"
 brook_conf="/usr/local/brook-pf/brook.conf"
-brook_ver="/usr/local/brook-pf/ver.txt"
 brook_log="/usr/local/brook-pf/brook.log"
+Crontab_file="/usr/bin/crontab"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -43,6 +45,21 @@ check_sys(){
 }
 check_installed_status(){
 	[[ ! -e ${brook_file} ]] && echo -e "${Error} Brook 没有安装，请检查 !" && exit 1
+}
+check_crontab_installed_status(){
+	if [[ ! -e ${Crontab_file} ]]; then
+		echo -e "${Error} Crontab 没有安装，开始安装..."
+		if [[ ${release} == "centos" ]]; then
+			yum install crond -y
+		else
+			apt-get install cron -y
+		fi
+		if [[ ! -e ${Crontab_file} ]]; then
+			echo -e "${Error} Crontab 安装失败，请检查！" && exit 1
+		else
+			echo -e "${Info} Crontab 安装成功！"
+		fi
+	fi
 }
 check_pid(){
 	PID=`ps -ef| grep "brook relays"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
@@ -536,6 +553,9 @@ Uninstall_brook(){
 				done
 			fi
 		fi
+		if [[ ! -z $(crontab -l | grep "brook-pf.sh monitor") ]]; then
+			crontab_monitor_brook_cron_stop
+		fi
 		rm -rf ${file}
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del brook-pf
@@ -553,6 +573,75 @@ View_Log(){
 	[[ ! -e ${brook_log} ]] && echo -e "${Error} Brook 日志文件不存在 !" && exit 1
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志(正常情况是没有使用日志记录的)" && echo
 	tail -f ${brook_log}
+}
+Set_crontab_monitor_brook(){
+	check_installed_status
+	check_crontab_installed_status
+	crontab_monitor_brook_status=$(crontab -l|grep "brook-pf.sh monitor")
+	if [[ -z "${crontab_monitor_brook_status}" ]]; then
+		echo && echo -e "当前监控模式: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
+		echo -e "确定要开启 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" crontab_monitor_brook_status_ny
+		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="y"
+		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
+			crontab_monitor_brook_cron_start
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo && echo -e "当前监控模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
+		echo -e "确定要关闭 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[y/N]"
+		stty erase '^H' && read -p "(默认: n):" crontab_monitor_brook_status_ny
+		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="n"
+		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
+			crontab_monitor_brook_cron_stop
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	fi
+}
+crontab_monitor_brook_cron_start(){
+	crontab -l > "$file_1/crontab.bak"
+	sed -i "/brook-pf.sh monitor/d" "$file_1/crontab.bak"
+	echo -e "\n* * * * * /bin/bash $file_1/brook-pf.sh monitor" >> "$file_1/crontab.bak"
+	crontab "$file_1/crontab.bak"
+	rm -r "$file_1/crontab.bak"
+	cron_config=$(crontab -l | grep "brook-pf.sh monitor")
+	if [[ -z ${cron_config} ]]; then
+		echo -e "${Error} Brook 服务端运行状态监控功能 启动失败 !" && exit 1
+	else
+		echo -e "${Info} Brook 服务端运行状态监控功能 启动成功 !"
+	fi
+}
+crontab_monitor_brook_cron_stop(){
+	crontab -l > "$file_1/crontab.bak"
+	sed -i "/brook-pf.sh monitor/d" "$file_1/crontab.bak"
+	crontab "$file_1/crontab.bak"
+	rm -r "$file_1/crontab.bak"
+	cron_config=$(crontab -l | grep "brook-pf.sh monitor")
+	if [[ ! -z ${cron_config} ]]; then
+		echo -e "${Error} Brook 服务端运行状态监控功能 停止失败 !" && exit 1
+	else
+		echo -e "${Info} Brook 服务端运行状态监控功能 停止成功 !"
+	fi
+}
+crontab_monitor_brook(){
+	check_installed_status
+	check_pid
+	echo "${PID}"
+	if [[ -z ${PID} ]]; then
+		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 Brook服务端 未运行 , 开始启动..." | tee -a ${brook_log}
+		/etc/init.d/brook-pf start
+		sleep 1s
+		check_pid
+		if [[ -z ${PID} ]]; then
+			echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] Brook服务端 启动失败..." | tee -a ${brook_log}
+		else
+			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] Brook服务端 启动成功..." | tee -a ${brook_log}
+		fi
+	else
+		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] Brook服务端 进程运行正常..." | tee -a ${brook_log}
+	fi
 }
 Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${bk_port} -j ACCEPT
@@ -603,22 +692,27 @@ Update_Shell(){
 	fi
 }
 check_sys
-echo && echo -e "  Brook 端口转发 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+action=$1
+if [[ "${action}" == "monitor" ]]; then
+	crontab_monitor_brook
+else
+	echo && echo -e "  Brook 端口转发 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   ---- Toyo | doub.io/wlzy-jc37 ----
   
- ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+ ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
- ${Green_font_prefix}1.${Font_color_suffix} 安装 Brook
- ${Green_font_prefix}2.${Font_color_suffix} 升级 Brook
- ${Green_font_prefix}3.${Font_color_suffix} 卸载 Brook
+ ${Green_font_prefix} 1.${Font_color_suffix} 安装 Brook
+ ${Green_font_prefix} 2.${Font_color_suffix} 升级 Brook
+ ${Green_font_prefix} 3.${Font_color_suffix} 卸载 Brook
 ————————————
- ${Green_font_prefix}4.${Font_color_suffix} 启动 Brook
- ${Green_font_prefix}5.${Font_color_suffix} 停止 Brook
- ${Green_font_prefix}6.${Font_color_suffix} 重启 Brook
+ ${Green_font_prefix} 4.${Font_color_suffix} 启动 Brook
+ ${Green_font_prefix} 5.${Font_color_suffix} 停止 Brook
+ ${Green_font_prefix} 6.${Font_color_suffix} 重启 Brook
 ————————————
- ${Green_font_prefix}7.${Font_color_suffix} 设置 Brook 端口转发
- ${Green_font_prefix}8.${Font_color_suffix} 查看 Brook 端口转发
- ${Green_font_prefix}9.${Font_color_suffix} 查看 Brook 日志
+ ${Green_font_prefix} 7.${Font_color_suffix} 设置 Brook 端口转发
+ ${Green_font_prefix} 8.${Font_color_suffix} 查看 Brook 端口转发
+ ${Green_font_prefix} 9.${Font_color_suffix} 查看 Brook 日志
+ ${Green_font_prefix}10.${Font_color_suffix} 监控 Brook 运行状态
 ————————————" && echo
 if [[ -e ${brook_file} ]]; then
 	check_pid
@@ -664,7 +758,11 @@ case "$num" in
 	9)
 	View_Log
 	;;
+	10)
+	Set_crontab_monitor_brook
+	;;
 	*)
 	echo "请输入正确数字 [0-9]"
 	;;
 esac
+fi

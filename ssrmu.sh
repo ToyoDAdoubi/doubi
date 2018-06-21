@@ -975,6 +975,10 @@ Uninstall_SSR(){
 				Del_iptables
 			done
 		fi
+		if [[ ! -z $(crontab -l | grep "ssrmu.sh") ]]; then
+			crontab_monitor_ssr_cron_stop
+			Clear_transfer_all_cron_stop
+		fi
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del ssrmu
 		else
