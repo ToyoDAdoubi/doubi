@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: tinyPortMapper
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-36/
 #=================================================
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 
@@ -88,10 +88,10 @@ check_sys(){
 	bit=`uname -m`
 }
 check_new_ver(){
-	tinymapper_new_ver=$(wget -qO- "https://github.com/wangyu-/tinyPortMapper/tags"| grep "/wangyu-/tinyPortMapper/releases/tag/"| head -n 1| awk -F "/tag/" '{print $2}'| sed 's/\">//')
+	tinymapper_new_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/wangyu-/tinyPortMapper/releases | grep -o '"tag_name": ".*"' |grep -v '20180620.0'|head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
 	if [[ -z ${tinymapper_new_ver} ]]; then
 		echo -e "${Error} tinyPortMapper 最新版本获取失败，请手动获取最新版本号[ https://github.com/wangyu-/tinyPortMapper/releases ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 20171112.0 ] :" tinymapper_new_ver
+		stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 20180224.0 ] :" tinymapper_new_ver
 		[[ -z "${tinymapper_new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 tinyPortMapper 最新版本为 [ ${tinymapper_new_ver} ]"
