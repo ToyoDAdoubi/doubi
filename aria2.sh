@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 1.1.6
+#	Version: 1.1.7
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc4/
 #=================================================
-sh_ver="1.1.6"
+sh_ver="1.1.7"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -75,9 +75,27 @@ check_new_ver(){
 		echo -e "${Info} 检测到 Aria2 最新版本为 [ ${aria2_new_ver} ]"
 	fi
 }
+check_ver_comparison(){
+	aria2_now_ver=$(${aria2c} -v|head -n 1|awk '{print $3}')
+	[[ -z ${aria2_now_ver} ]] && echo -e "${Error} Brook 当前版本获取失败 !" && exit 1
+	if [[ "${aria2_now_ver}" != "${aria2_new_ver}" ]]; then
+		echo -e "${Info} 发现 Aria2 已有新版本 [ ${aria2_new_ver} ](当前版本：${aria2_now_ver})"
+		stty erase '^H' && read -p "是否更新(会中断当前下载任务，请注意) ? [Y/n] :" yn
+		[[ -z "${yn}" ]] && yn="y"
+		if [[ $yn == [Yy] ]]; then
+			check_pid
+			[[ ! -z $PID ]] && kill -9 ${PID}
+			Download_aria2 "update"
+			Start_aria2
+		fi
+	else
+		echo -e "${Info} 当前 Aria2 已是最新版本 [ ${aria2_new_ver} ]" && exit 1
+	fi
+}
 Download_aria2(){
+	update_dl=$1
 	cd "/usr/local"
-	echo -e "${bit}"
+	#echo -e "${bit}"
 	if [[ ${bit} == "armv7l" ]]; then
 		wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-arm-rbpi-build1.tar.bz2"
 		Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-arm-rbpi-build1"
@@ -91,6 +109,7 @@ Download_aria2(){
 	[[ ! -e "${Aria2_Name}.tar.bz2" ]] && echo -e "${Error} Aria2 压缩包下载失败 !" && exit 1
 	tar jxvf "${Aria2_Name}.tar.bz2"
 	[[ ! -e "/usr/local/${Aria2_Name}" ]] && echo -e "${Error} Aria2 解压失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && exit 1
+	[[ ${update_dl} = "update" ]] && rm -rf "${Folder}"
 	mv "/usr/local/${Aria2_Name}" "${Folder}"
 	[[ ! -e "${Folder}" ]] && echo -e "${Error} Aria2 文件夹重命名失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && rm -rf "/usr/local/${Aria2_Name}" && exit 1
 	rm -rf "${Aria2_Name}.tar.bz2"
@@ -408,9 +427,9 @@ Update_bt_tracker(){
 	check_crontab_installed_status
 	crontab_update_status=$(crontab -l|grep "aria2.sh update-bt-tracker")
 	if [[ -z "${crontab_update_status}" ]]; then
-		echo && echo -e "当前自动更新模式: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
+		echo && echo -e "当前自动更新模式: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
 		echo -e "确定要开启 ${Green_font_prefix}Aria2 自动更新 BT-Tracker服务器${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[Y/n]"
-		stty erase '^H' && read -p "(默认: y):" crontab_update_status_ny
+		stty erase '^H' && read -p "注意：该功能会定时重启 Aria2！(默认: y):" crontab_update_status_ny
 		[[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="y"
 		if [[ ${crontab_update_status_ny} == [Yy] ]]; then
 			crontab_update_start
@@ -419,8 +438,8 @@ Update_bt_tracker(){
 		fi
 	else
 		echo && echo -e "当前自动更新模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
-		echo -e "确定要关闭 ${Green_font_prefix}Aria2 自动更新 BT-Tracker服务器${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[y/N]"
-		stty erase '^H' && read -p "(默认: n):" crontab_update_status_ny
+		echo -e "确定要关闭 ${Red_font_prefix}Aria2 自动更新 BT-Tracker服务器${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[y/N]"
+		stty erase '^H' && read -p "注意：该功能会定时重启 Aria2！(默认: n):" crontab_update_status_ny
 		[[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="n"
 		if [[ ${crontab_update_status_ny} == [Yy] ]]; then
 			crontab_update_stop
@@ -468,6 +487,11 @@ Update_bt_tracker_cron(){
 		echo -e "${Info} 更新成功..."
 	fi
 	/etc/init.d/aria2 start
+}
+Update_aria2(){
+	check_installed_status
+	check_new_ver
+	check_ver_comparison
 }
 Uninstall_aria2(){
 	check_installed_status "un"
@@ -552,19 +576,20 @@ else
 echo && echo -e " Aria2 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- Toyo | doub.io/shell-jc4 --
   
- ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+ ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
- ${Green_font_prefix}1.${Font_color_suffix} 安装 Aria2
- ${Green_font_prefix}2.${Font_color_suffix} 卸载 Aria2
+ ${Green_font_prefix} 1.${Font_color_suffix} 安装 Aria2
+ ${Green_font_prefix} 2.${Font_color_suffix} 更新 Aria2
+ ${Green_font_prefix} 3.${Font_color_suffix} 卸载 Aria2
 ————————————
- ${Green_font_prefix}3.${Font_color_suffix} 启动 Aria2
- ${Green_font_prefix}4.${Font_color_suffix} 停止 Aria2
- ${Green_font_prefix}5.${Font_color_suffix} 重启 Aria2
+ ${Green_font_prefix} 4.${Font_color_suffix} 启动 Aria2
+ ${Green_font_prefix} 5.${Font_color_suffix} 停止 Aria2
+ ${Green_font_prefix} 6.${Font_color_suffix} 重启 Aria2
 ————————————
- ${Green_font_prefix}6.${Font_color_suffix} 修改 配置文件
- ${Green_font_prefix}7.${Font_color_suffix} 查看 配置信息
- ${Green_font_prefix}8.${Font_color_suffix} 查看 日志信息
- ${Green_font_prefix}9.${Font_color_suffix} 配置 自动更新 BT-Tracker服务器
+ ${Green_font_prefix} 7.${Font_color_suffix} 修改 配置文件
+ ${Green_font_prefix} 8.${Font_color_suffix} 查看 配置信息
+ ${Green_font_prefix} 9.${Font_color_suffix} 查看 日志信息
+ ${Green_font_prefix}10.${Font_color_suffix} 配置 自动更新 BT-Tracker服务器
 ————————————" && echo
 if [[ -e ${aria2c} ]]; then
 	check_pid
@@ -577,7 +602,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-9]:" num
+stty erase '^H' && read -p " 请输入数字 [0-10]:" num
 case "$num" in
 	0)
 	Update_Shell
@@ -586,31 +611,34 @@ case "$num" in
 	Install_aria2
 	;;
 	2)
-	Uninstall_aria2
+	Update_aria2
 	;;
 	3)
-	Start_aria2
+	Uninstall_aria2
 	;;
 	4)
-	Stop_aria2
+	Start_aria2
 	;;
 	5)
-	Restart_aria2
+	Stop_aria2
 	;;
 	6)
-	Set_aria2
+	Restart_aria2
 	;;
 	7)
-	View_Aria2
+	Set_aria2
 	;;
 	8)
-	View_Log
+	View_Aria2
 	;;
 	9)
+	View_Log
+	;;
+	10)
 	Update_bt_tracker
 	;;
 	*)
-	echo "请输入正确数字 [0-9]"
+	echo "请输入正确数字 [0-10]"
 	;;
 esac
 fi
