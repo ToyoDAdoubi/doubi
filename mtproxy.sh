@@ -7,7 +7,7 @@ export PATH
 #	Description: MTProxy
 #	Version: 1.0.0
 #	Author: Toyo
-#	Blog: https://doub.io/XXX/
+#	Blog: https://doub.io/shell-jc7/
 #=================================================
 
 sh_ver="1.0.0"
@@ -600,7 +600,7 @@ elif [[ "${action}" == "update" ]]; then
 	crontab_update_mtproxy
 else
 	echo && echo -e "  MTProxy 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  ---- Toyo | doub.io/XXX ----
+  ---- Toyo | doub.io/shell-jc7 ----
   
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
