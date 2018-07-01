@@ -123,6 +123,18 @@ goflyway.sh
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/goflyway.sh && chmod +x goflyway.sh && bash goflyway.sh
 ```
 
+mtproxy.sh
+======
+
+- 脚本说明: Mtproto Proxy 一键安装脚本
+- 系统支持: CentOS7 / Debian7+ / Ubuntu14+
+- 使用方法: https://doub.io/shell-jc7/
+
+### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/mtproxy.sh && chmod +x mtproxy.sh && bash mtproxy.sh
+```
+
 lightsocks.sh
 ======
 
