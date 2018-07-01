@@ -322,7 +322,7 @@ View_mtproxy(){
 		fi
 	fi
 	clear && echo
-	echo -e "MTProxy 用户配置："
+	echo -e "Mtproto Proxy 用户配置："
 	echo -e "————————————————"
 	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
 	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
