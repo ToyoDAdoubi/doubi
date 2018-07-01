@@ -37,9 +37,9 @@ read_config(){
 	passwd=$(cat ${CONF}|sed -n "2p")
 	nat=$(cat ${CONF}|sed -n "3p")
 	if [[ "${nat}" = "NO" ]]; then
-		${nat}=""
+		nat=""
 	else
-		${nat}="--nat-info ${nat}"
+		nat="--nat-info ${nat}"
 	fi
 }
 do_start(){
