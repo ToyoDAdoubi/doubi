@@ -127,7 +127,7 @@ Installation_dependency(){
 	else
 		Debian_apt
 	fi
-	cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	mkdir ${file}
 }
 Centos_yum(){
@@ -627,7 +627,7 @@ crontab_monitor_brook_cron_stop(){
 crontab_monitor_brook(){
 	check_installed_status
 	check_pid
-	echo "${PID}"
+	#echo "${PID}"
 	if [[ -z ${PID} ]]; then
 		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 Brook服务端 未运行 , 开始启动..." | tee -a ${brook_log}
 		/etc/init.d/brook start
@@ -701,7 +701,7 @@ else
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
  ${Green_font_prefix} 1.${Font_color_suffix} 安装 Brook
- ${Green_font_prefix} 2.${Font_color_suffix} 升级 Brook
+ ${Green_font_prefix} 2.${Font_color_suffix} 更新 Brook
  ${Green_font_prefix} 3.${Font_color_suffix} 卸载 Brook
 ————————————
  ${Green_font_prefix} 4.${Font_color_suffix} 启动 Brook

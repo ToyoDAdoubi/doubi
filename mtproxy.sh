@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc7/
 #=================================================
 
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy"
@@ -69,11 +69,10 @@ check_pid(){
 Download_mtproxy(){
 	mkdir '/tmp/mtproxy'
 	cd '/tmp/mtproxy'
-	wget -N --no-check-certificate "https://github.com/TelegramMessenger/MTProxy/archive/master.zip"
-	[[ ! -e "master.zip" ]] && echo -e "${Error} MTProxy 压缩包下载失败!" && cd '/tmp' && rm -rf '/tmp/mtproxy' && exit 1
-	unzip "master.zip"
-	[[ ! -e "MTProxy-master/" ]] && echo -e "${Error} MTProxy 压缩包解压失败!" && cd '/tmp' && rm -rf '/tmp/mtproxy' && exit 1
-	cd MTProxy-master/
+	# wget -N --no-check-certificate "https://github.com/TelegramMessenger/MTProxy/archive/master.zip"
+	git clone https://github.com/TelegramMessenger/MTProxy
+	[[ ! -e "MTProxy/" ]] && echo -e "${Error} MTProxy 下载失败!" && cd '/tmp' && rm -rf '/tmp/mtproxy' && exit 1
+	cd MTProxy
 	make
 	[[ ! -e "objs/bin/mtproto-proxy" ]] && echo -e "${Error} MTProxy 编译失败!" && make clean && cd '/tmp' && rm -rf '/tmp/mtproxy' && exit 1
 	[[ ! -e "${file}" ]] && mkdir "${file}"
@@ -120,9 +119,9 @@ Centos_yum(){
 	cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
 	yum update
 	if [[ $? = 0 ]]; then
-		yum install -y openssl-devel zlib-devel unzip net-tools
+		yum install -y openssl-devel zlib-devel git net-tools
 	else
-		yum install -y openssl-devel zlib-devel unzip
+		yum install -y openssl-devel zlib-devel git
 	fi
 	yum groupinstall "Development Tools" -y
 }
@@ -130,9 +129,9 @@ Debian_apt(){
 	cat /etc/issue |grep 9\..*>/dev/null
 	apt-get update
 	if [[ $? = 0 ]]; then
-		apt-get install -y build-essential libssl-dev zlib1g-dev unzip net-tools
+		apt-get install -y build-essential libssl-dev zlib1g-dev git net-tools
 	else
-		apt-get install -y build-essential libssl-dev zlib1g-dev unzip
+		apt-get install -y build-essential libssl-dev zlib1g-dev git
 	fi
 }
 Write_config(){
@@ -282,7 +281,7 @@ Restart_mtproxy(){
 	[[ ! -z ${PID} ]] && View_mtproxy
 }
 Update_mtproxy(){
-	echo -e "${Tip} 因为官方无最新版本号，所以无法对比版本号，请自行判断是否需要更新。是否更新？[Y/n]"
+	echo -e "${Tip} 因为官方无最新版本号，所以无法对比版本，请自行判断是否需要更新。是否更新？[Y/n]"
 	stty erase '^H' && read -p "(默认: y):" yn
 	[[ -z "${yn}" ]] && yn="y"
 	if [[ ${yn} == [Yy] ]]; then
