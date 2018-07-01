@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy
-#	Version: 1.0.0
+#	Version: 1.0.2
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc7/
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.2"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy"
@@ -130,15 +130,16 @@ Debian_apt(){
 	cat /etc/issue |grep 9\..*>/dev/null
 	apt-get update
 	if [[ $? = 0 ]]; then
-		apt-get install -y build-essential libssl-dev zlib1g-dev unzip net-tools xxd
+		apt-get install -y build-essential libssl-dev zlib1g-dev unzip net-tools
 	else
-		apt-get install -y build-essential libssl-dev zlib1g-dev unzip xxd
+		apt-get install -y build-essential libssl-dev zlib1g-dev unzip
 	fi
 }
 Write_config(){
 	cat > ${mtproxy_conf}<<-EOF
 ${mtp_port}
 ${mtp_passwd}
+${mtp_nat}
 EOF
 }
 Read_config(){
@@ -170,10 +171,26 @@ Set_port(){
 Set_passwd(){
 	echo "请输入 MTProxy 密码（手动输入必须为32位，[0-9][a-z][A-Z]，建议随机生成）"
 	stty erase '^H' && read -p "(默认：随机生成):" mtp_passwd
-	[[ -z "${mtp_passwd}" ]] && mtp_passwd=$(head -c 16 /dev/urandom | xxd -ps)
+	[[ -z "${mtp_passwd}" ]] && mtp_passwd=$(date +%s%N | md5sum | head -c 32)
 	echo && echo "========================"
 	echo -e "	密码 : ${Red_background_prefix} ${mtp_passwd} ${Font_color_suffix}"
 	echo "========================" && echo
+}
+Set_nat(){
+	ifconfig
+	echo "如果本机是NAT服务器（谷歌云、微软云、阿里云等），则请输入你的服务器内网IP，否则会导致无法使用。如果不是请直接回车！"
+	stty erase '^H' && read -p "(默认：回车跳过):" mtp_nat
+	if [[ -z "${mtp_nat}" ]]; then
+		mtp_nat="NO"
+	else
+		getip
+		mtp_nat="${mtp_nat}:${ip}"
+	fi
+	echo && echo "========================"
+	echo -e "	NAT : ${Red_background_prefix} ${mtp_nat} ${Font_color_suffix}"
+	echo "========================" && echo
+	
+	
 }
 Set_mtproxy(){
 	check_installed_status
@@ -204,6 +221,7 @@ Set_mtproxy(){
 		Read_config
 		Set_port
 		Set_passwd
+		Set_nat
 		Write_config
 		Restart_mtproxy
 	elif [[ ${mtp_modify} == "4" ]]; then
@@ -219,6 +237,7 @@ Install_mtproxy(){
 	echo -e "${Info} 开始设置 用户配置..."
 	Set_port
 	Set_passwd
+	Set_nat
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency
 	echo -e "${Info} 开始下载/安装..."
@@ -308,9 +327,7 @@ Uninstall_mtproxy(){
 		echo && echo "卸载已取消..." && echo
 	fi
 }
-View_mtproxy(){
-	check_installed_status
-	Read_config
+getip(){
 	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
 	if [[ -z "${ip}" ]]; then
 		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
@@ -321,6 +338,11 @@ View_mtproxy(){
 			fi
 		fi
 	fi
+}
+View_mtproxy(){
+	check_installed_status
+	Read_config
+	getip
 	clear && echo
 	echo -e "Mtproto Proxy 用户配置："
 	echo -e "————————————————"
