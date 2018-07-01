@@ -33,6 +33,12 @@ read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} MTProxy 配置文件不存在 !" && exit 1
 	port=$(cat ${CONF}|sed -n "1p")
 	passwd=$(cat ${CONF}|sed -n "2p")
+	nat=$(cat ${CONF}|sed -n "3p")
+	if [[ "${nat}" = "NO" ]]; then
+		${nat}=""
+	else
+		${nat}="--nat-info ${nat}"
+	fi
 }
 do_start(){
 	check_running
@@ -42,7 +48,7 @@ do_start(){
 		read_config
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
-		nohup ./mtproto-proxy -u nobody -p 65432 -H ${port} -S "${passwd}" --aes-pwd proxy-secret proxy-multi.conf >> "${LOG}" 2>&1 &
+		nohup ./mtproto-proxy -u nobody -p 65432 -H ${port} -S "${passwd}" ${nat} --aes-pwd proxy-secret proxy-multi.conf >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
