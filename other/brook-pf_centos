@@ -86,7 +86,7 @@ do_start(){
 			user_port_pf=$(echo "${user_all}"|sed -n "${integer}p"|awk '{print $3}')
 			servers_all="${servers_all}-l \":${user_port} ${user_ip_pf}:${user_port_pf}\" "
 		done
-		eval nohup ./brook relays $(echo ${servers_all}) > "${LOG}" 2>&1 &
+		eval nohup ./brook relays $(echo ${servers_all}) >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
@@ -125,6 +125,7 @@ do_status(){
 }
 do_restart(){
 	do_stop
+	sleep 2s
 	do_start
 }
 case "$1" in

@@ -68,7 +68,7 @@ do_start(){
 	if [[ $? -eq 0 ]]; then
 		echo -e "${Info} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
-		nohup aria2c -c "${CONFIG}" > "${LOG}" 2>&1 &
+		nohup aria2c -c "${CONFIG}" >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then

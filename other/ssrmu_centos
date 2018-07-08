@@ -36,7 +36,7 @@ do_start(){
 		#python_ver=$(ls /usr/bin|grep -e "^python[23]\.[1-9]\+$"|tail -1)
 		python_ver="python"
 		ulimit -n 512000
-		nohup "${python_ver}" "$BIN" a > ssserver.log 2>&1 &
+		nohup "${python_ver}" "$BIN" a >> ssserver.log 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
