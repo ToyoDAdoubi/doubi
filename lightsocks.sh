@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Lightsocks
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/lightsocks-jc1/
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/lightsocks"
@@ -542,6 +542,10 @@ Update_Shell(){
 		stty erase '^H' && read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
+			if [[ -e "/etc/init.d/lightsocks" ]]; then
+				rm -rf /etc/init.d/lightsocks
+				Service_lightsocks
+			fi
 			if [[ ${sh_new_type} == "softs" ]]; then
 				wget -N --no-check-certificate https://softs.loan/Bash/lightsocks.sh && chmod +x lightsocks.sh
 			else

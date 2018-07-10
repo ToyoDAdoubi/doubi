@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.10
+#	Version: 1.1.11
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.10"
+sh_ver="1.1.11"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/brook"
@@ -677,6 +677,10 @@ Update_Shell(){
 		stty erase '^H' && read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
+			if [[ -e "/etc/init.d/brook" ]]; then
+				rm -rf /etc/init.d/brook
+				Service_brook
+			fi
 			if [[ ${sh_new_type} == "softs" ]]; then
 				wget -N --no-check-certificate https://softs.loan/Bash/brook.sh && chmod +x brook.sh
 			else

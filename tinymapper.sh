@@ -5,13 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: tinyPortMapper
-#	Version: 1.0.1
+#	Version: 1.0.2
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-36/
 #=================================================
-sh_ver="1.0.1"
-filepath=$(cd "$(dirname "$0")"; pwd)
-file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
+sh_ver="1.0.2"
 
 Folder="/usr/local/tinyPortMapper"
 File="/usr/local/tinyPortMapper/tinymapper"
@@ -382,7 +380,6 @@ Update_Shell(){
 		stty erase '^H' && read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
-			cd "${file}"
 			if [[ $sh_new_type == "softs" ]]; then
 				wget -N --no-check-certificate https://softs.loan/Bash/tinymapper.sh && chmod +x tinymapper.sh
 			else

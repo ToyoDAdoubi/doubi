@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-jc37/
 #=================================================
 
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/brook-pf"
@@ -678,6 +678,10 @@ Update_Shell(){
 		stty erase '^H' && read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
+			if [[ -e "/etc/init.d/brook-pf" ]]; then
+				rm -rf /etc/init.d/brook-pf
+				Service_brook
+			fi
 			if [[ $sh_new_type == "softs" ]]; then
 				wget -N --no-check-certificate https://softs.loan/Bash/brook-pf.sh && chmod +x brook.sh
 			else
@@ -702,7 +706,7 @@ else
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
  ${Green_font_prefix} 1.${Font_color_suffix} 安装 Brook
- ${Green_font_prefix} 2.${Font_color_suffix} 升级 Brook
+ ${Green_font_prefix} 2.${Font_color_suffix} 更新 Brook
  ${Green_font_prefix} 3.${Font_color_suffix} 卸载 Brook
 ————————————
  ${Green_font_prefix} 4.${Font_color_suffix} 启动 Brook

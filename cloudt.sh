@@ -5,11 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Cloud Torrent
-#	Version: 1.2.2
+#	Version: 1.2.3
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-12/
 #=================================================
 
+sh_ver="1.2.3"
 file="/usr/local/cloudtorrent"
 ct_file="/usr/local/cloudtorrent/cloud-torrent"
 dl_file="/usr/local/cloudtorrent/downloads"
@@ -344,7 +345,37 @@ Set_iptables(){
 		chmod +x /etc/network/if-pre-up.d/iptables
 	fi
 }
-echo && echo -e "请输入一个数字来选择选项
+Update_Shell(){
+	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.loan/Bash/cloudt.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/cloudt.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
+	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" yn
+		[[ -z "${yn}" ]] && yn="y"
+		if [[ ${yn} == [Yy] ]]; then
+			if [[ -e "/etc/init.d/cloudt" ]]; then
+				rm -rf /etc/init.d/cloudt
+				Service_brook
+			fi
+			if [[ ${sh_new_type} == "softs" ]]; then
+				wget -N --no-check-certificate https://softs.loan/Bash/cloudt.sh && chmod +x cloudt.sh
+			else
+				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/cloudt.sh && chmod +x cloudt.sh
+			fi
+			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
+	fi
+}
+echo && echo -e "  Cloud Torrent 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+  ---- Toyo | doub.io/wlzy-12/ ----
+  
+ ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
 
  ${Green_font_prefix}1.${Font_color_suffix} 安装 Cloud Torrent
  ${Green_font_prefix}2.${Font_color_suffix} 升级 Cloud Torrent
@@ -369,8 +400,11 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [1-9]:" num
+stty erase '^H' && read -p " 请输入数字 [0-9]:" num
 case "$num" in
+	0)
+	Update_Shell
+	;;
 	1)
 	Install_ct
 	;;
@@ -399,6 +433,6 @@ case "$num" in
 	Log_ct
 	;;
 	*)
-	echo "请输入正确数字 [1-9]"
+	echo "请输入正确数字 [0-9]"
 	;;
 esac
