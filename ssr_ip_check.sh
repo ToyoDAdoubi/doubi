@@ -9,7 +9,6 @@ export PATH
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc50/
 #=================================================
-# ——————————————————————————————
 IP_threshold=3
 # IP阈值
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m"
