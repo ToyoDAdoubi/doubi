@@ -202,7 +202,7 @@ Set_port(){
 		done
 }
 Set_passwd(){
-	echo "请输入 Brook 密码"
+	echo "请输入 Brook 密码（因分享链接特性，密码请勿包含 % 符号）"
 	stty erase '^H' && read -p "(默认: doub.io):" bk_passwd
 	[[ -z "${bk_passwd}" ]] && bk_passwd="doub.io"
 	echo && echo "========================"
