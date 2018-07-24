@@ -52,7 +52,7 @@ do_start(){
 			password=$(echo "${user_text}"|awk '{print $2}')
 			servers_all="${servers_all}-l \":${port} ${password}\" "
 		done
-		eval nohup ./brook ${protocol} $(echo ${servers_all}) >> "${LOG}" 2>&1 &
+		eval nohup ./brook ${protocol} $(echo ${servers_all}) --tcpDeadline 60 >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
