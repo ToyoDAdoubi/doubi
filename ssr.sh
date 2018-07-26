@@ -270,6 +270,7 @@ Set_config_password(){
 }
 Set_config_method(){
 	echo -e "请选择要设置的ShadowsocksR账号 加密方式
+	
  ${Green_font_prefix} 1.${Font_color_suffix} none
  ${Tip} 如果使用 auth_chain_a 协议，请加密方式选择 none，混淆随意(建议 plain)
  
@@ -334,6 +335,7 @@ Set_config_method(){
 }
 Set_config_protocol(){
 	echo -e "请选择要设置的ShadowsocksR账号 协议插件
+	
  ${Green_font_prefix}1.${Font_color_suffix} origin
  ${Green_font_prefix}2.${Font_color_suffix} auth_sha1_v4
  ${Green_font_prefix}3.${Font_color_suffix} auth_aes128_md5
@@ -370,6 +372,7 @@ Set_config_protocol(){
 }
 Set_config_obfs(){
 	echo -e "请选择要设置的ShadowsocksR账号 混淆插件
+	
  ${Green_font_prefix}1.${Font_color_suffix} plain
  ${Green_font_prefix}2.${Font_color_suffix} http_simple
  ${Green_font_prefix}3.${Font_color_suffix} http_post
