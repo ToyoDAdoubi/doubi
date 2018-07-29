@@ -13,6 +13,9 @@ caddy_file="/usr/local/caddy/caddy"
 caddy_conf_file="/usr/local/caddy/Caddyfile"
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
 
+check_root(){
+	[[ $EUID != 0 ]] && echo -e "${Error} 当前非ROOT账号(或没有ROOT权限)，无法继续操作，请更换ROOT账号或使用 ${Green_background_prefix}sudo su${Font_color_suffix} 命令获取临时ROOT权限（执行后可能会提示输入当前账号的密码）。" && exit 1
+}
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
 		release="centos"
@@ -83,6 +86,7 @@ Service_caddy(){
 	fi
 }
 install_caddy(){
+	check_root
 	if [[ -e ${caddy_file} ]]; then
 		echo && echo -e "${Error_font_prefix}[信息]${Font_suffix} 检测到 Caddy 已安装，是否继续安装(覆盖更新)？[y/N]"
 		stty erase '^H' && read -p "(默认: n):" yn
