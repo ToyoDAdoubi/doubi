@@ -5,15 +5,28 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Peerflix Server
-#	Version: 1.0.3
+#	Version: 1.1.0
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-13/
 #=================================================
 
-node_ver="v6.9.1"
+sh_ver="1.1.0"
+node_ver="v8.11.3"
 node_file="/etc/node"
 ps_file="/etc/node/lib/node_modules/peerflix-server"
+conf_file="/etc/peerflix-server"
+ps_conf="/etc/peerflix-server/peerflix-server.conf"
+ps_log="/tmp/peerflix-server.log"
+bt_port="6881"
 
+Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
+Info="${Green_font_prefix}[信息]${Font_color_suffix}"
+Error="${Red_font_prefix}[错误]${Font_color_suffix}"
+Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
+
+check_root(){
+	[[ $EUID != 0 ]] && echo -e "${Error} 当前非ROOT账号(或没有ROOT权限)，无法继续操作，请更换ROOT账号或使用 ${Green_background_prefix}sudo su${Font_color_suffix} 命令获取临时ROOT权限（执行后可能会提示输入当前账号的密码）。" && exit 1
+}
 #检查系统
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
@@ -31,236 +44,349 @@ check_sys(){
 	elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
 		release="centos"
     fi
-	bit=`uname -m`
+	bit=$(uname -m)
 }
-deliptables(){
-	port_total=`netstat -lntp | grep node | awk '{print $4}' | awk -F ":" '{print $4}' | wc -l`
-	for((integer = 1; integer <= ${port_total}; integer++))
-	do
-		port=`netstat -lntp | grep node | awk '{print $4}' | awk -F ":" '{print $4}' | sed -n "${integer}p"`
-		if [ ${port} != "" ]; then
-			iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${port} -j ACCEPT
-			iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${port} -j ACCEPT
+check_installed_status(){
+	[[ ! -e ${ps_file} ]] && echo -e "${Error} Peerflix Server 没有安装，请检查 !" && exit 1
+}
+check_pid(){
+	PID=$(ps -ef | grep peerflix-server | grep -v grep |grep -v "init.d" |grep -v "service" |awk '{print $2}')
+}
+Download_ps(){
+	echo -e "${Info} 开始安装 node-js ..."
+	if [[ ! -e ${node_file} ]]; then
+		cd /tmp
+		if [[ ${bit} == "x86_64" ]]; then
+			node_name="node-${node_ver}-linux-x64"
+			wget --no-check-certificate -O node.tar.xz "https://nodejs.org/dist/${node_ver}/node-${node_ver}-linux-x64.tar.xz"
+		else
+			node_name="node-${node_ver}-linux-x86"
+			wget --no-check-certificate -O node.tar.xz "https://nodejs.org/dist/${node_ver}/node-${node_ver}-linux-x86.tar.xz"
 		fi
-	done
-	iptables -D OUTPUT -m state --state NEW -m tcp -p tcp --dport 6881 -j ACCEPT
-	iptables -D OUTPUT -m state --state NEW -m udp -p udp --dport 6881 -j ACCEPT
-	iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport 6881 -j ACCEPT
-	iptables -D INPUT -m state --state NEW -m udp -p udp --dport 6881 -j ACCEPT
-}
-# 安装PS
-installps(){
-# 判断是否安装PS
-	if [ -e ${ps_file} ];
-	then
-		echo -e "\033[41;37m [错误] \033[0m 检测到 Peerflix Server 已安装，如需继续，请先卸载 !"
-		exit 1
-	fi
-
-	check_sys
-# 系统判断
-	if [ ${release} == "centos" ]; then
-		yum update
-		yum install -y build-essential curl vim xz tar
-	elif [ ${release} == "debian" ]; then
-		apt-get update
-		apt-get install -y build-essential curl vim xz tar
-	elif [ ${release} == "ubuntu" ]; then
-		sudo apt-get update
-		sudo apt-get install -y build-essential curl vim xz tar
-	else
-		echo -e "\033[41;37m [错误] \033[0m 本脚本不支持当前系统 !"
-		exit 1
-	fi
-	
-	#修改DNS为8.8.8.8
-	echo "nameserver 8.8.8.8" > /etc/resolv.conf
-	echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-	
-	if [ ${bit} == "x86_64" ]; then
-		wget -N -O node.tar.xz "https://nodejs.org/dist/v6.9.1/node-v6.9.1-linux-x64.tar.xz"
+		[[ ! -e "node.tar.xz" ]] && echo -e "${Error} Peerflix Server 压缩包下载失败 !" && Download_shanhou 0
 		xz -d node.tar.xz
-		tar -xvf node.tar -C "/etc"
-		mv /etc/node-v6.9.1-linux-x64 ${node_file}
-		rm -rf node.tar
+		[[ ! -e "node.tar" ]] && echo -e "${Error} Peerflix Server 解压失败(可能是 压缩包损坏 或者 没有安装 XZ) !" && Download_shanhou 1
+		tar -xvf "node.tar" -C "/etc"
+		[[ ! -e "node.tar" ]] && echo -e "${Error} Peerflix Server 解压失败(可能是 压缩包损坏 或者 没有安装 Tar) !" && Download_shanhou 2
+		mv "/etc/${node_name}" ${node_file}
+		[[ ! -e "${node_file}" ]] && echo -e "${Error} Peerflix Server 文件夹重命名失败!" && Download_shanhou 4
+		rm -rf "/tmp/node.tar.xz"
+		rm -rf "/tmp/node.tar"
 		ln -s ${node_file}/bin/node /usr/local/bin/node
 		ln -s ${node_file}/bin/npm /usr/local/bin/npm
-	elif [ ${bit} == "i386" ]; then
-		wget -N -O node.tar.xz "https://nodejs.org/dist/v6.9.1/node-v6.9.1-linux-x86.tar.xz"
-		xz -d node.tar.xz
-		tar -xvf node.tar -C "/etc"
-		mv /etc/node-v6.9.1-linux-x86 ${node_file}
-		rm -rf node.tar
-		ln -s ${node_file}/bin/node /usr/local/bin/node
-		ln -s ${node_file}/bin/npm /usr/local/bin/npm
+		echo -e "${Info} node-js 安装完成，开始安装 peerflix-server ..."
 	else
-		echo -e "\033[41;37m [错误] \033[0m 不支持 ${bit} !"
-		exit 1
+		echo -e "${Info} node-js 已安装，开始安装 peerflix-server ..."
 	fi
 	
 	npm install -g peerflix-server
-	
-# 判断是否下载成功
-	if [ ! -e ${ps_file} ]; then
-		echo -e "\033[41;37m [错误] \033[0m Peerflix Server 安装失败 !"
-		exit 1
+	if [[ ! -e ${ps_file} ]]; then
+		echo -e "${Error} Peerflix Server 安装失败，请检查 !" && exit 1
+	else
+		echo -e "${Info} Peerflix Server 安装成功，继续..."
 	fi
-	startps
 }
-startps(){
-# 检查是否安装
-	if [ ! -e ${ps_file} ]; then
-		echo -e "\033[41;37m [错误] \033[0m Peerflix Server 没有安装，请检查 !"
-		exit 1
+Download_shanhou(){
+	if [[ $1 == 0 ]]; then
+		rm -rf ${conf_file}
+	elif [[ $1 == 1 ]]; then
+		rm -rf ${conf_file}
+		rm -rf "/tmp/node.tar.xz"
+	elif [[ $1 == 2 ]]; then
+		rm -rf ${conf_file}
+		rm -rf "/tmp/node.tar.xz"
+		rm -rf "/tmp/node.tar"
+	elif [[ $1 == 3 ]]; then
+		rm -rf ${conf_file}
+		rm -rf "/tmp/node.tar.xz"
+		rm -rf "/tmp/node.tar"
+		rm -rf "/etc/node-${node_ver}-linux-x64"
+	elif [[ $1 == 4 ]]; then
+		rm -rf ${conf_file}
+		rm -rf "/tmp/node.tar.xz"
+		rm -rf "/tmp/node.tar"
+		rm -rf "/etc/node-${node_ver}-linux-x86"
 	fi
-# 判断进程是否存在
-	PID=`ps -ef | grep peerflix-server | grep -v grep | awk '{print $2}'`
-	if [ ! -z $PID ]; then
-		echo -e "\033[41;37m [错误] \033[0m Peerflix Server 进程正在运行，请检查 !"
-		exit 1
+	exit 1
+}
+Service_ps(){
+	if [[ ${release} = "centos" ]]; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/pserver_centos" -O /etc/init.d/pserver; then
+			echo -e "${Error} Peerflix Server服务 管理脚本下载失败 !" && exit 1
+		fi
+		chmod +x /etc/init.d/pserver
+		chkconfig --add pserver
+		chkconfig pserver on
+	else
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/pserver_debian" -O /etc/init.d/pserver; then
+			echo -e "${Error} Peerflix Server服务 管理脚本下载失败 !" && exit 1
+		fi
+		chmod +x /etc/init.d/pserver
+		update-rc.d -f pserver defaults
 	fi
-	
-	#设置端口
+	echo -e "${Info} Peerflix Server服务 管理脚本下载完成 !"
+}
+Installation_dependency(){
+	xz_ver=$(xz -V)
+	tar_ver=$(tar --version)
+	[[ -z ${xz_ver} ]] && pack_name="xz "
+	[[ -z ${tar_ver} ]] && pack_name="${pack_name}tar"
+	if [[ ! -z ${pack_name} ]]; then
+		if [[ ${release} == "centos" ]]; then
+			yum update
+			yum install -y ${pack_name}
+		else
+			apt-get update
+			apt-get install -y ${pack_name}
+		fi
+	fi
+	mkdir "${conf_file}"
+}
+Write_config(){
+	echo -e "port = ${ps_port}" > ${ps_conf}
+}
+Read_config(){
+	[[ ! -e ${ps_conf} ]] && echo -e "${Error} Peerflix Server 配置文件不存在 !" && exit 1
+	port=`cat ${ps_conf}|grep "port = "|awk -F "port = " '{print $NF}'`
+}
+Set_port(){
 	while true
-	do
-	echo -e "请输入 Peerflix Server 监听端口 [1-65535]"
-	stty erase '^H' && read -p "(默认端口: 9000):" PORT
-	[ -z "$PORT" ] && PORT="9000"
-	expr ${PORT} + 0 &>/dev/null
-	if [ $? -eq 0 ]; then
-		if [ ${PORT} -ge 1 ] && [ ${PORT} -le 65535 ]; then
-			echo
-			echo "——————————————————————————————"
-			echo -e "	端口 : \033[41;37m ${PORT} \033[0m"
-			echo "——————————————————————————————"
-			echo
-			break
-		else
-			echo "输入错误，请输入正确的数字 !"
-		fi
-	else
-		echo "输入错误，请输入正确的数字 !"
-	fi
-	done
-	
-	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${PORT} -j ACCEPT
-	iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${PORT} -j ACCEPT
-	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 6881 -j ACCEPT
-	iptables -I INPUT -m state --state NEW -m udp -p udp --dport 6881 -j ACCEPT
-	iptables -I OUTPUT -m state --state NEW -m tcp -p tcp --dport 6881 -j ACCEPT
-	iptables -I OUTPUT -m state --state NEW -m udp -p udp --dport 6881 -j ACCEPT
-
-	PORT=${PORT} nohup node ${ps_file}>> ${ps_file}/peerflixs.log 2>&1 &
-	
-	sleep 2s
-	# 判断进程是否存在
-	PID=`ps -ef | grep peerflix-server | grep -v grep | awk '{print $2}'`
-	if [ -z $PID ]; then
-		echo
-		echo -e "\033[41;37m [错误] \033[0m Peerflix Server 启动失败 !"
-		exit 1
-	fi
-	# 获取IP
-	ip=`curl -m 10 -s http://members.3322.org/dyndns/getip`
-	if [ -z $ip ]; then
-		ip="ip"
-	fi
-	echo
-	echo "Peerflix Server 已启动 !"
-	echo -e "浏览器访问，地址： \033[41;37m http://${ip}:${PORT} \033[0m "
-	echo
-}
-stopps(){
-# 判断进程是否存在
-	PID=`ps -ef | grep peerflix-server | grep -v grep | awk '{print $2}'`
-	if [ -z $PID ]; then
-		echo -e "\033[41;37m [错误] \033[0m 没有发现 Peerflix Server 进程运行，请检查 !"
-		exit 1
-	fi
-	deliptables
-	kill -9 ${PID}
-	sleep 2s
-	PID=`ps -ef | grep peerflix-server | grep -v grep | awk '{print $2}'`
-	if [ ! -z $PID ];
-	then
-		echo -e "\033[41;37m [错误] \033[0m Peerflix Server 停止失败 !"
-		exit 1
-	else
-		echo
-		echo "Peerflix Server 已停止 !"
-		echo
-	fi
-}
-# 查看日志
-tailps(){
-# 判断日志是否存在
-	if [ ! -e ${ps_file}/peerflixs.log ];
-	then
-		echo -e "\033[41;37m [错误] \033[0m Peerflix Server 日志文件不存在 !"
-		exit 1
-	else
-		tail -f ${ps_file}/peerflixs.log
-	fi
-}
-autops(){
-	if [ ! -e ${ps_file} ]; then
-		echo -e "\033[41;37m [错误] \033[0m Peerflix Server 没有安装，开始安装 !"
-		installps
-	else
-		PID=`ps -ef | grep peerflix-server | grep -v grep | awk '{print $2}'`
-		if [ -z $PID ];
-		then
-			echo -e "\033[41;37m [错误] \033[0m Peerflix Server 没有启动，开始启动 !"
-			startps
-		else
-			printf "Peerflix Server 正在运行，是否停止 ? (y/N)"
-			printf "\n"
-			stty erase '^H' && read -p "(默认: n):" autoyn
-			[ -z ${autoyn} ] && autoyn="n"
-			if [[ ${autoyn} == [Yy] ]]; then
-				stopps
+		do
+		echo -e "请输入 Peerflix Server 监听端口 [1-65535]（如果是绑定的域名，那么建议80端口）"
+		stty erase '^H' && read -p "(默认端口: 9000):" ps_port
+		[[ -z "${ps_port}" ]] && ps_port="9000"
+		expr ${ps_port} + 0 &>/dev/null
+		if [[ $? -eq 0 ]]; then
+			if [[ ${ps_port} -ge 1 ]] && [[ ${ps_port} -le 65535 ]]; then
+				echo && echo "========================"
+				echo -e "	端口 : ${Red_background_prefix} ${ps_port} ${Font_color_suffix}"
+				echo "========================" && echo
+				break
+			else
+				echo "输入错误, 请输入正确的端口。"
 			fi
+		else
+			echo "输入错误, 请输入正确的端口。"
 		fi
-	fi
+	done
 }
-uninstallps(){
-# 检查是否安装
-	if [ ! -e ${ps_file} ]; then
-		echo -e "\033[41;37m [错误] \033[0m Peerflix Server 没有安装，请检查 !"
-		exit 1
-	fi
-
-	printf "确定要卸载 Peerflix Server ? (y/N)"
-	printf "\n"
+Set_ps(){
+	check_installed_status
+	Set_port
+	Read_config
+	Del_iptables
+	Write_config
+	Add_iptables
+	Save_iptables
+	Restart_ps
+}
+Install_ps(){
+	check_root
+	[[ -e ${ps_file} ]] && echo -e "${Error} 检测到 Peerflix Server 已安装 !" && exit 1
+	check_sys
+	echo -e "${Info} 开始设置 用户配置..."
+	Set_port
+	echo -e "${Info} 开始安装/配置 依赖..."
+	Installation_dependency
+	echo -e "${Info} 开始下载/安装..."
+	Download_ps
+	echo -e "${Info} 开始下载/安装 服务脚本(init)..."
+	Service_ps
+	echo -e "${Info} 开始写入 配置文件..."
+	Write_config
+	echo -e "${Info} 开始设置 iptables防火墙..."
+	Set_iptables
+	echo -e "${Info} 开始添加 iptables防火墙规则..."
+	Add_iptables
+	echo -e "${Info} 开始保存 iptables防火墙规则..."
+	Save_iptables
+	echo -e "${Info} 所有步骤 安装完毕，开始启动..."
+	Start_ps
+}
+Start_ps(){
+	check_installed_status
+	check_pid
+	[[ ! -z ${PID} ]] && echo -e "${Error} Peerflix Server 正在运行，请检查 !" && exit 1
+	/etc/init.d/pserver start
+}
+Stop_ps(){
+	check_installed_status
+	check_pid
+	[[ -z ${PID} ]] && echo -e "${Error} Peerflix Server 没有运行，请检查 !" && exit 1
+	/etc/init.d/pserver stop
+}
+Restart_ps(){
+	check_installed_status
+	check_pid
+	[[ ! -z ${PID} ]] && /etc/init.d/pserver stop
+	/etc/init.d/pserver start
+}
+Log_ps(){
+	[[ ! -e "${ps_log}" ]] && echo -e "${Error} Peerflix Server 日志文件不存在 !" && exit 1
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
+	tail -f "${ps_log}"
+}
+Uninstall_ps(){
+	check_installed_status
+	echo "确定要卸载 Peerflix Server ? (y/N)"
+	echo
 	stty erase '^H' && read -p "(默认: n):" unyn
-	[ -z ${unyn} ] && unyn="n"
+	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
-		PID=`ps -ef | grep peerflix-server | grep -v grep | awk '{print $2}'`
-		if [ ! -z $PID ]; then
-			deliptables
-			kill -9 ${PID}
-		fi
+		check_pid
+		[[ ! -z $PID ]] && kill -9 ${PID}
+		port=`cat ${ps_conf}|grep "port = "|awk -F "port = " '{print $NF}'`
+		Del_iptables
 		rm -rf /usr/local/bin/node
 		rm -rf /usr/local/bin/npm
 		rm -rf ${node_file}
-		echo
-		echo "Peerflix Server 卸载完成 !"
-		echo
+		rm -rf ${conf_file}
+		rm -rf /etc/init.d/pserver
+		if [[ ${release} = "centos" ]]; then
+			chkconfig --del pserver
+		else
+			update-rc.d -f pserver remove
+		fi
+		echo && echo "Peerflix Server 卸载完成 !" && echo
 	else
-		echo
-		echo "卸载已取消..."
-		echo
+		echo && echo "卸载已取消..." && echo
 	fi
 }
+View_ps(){
+	check_installed_status
+	Read_config
+	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+	if [[ -z "${ip}" ]]; then
+		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+		if [[ -z "${ip}" ]]; then
+			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+			if [[ -z "${ip}" ]]; then
+				ip="VPS_IP"
+			fi
+		fi
+	fi
+	clear && echo "————————————————" && echo
+	echo -e " Peerflix Server 信息 :" && echo
+	echo -e " 地址\t: ${Green_font_prefix}http://${ip}:${port}${Font_color_suffix}"
+	echo && echo "————————————————"
+}
+Add_iptables(){
+	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${ps_port} -j ACCEPT
+	iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${ps_port} -j ACCEPT
+	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${bt_port} -j ACCEPT
+	iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${bt_port} -j ACCEPT
+	iptables -I OUTPUT -m state --state NEW -m tcp -p tcp --dport ${bt_port} -j ACCEPT
+	iptables -I OUTPUT -m state --state NEW -m udp -p udp --dport ${bt_port} -j ACCEPT
+}
+Del_iptables(){
+	iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${port} -j ACCEPT
+	iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${port} -j ACCEPT
+	iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${bt_port} -j ACCEPT
+	iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${bt_port} -j ACCEPT
+	iptables -D OUTPUT -m state --state NEW -m tcp -p tcp --dport ${bt_port} -j ACCEPT
+	iptables -D OUTPUT -m state --state NEW -m udp -p udp --dport ${bt_port} -j ACCEPT
+}
+Save_iptables(){
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+	else
+		iptables-save > /etc/iptables.up.rules
+	fi
+}
+Set_iptables(){
+	if [[ ${release} == "centos" ]]; then
+		service iptables save
+		chkconfig --level 2345 iptables on
+	else
+		iptables-save > /etc/iptables.up.rules
+		echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
+		chmod +x /etc/network/if-pre-up.d/iptables
+	fi
+}
+Update_Shell(){
+	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.loan/Bash/pserver.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/pserver.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
+	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+		echo -e "发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" yn
+		[[ -z "${yn}" ]] && yn="y"
+		if [[ ${yn} == [Yy] ]]; then
+			if [[ -e "/etc/init.d/pserver" ]]; then
+				rm -rf /etc/init.d/pserver
+				Service_ps
+			fi
+			if [[ ${sh_new_type} == "softs" ]]; then
+				wget -N --no-check-certificate https://softs.loan/Bash/pserver.sh && chmod +x pserver.sh
+			else
+				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/pserver.sh && chmod +x pserver.sh
+			fi
+			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
+	fi
+}
+echo && echo -e "  Peerflix Server 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+  ---- Toyo | doub.io/wlzy-13/ ----
+  
+ ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
 
-action=$1
-[ -z $1 ] && action=auto
-case "$action" in
-	auto|install|start|stop|tail|uninstall)
-	${action}ps
+ ${Green_font_prefix}1.${Font_color_suffix} 安装 Peerflix Server
+ ${Green_font_prefix}2.${Font_color_suffix} 卸载 Peerflix Server
+————————————
+ ${Green_font_prefix}3.${Font_color_suffix} 启动 Peerflix Server
+ ${Green_font_prefix}4.${Font_color_suffix} 停止 Peerflix Server
+ ${Green_font_prefix}5.${Font_color_suffix} 重启 Peerflix Server
+————————————
+ ${Green_font_prefix}6.${Font_color_suffix} 设置 Peerflix Server 端口
+ ${Green_font_prefix}7.${Font_color_suffix} 查看 Peerflix Server 信息
+ ${Green_font_prefix}8.${Font_color_suffix} 查看 Peerflix Server 日志
+————————————" && echo
+if [[ -e ${ps_file} ]]; then
+	check_pid
+	if [[ ! -z "${PID}" ]]; then
+		echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}"
+	else
+		echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}"
+	fi
+else
+	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
+fi
+echo
+stty erase '^H' && read -p " 请输入数字 [0-8]:" num
+case "$num" in
+	0)
+	Update_Shell
+	;;
+	1)
+	Install_ps
+	;;
+	2)
+	Uninstall_ps
+	;;
+	3)
+	Start_ps
+	;;
+	4)
+	Stop_ps
+	;;
+	5)
+	Restart_ps
+	;;
+	6)
+	Set_ps
+	;;
+	7)
+	View_ps
+	;;
+	8)
+	Log_ps
 	;;
 	*)
-	echo "输入错误 !"
-	echo "用法: {install | start | stop | tail | uninstall}"
+	echo "请输入正确数字 [0-8]"
 	;;
 esac
