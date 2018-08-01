@@ -34,7 +34,7 @@ check_running(){
 	fi
 }
 read_config(){
-	[[ ! -e ${CONF} ]] && echo -e "${Error} Cloud Torrent 配置文件不存在 !" && exit 1
+	[[ ! -e ${CONF} ]] && echo -e "${Error} ${NAME} 配置文件不存在 !" && exit 1
 	host=`cat ${CONF}|grep "host = "|awk -F "host = " '{print $NF}'`
 	port=`cat ${CONF}|grep "port = "|awk -F "port = " '{print $NF}'`
 	user=`cat ${CONF}|grep "user = "|awk -F "user = " '{print $NF}'`
