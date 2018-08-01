@@ -361,7 +361,7 @@ Update_Shell(){
 		if [[ ${yn} == [Yy] ]]; then
 			if [[ -e "/etc/init.d/cloudt" ]]; then
 				rm -rf /etc/init.d/cloudt
-				Service_brook
+				Service_ct
 			fi
 			if [[ ${sh_new_type} == "softs" ]]; then
 				wget -N --no-check-certificate https://softs.loan/Bash/cloudt.sh && chmod +x cloudt.sh
