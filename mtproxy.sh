@@ -117,6 +117,7 @@ Installation_dependency(){
 	else
 		Debian_apt
 	fi
+	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 }
 Centos_yum(){
 	cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
