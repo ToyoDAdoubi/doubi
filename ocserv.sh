@@ -148,13 +148,19 @@ Installation_dependency(){
 	if [[ ${release} = "centos" ]]; then
 		echo -e "${Error} 本脚本不支持 CentOS 系统 !" && exit 1
 	elif [[ ${release} = "debian" ]]; then
-		mv /etc/apt/sources.list /etc/apt/sources.list.bak
-		wget --no-check-certificate -O "/etc/apt/sources.list" "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/sources/us.sources.list"
-		apt-get update
-		apt-get install vim net-tools pkg-config build-essential libgnutls28-dev libwrap0-dev liblz4-dev libseccomp-dev libreadline-dev libnl-nf-3-dev libev-dev gnutls-bin -y
-		rm -rf /etc/apt/sources.list
-		mv /etc/apt/sources.list.bak /etc/apt/sources.list
-		apt-get update
+		cat /etc/issue |grep 9\..*>/dev/null
+		if [[ $? = 0 ]]; then
+			apt-get update
+			apt-get install vim net-tools pkg-config build-essential libgnutls28-dev libwrap0-dev liblz4-dev libseccomp-dev libreadline-dev libnl-nf-3-dev libev-dev gnutls-bin -y
+		else
+			mv /etc/apt/sources.list /etc/apt/sources.list.bak
+			wget --no-check-certificate -O "/etc/apt/sources.list" "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/sources/us.sources.list"
+			apt-get update
+			apt-get install vim net-tools pkg-config build-essential libgnutls28-dev libwrap0-dev liblz4-dev libseccomp-dev libreadline-dev libnl-nf-3-dev libev-dev gnutls-bin -y
+			rm -rf /etc/apt/sources.list
+			mv /etc/apt/sources.list.bak /etc/apt/sources.list
+			apt-get update
+		fi
 	else
 		apt-get update
 		apt-get install vim net-tools pkg-config build-essential libgnutls28-dev libwrap0-dev liblz4-dev libseccomp-dev libreadline-dev libnl-nf-3-dev libev-dev gnutls-bin -y
