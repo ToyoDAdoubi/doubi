@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.0.3
+#	Version: 1.0.4
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-jc37/
 #=================================================
 
-sh_ver="1.0.3"
+sh_ver="1.0.4"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/brook-pf"
@@ -65,27 +65,20 @@ check_crontab_installed_status(){
 	fi
 }
 check_pid(){
-	PID=`ps -ef| grep "brook relays"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
+	PID=$(ps -ef| grep "brook relays"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}')
 }
 check_new_ver(){
 	if [[ "${Download_type}" == "1" ]]; then
 		brook_new_ver=$(wget -qO- "https://softs.loan/?dir=%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux"|grep 'data-name="Brook-x64-v'|head -n 1|awk -F 'Linux/Brook-x64-' '{print $2}'|sed 's/\">//')
-		if [[ -z ${brook_new_ver} ]]; then
-			echo -e "${Error} Brook 最新版本获取失败，请手动获取最新版本号[ https://github.com/txthinking/brook/releases ]"
-			stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 v20170330 ] :" brook_new_ver
-			[[ -z "${brook_new_ver}" ]] && echo "取消..." && exit 1
-		else
-			echo -e "${Info} 检测到 Brook 最新版本为 [ ${brook_new_ver} ]"
-		fi
 	else
-		brook_new_ver=$(wget -qO- "https://github.com/txthinking/brook/tags"| grep "/txthinking/brook/releases/tag/"| head -n 1| awk -F "/tag/" '{print $2}'| sed 's/\">//')
-		if [[ -z ${brook_new_ver} ]]; then
-			echo -e "${Error} Brook 最新版本获取失败，请手动获取最新版本号[ https://github.com/txthinking/brook/releases ]"
-			stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 v20170330 ] :" brook_new_ver
-			[[ -z "${brook_new_ver}" ]] && echo "取消..." && exit 1
-		else
-			echo -e "${Info} 检测到 Brook 最新版本为 [ ${brook_new_ver} ]"
-		fi
+		brook_new_ver=$(wget -qO- https://api.github.com/repos/txthinking/brook/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
+	fi
+	if [[ -z ${brook_new_ver} ]]; then
+		echo -e "${Error} Brook 最新版本获取失败，请手动获取最新版本号[ https://github.com/txthinking/brook/releases ]"
+		stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 v20180707 ] :" brook_new_ver
+		[[ -z "${brook_new_ver}" ]] && echo "取消..." && exit 1
+	else
+		echo -e "${Info} 检测到 Brook 最新版本为 [ ${brook_new_ver} ]"
 	fi
 }
 check_ver_comparison(){
