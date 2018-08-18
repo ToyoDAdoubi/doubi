@@ -458,7 +458,7 @@ Update_bt_tracker(){
 crontab_update_start(){
 	crontab -l > "$file_1/crontab.bak"
 	sed -i "/aria2.sh update-bt-tracker/d" "$file_1/crontab.bak"
-	echo -e "\n0 3 * * * /bin/bash $file_1/aria2.sh update-bt-tracker" >> "$file_1/crontab.bak"
+	echo -e "\n0 3 * * 1 /bin/bash $file_1/aria2.sh update-bt-tracker" >> "$file_1/crontab.bak"
 	crontab "$file_1/crontab.bak"
 	rm -f "$file_1/crontab.bak"
 	cron_config=$(crontab -l | grep "aria2.sh update-bt-tracker")
