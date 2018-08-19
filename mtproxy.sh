@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy
-#	Version: 1.0.4
+#	Version: 1.0.5
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc7/
 #=================================================
 
-sh_ver="1.0.4"
+sh_ver="1.0.5"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy"
@@ -96,14 +96,14 @@ Download_multi(){
 }
 Service_mtproxy(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/mtproxy_centos" -O /etc/init.d/mtproxy; then
+		if ! wget --no-check-certificate "https://softs.loan/Bash/other/mtproxy_centos" -O /etc/init.d/mtproxy; then
 			echo -e "${Error} MTProxy服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x "/etc/init.d/mtproxy"
 		chkconfig --add mtproxy
 		chkconfig mtproxy on
 	else
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/mtproxy_debian" -O /etc/init.d/mtproxy; then
+		if ! wget --no-check-certificate "https://softs.loan/Bash/other/mtproxy_debian" -O /etc/init.d/mtproxy; then
 			echo -e "${Error} MTProxy服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x "/etc/init.d/mtproxy"
@@ -140,15 +140,18 @@ Debian_apt(){
 }
 Write_config(){
 	cat > ${mtproxy_conf}<<-EOF
-${mtp_port}
-${mtp_passwd}
-${mtp_nat}
+PORT = ${mtp_port}
+PASSWORD = ${mtp_passwd}
+TAG = ${mtp_tag}
+NAT = ${mtp_nat}
 EOF
 }
 Read_config(){
 	[[ ! -e ${mtproxy_conf} ]] && echo -e "${Error} MTProxy 配置文件不存在 !" && exit 1
-	port=$(cat ${mtproxy_conf}|sed -n "1p")
-	passwd=$(cat ${mtproxy_conf}|sed -n "2p")
+	port=$(cat ${mtproxy_conf}|grep 'PORT = '|awk -F 'PORT = ' '{print $NF}')
+	passwd=$(cat ${mtproxy_conf}|grep 'PASSWORD = '|awk -F 'PASSWORD = ' '{print $NF}')
+	tag=$(cat ${mtproxy_conf}|grep 'TAG = '|awk -F 'TAG = ' '{print $NF}')
+	nat=$(cat ${mtproxy_conf}|grep 'NAT = '|awk -F 'NAT = ' '{print $NF}')
 }
 Set_port(){
 	while true
@@ -172,44 +175,56 @@ Set_port(){
 		done
 }
 Set_passwd(){
-	echo "请输入 MTProxy 密码（手动输入必须为32位，[0-9][a-z][A-Z]，建议随机生成）"
+	echo "请输入 MTProxy 密匙（手动输入必须为32位，[0-9][a-z][A-Z]，建议随机生成）"
 	stty erase '^H' && read -p "(默认：随机生成):" mtp_passwd
 	[[ -z "${mtp_passwd}" ]] && mtp_passwd=$(date +%s%N | md5sum | head -c 32)
 	echo && echo "========================"
-	echo -e "	密码 : ${Red_background_prefix} ${mtp_passwd} ${Font_color_suffix}"
+	echo -e "	密码 : ${Red_background_prefix} dd${mtp_passwd} ${Font_color_suffix}"
 	echo "========================" && echo
 }
+Set_tag(){
+	echo "请输入 MTProxy 的 TAG标签（TAG标签只有在通过官方机器人 @MTProxybot 分享代理账号后才会获得，不清楚请留空回车）"
+	stty erase '^H' && read -p "(默认：回车跳过):" mtp_tag
+	if [[ ! -z "${mtp_tag}" ]]; then
+		echo && echo "========================"
+		echo -e "	TAG : ${Red_background_prefix} ${mtp_tag} ${Font_color_suffix}"
+		echo "========================" && echo
+	fi
+}
 Set_nat(){
+	echo -e "\n${Green_font_prefix}当前服务器所有网卡信息：${Font_color_suffix}\n"
 	ifconfig
 	echo "如果本机是NAT服务器（谷歌云、微软云、阿里云等），则请输入你的服务器内网IP，否则会导致无法使用。如果不是请直接回车！"
 	stty erase '^H' && read -p "(默认：回车跳过):" mtp_nat
 	if [[ -z "${mtp_nat}" ]]; then
-		mtp_nat="NO"
+		mtp_nat=""
 	else
 		getip
 		mtp_nat="${mtp_nat}:${ip}"
+		echo && echo "========================"
+		echo -e "	NAT : ${Red_background_prefix} ${mtp_nat} ${Font_color_suffix}"
+		echo "========================" && echo
 	fi
-	echo && echo "========================"
-	echo -e "	NAT : ${Red_background_prefix} ${mtp_nat} ${Font_color_suffix}"
-	echo "========================" && echo
-	
-	
 }
 Set_mtproxy(){
 	check_installed_status
 	echo && echo -e "你要做什么？
  ${Green_font_prefix}1.${Font_color_suffix}  修改 端口配置
  ${Green_font_prefix}2.${Font_color_suffix}  修改 密码配置
- ${Green_font_prefix}3.${Font_color_suffix}  修改 全部配置
+ ${Green_font_prefix}3.${Font_color_suffix}  修改 TAG 配置
+ ${Green_font_prefix}4.${Font_color_suffix}  修改 NAT 配置
+ ${Green_font_prefix}5.${Font_color_suffix}  修改 全部配置
 ————————————————
- ${Green_font_prefix}4.${Font_color_suffix}  定时 更新 Telegram IP段
- ${Green_font_prefix}5.${Font_color_suffix}  监控 运行状态" && echo
+ ${Green_font_prefix}6.${Font_color_suffix}  定时 更新 Telegram IP段
+ ${Green_font_prefix}7.${Font_color_suffix}  监控 运行状态" && echo
 	stty erase '^H' && read -p "(默认: 取消):" mtp_modify
 	[[ -z "${mtp_modify}" ]] && echo "已取消..." && exit 1
 	if [[ ${mtp_modify} == "1" ]]; then
 		Read_config
 		Set_port
 		mtp_passwd=${passwd}
+		mtp_tag=${tag}
+		mtp_nat=${nag}
 		Write_config
 		Del_iptables
 		Add_iptables
@@ -218,21 +233,40 @@ Set_mtproxy(){
 		Read_config
 		Set_passwd
 		mtp_port=${port}
+		mtp_tag=${tag}
+		mtp_nat=${nag}
 		Write_config
 		Restart_mtproxy
 	elif [[ ${mtp_modify} == "3" ]]; then
 		Read_config
-		Set_port
-		Set_passwd
-		Set_nat
+		Set_tag
+		mtp_port=${port}
+		mtp_passwd=${passwd}
+		mtp_nat=${nag}
 		Write_config
 		Restart_mtproxy
 	elif [[ ${mtp_modify} == "4" ]]; then
-		Set_crontab_update_mtproxy
+		Read_config
+		Set_nat
+		mtp_port=${port}
+		mtp_passwd=${passwd}
+		mtp_tag=${tag}
+		Write_config
+		Restart_mtproxy
 	elif [[ ${mtp_modify} == "5" ]]; then
+		Read_config
+		Set_port
+		Set_passwd
+		Set_tag
+		Set_nat
+		Write_config
+		Restart_mtproxy
+	elif [[ ${mtp_modify} == "6" ]]; then
+		Set_crontab_update_mtproxy
+	elif [[ ${mtp_modify} == "7" ]]; then
 		Set_crontab_monitor_mtproxy
 	else
-		echo -e "${Error} 请输入正确的数字(1-5)" && exit 1
+		echo -e "${Error} 请输入正确的数字(1-7)" && exit 1
 	fi
 }
 Install_mtproxy(){
@@ -241,6 +275,7 @@ Install_mtproxy(){
 	echo -e "${Info} 开始设置 用户配置..."
 	Set_port
 	Set_passwd
+	Set_tag
 	Set_nat
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency
@@ -352,10 +387,13 @@ View_mtproxy(){
 	echo -e "————————————————"
 	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
 	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
-	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
-	echo -e " 链接\t: ${Red_font_prefix}tg://proxy?server=${ip}&port=${port}&secret=${passwd}${Font_color_suffix}"
-	echo -e " 链接\t: ${Red_font_prefix}https://t.me/proxy?server=${ip}&port=${port}&secret=${passwd}${Font_color_suffix}"
+	echo -e " 密匙\t: ${Green_font_prefix}dd${passwd}${Font_color_suffix}"
+	[[ ! -z "${nat}" ]] && echo -e " NAT \t: ${Green_font_prefix}${nat}${Font_color_suffix}"
+	[[ ! -z "${tag}" ]] && echo -e " TAG \t: ${Green_font_prefix}${tag}${Font_color_suffix}"
+	echo -e " 链接\t: ${Red_font_prefix}tg://proxy?server=${ip}&port=${port}&secret=dd${passwd}${Font_color_suffix}"
+	echo -e " 链接\t: ${Red_font_prefix}https://t.me/proxy?server=${ip}&port=${port}&secret=dd${passwd}${Font_color_suffix}"
 	echo
+	echo -e " ${Red_font_prefix}注意\t:${Font_color_suffix} 密匙头部的 ${Green_font_prefix}dd${Font_color_suffix} 字符是代表客户端启用${Green_font_prefix}随机填充混淆模式${Font_color_suffix}，如果不需要请手动删除。\n     \t  另外，在官方机器人处分享账号获取TAG标签时记得删除，获取TAG标签后分享时可以再加上。"
 }
 View_Log(){
 	check_installed_status
