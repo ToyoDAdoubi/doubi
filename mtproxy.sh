@@ -175,12 +175,20 @@ Set_port(){
 		done
 }
 Set_passwd(){
-	echo "请输入 MTProxy 密匙（手动输入必须为32位，[0-9][a-z][A-Z]，建议随机生成）"
-	stty erase '^H' && read -p "(默认：随机生成):" mtp_passwd
-	[[ -z "${mtp_passwd}" ]] && mtp_passwd=$(date +%s%N | md5sum | head -c 32)
-	echo && echo "========================"
-	echo -e "	密码 : ${Red_background_prefix} dd${mtp_passwd} ${Font_color_suffix}"
-	echo "========================" && echo
+	while true
+		do
+		echo "请输入 MTProxy 密匙（手动输入必须为32位，[0-9][a-z][A-Z]，建议随机生成）"
+		stty erase '^H' && read -p "(避免出错，强烈推荐随机生成，直接回车):" mtp_passwd
+		if [[ -z "${mtp_passwd}" ]]; then
+			mtp_passwd=$(date +%s%N | md5sum | head -c 32)
+		else
+			[[ ${#mtp_passwd} != 32 ]] && echo -e "${Error} 请输入正确的密匙（32位字符）。" && continue
+		fi
+		echo && echo "========================"
+		echo -e "	密码 : ${Red_background_prefix} dd${mtp_passwd} ${Font_color_suffix}"
+		echo "========================" && echo
+		break
+	done
 }
 Set_tag(){
 	echo "请输入 MTProxy 的 TAG标签（TAG标签只有在通过官方机器人 @MTProxybot 分享代理账号后才会获得，不清楚请留空回车）"

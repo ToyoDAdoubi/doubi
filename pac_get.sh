@@ -25,8 +25,8 @@ var ipv6_proxy = function(){ return nowall_proxy(); };
  */
  
 /*
- * Copyright (C) 2017 Toyo
- * https://softs.fun/Other/pac.txt
+ * Copyright (C) 2017-2018 Toyo
+ * https://softs.loan/Other/pac.txt
  */
 
 var rules = [
