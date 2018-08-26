@@ -72,7 +72,7 @@ check_new_ver(){
 	aria2_new_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/q3aql/aria2-static-builds/releases | grep -o '"tag_name": ".*"' |head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
 	if [[ -z ${aria2_new_ver} ]]; then
 		echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/q3aql/aria2-static-builds/releases ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式如 1.33.1 ] :" aria2_new_ver
+		stty erase '^H' && read -p "请输入版本号 [ 格式如 1.34.0 ] :" aria2_new_ver
 		[[ -z "${aria2_new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 Aria2 最新版本为 [ ${aria2_new_ver} ]"
@@ -112,7 +112,7 @@ Download_aria2(){
 		wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-32bit-build1.tar.bz2"
 		Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-32bit-build1"
 	fi
-	[[ ! -e "${Aria2_Name}.tar.bz2" ]] && echo -e "${Error} Aria2 压缩包下载失败 !" && exit 1
+	[[ ! -s "${Aria2_Name}.tar.bz2" ]] && echo -e "${Error} Aria2 压缩包下载失败 !" && exit 1
 	tar jxvf "${Aria2_Name}.tar.bz2"
 	[[ ! -e "/usr/local/${Aria2_Name}" ]] && echo -e "${Error} Aria2 解压失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && exit 1
 	[[ ${update_dl} = "update" ]] && rm -rf "${Folder}"
