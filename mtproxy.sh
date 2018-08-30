@@ -77,7 +77,7 @@ Download_mtproxy(){
 	[[ ! -e "MTProxy/" ]] && echo -e "${Error} MTProxy 下载失败!" && cd '/tmp' && rm -rf '/tmp/mtproxy' && exit 1
 	cd MTProxy
 	make
-	[[ ! -e "objs/bin/mtproto-proxy" ]] && echo -e "${Error} MTProxy 编译失败!" && make clean && cd '/tmp' && rm -rf '/tmp/mtproxy' && exit 1
+	[[ ! -e "objs/bin/mtproto-proxy" ]] && echo -e "${Error} MTProxy 编译失败!" && echo -e "另外，如果在上面几行看到 ${Green_font_prefix}xxxxx option \"-std=gnu11\"${Font_color_suffix} 字样，说明是系统版本过低，请尝试更换系统重试！" && make clean && cd '/tmp' && rm -rf '/tmp/mtproxy' && exit 1
 	[[ ! -e "${file}" ]] && mkdir "${file}"
 	\cp -f objs/bin/mtproto-proxy "${file}"
 	chmod +x "${mtproxy_file}"
@@ -406,7 +406,7 @@ View_mtproxy(){
 View_Log(){
 	check_installed_status
 	[[ ! -e ${mtproxy_log} ]] && echo -e "${Error} MTProxy 日志文件不存在 !" && exit 1
-	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志(正常情况是没有使用日志记录的)" && echo
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${mtproxy_log}${Font_color_suffix} 命令。"&& echo
 	tail -f ${mtproxy_log}
 }
 # 显示 连接信息
