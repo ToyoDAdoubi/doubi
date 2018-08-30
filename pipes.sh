@@ -233,7 +233,7 @@ Restart_pipes(){
 Log_pipes(){
 	check_installed_status
 	[[ ! -e ${pipes_log} ]] && echo -e "${Error_font_prefix}[错误]${Font_suffix} PipeSocks 日志文件不存在 !" && exit 1
-	echo && echo -e "使用 ${Info_background_prefix} Ctrl+C ${Font_suffix} 键退出查看日志 !" && echo
+	echo && echo -e "使用 ${Info_background_prefix} Ctrl+C ${Font_suffix} 键退出查看日志 !" && echo -e "如果需要查看完整日志内容，请用 ${Info_background_prefix}cat ${pipes_log}${Font_suffix} 命令。" && echo
 	tail -f ${pipes_log}
 }
 Uninstall_pipes(){

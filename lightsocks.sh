@@ -351,7 +351,7 @@ lightsocks_link(){
 View_Log(){
 	check_installed_status
 	[[ ! -e ${lightsocks_log} ]] && echo -e "${Error} Lightsocks 日志文件不存在 !" && exit 1
-	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志(正常情况下是没有多少日志输出的)" && echo
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志(正常情况下是没有多少日志输出的)" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${lightsocks_log}${Font_color_suffix} 命令。" && echo
 	tail -f ${lightsocks_log}
 }
 # 显示 连接信息

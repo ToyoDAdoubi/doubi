@@ -538,7 +538,7 @@ Set_iptables(){
 }
 View_Log(){
 	[[ ! -e ${dowsdns_log} ]] && echo -e "${Error} dowsDNS 日志文件不存在 !" && exit 1
-	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${dowsdns_log}${Font_color_suffix} 命令。" && echo
 	tail -f ${dowsdns_log}
 }
 Update_Shell(){

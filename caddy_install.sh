@@ -97,8 +97,8 @@ install_caddy(){
 	fi
 	Download_caddy
 	Service_caddy
-	echo && echo -e " Caddy 配置文件：${caddy_conf_file}
- Caddy 日志文件：/tmp/caddy.log
+	echo && echo -e " Caddy 使用命令：${caddy_conf_file}
+ 日志文件：cat /tmp/caddy.log
  使用说明：service caddy start | stop | restart | status
  或者使用：/etc/init.d/caddy start | stop | restart | status
  ${Info_font_prefix}[信息]${Font_suffix} Caddy 安装完成！" && echo

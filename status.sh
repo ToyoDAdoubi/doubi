@@ -731,12 +731,12 @@ View_ServerStatus_client(){
 }
 View_client_Log(){
 	[[ ! -e ${client_log_file} ]] && echo -e "${Error} 没有找到日志文件 !"
-	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${client_log_file}${Font_color_suffix} 命令。" && echo
 	tail -f ${client_log_file}
 }
 View_server_Log(){
 	[[ ! -e ${erver_log_file} ]] && echo -e "${Error} 没有找到日志文件 !"
-	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${erver_log_file}${Font_color_suffix} 命令。" && echo
 	tail -f ${erver_log_file}
 }
 Add_iptables(){

@@ -250,7 +250,7 @@ Restart_ct(){
 }
 Log_ct(){
 	[[ ! -e "${ct_log}" ]] && echo -e "${Error} Cloud Torrent 日志文件不存在 !" && exit 1
-	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${ct_log}${Font_color_suffix} 命令。" && echo
 	tail -f "${ct_log}"
 }
 Update_ct(){

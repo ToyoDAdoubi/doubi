@@ -283,7 +283,7 @@ delSocat(){
 # 查看日志
 tailSocat(){
 	[[ ! -e ${socat_log_file} ]] && echo -e "${Error} Socat 日志文件不存在 !" && exit 1
-	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${socat_log_file}${Font_color_suffix} 命令。" && echo
 	tail -f ${socat_log_file}
 }
 uninstallSocat(){

@@ -535,6 +535,7 @@ Test_one(){
 }
 View_log(){
 	[[ ! -e ${log_file} ]] && echo -e "${Error} 找不到 日志文件！(${log_file})"
+	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${log_file}${Font_color_suffix} 命令。" && echo
 	cat "${log_file}"
 }
 Set_SSRStatus(){
