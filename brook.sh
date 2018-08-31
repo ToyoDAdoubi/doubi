@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Brook
-#	Version: 1.1.12
+#	Version: 1.1.13
 #	Author: Toyo
 #	Blog: https://doub.io/brook-jc3/
 #=================================================
 
-sh_ver="1.1.12"
+sh_ver="1.1.13"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/brook"
@@ -68,13 +68,15 @@ check_pid(){
 	PID=$(ps -ef| grep "./brook "| grep -v "grep" | grep -v "init.d" |grep -v "service" |awk '{print $2}')
 }
 check_new_ver(){
-	brook_new_ver=$(wget -qO- https://api.github.com/repos/txthinking/brook/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
+	echo -e "请输入要下载安装的 Brook 版本号 ${Green_font_prefix}[ 格式是日期，例如: v20180707 ]${Font_color_suffix}
+版本列表请去这里获取：${Green_font_prefix}[ https://github.com/txthinking/brook/releases ]${Font_color_suffix}"
+	stty erase '^H' && read -p "直接回车即自动获取:" brook_new_ver
 	if [[ -z ${brook_new_ver} ]]; then
-		echo -e "${Error} Brook 最新版本获取失败，请手动获取最新版本号[ https://github.com/txthinking/brook/releases ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 v20180707 ] :" brook_new_ver
-		[[ -z "${brook_new_ver}" ]] && echo "取消..." && exit 1
-	else
+		brook_new_ver=$(wget -qO- https://api.github.com/repos/txthinking/brook/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
+		[[ -z ${brook_new_ver} ]] && echo -e "${Error} Brook 最新版本获取失败！" && exit 1
 		echo -e "${Info} 检测到 Brook 最新版本为 [ ${brook_new_ver} ]"
+	else
+		echo -e "${Info} 开始下载 Brook [ ${brook_new_ver} ] 版本！"
 	fi
 }
 check_ver_comparison(){
@@ -97,7 +99,9 @@ check_ver_comparison(){
 	fi
 }
 Download_brook(){
+	mkdir ${file}
 	cd ${file}
+	[[ "${brook_new_ver}" == "v20180909" ]] && bit="i386"
 	if [[ ${bit} == "x86_64" ]]; then
 		wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook"
 	else
@@ -131,7 +135,6 @@ Installation_dependency(){
 		Debian_apt
 	fi
 	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-	mkdir ${file}
 }
 Centos_yum(){
 	cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
