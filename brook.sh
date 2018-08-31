@@ -101,7 +101,6 @@ check_ver_comparison(){
 Download_brook(){
 	mkdir ${file}
 	cd ${file}
-	[[ "${brook_new_ver}" == "v20180909" ]] && bit="i386"
 	if [[ ${bit} == "x86_64" ]]; then
 		wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook"
 	else
