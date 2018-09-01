@@ -88,7 +88,7 @@ check_ver_comparison(){
 	[[ -z ${brook_now_ver} ]] && echo -e "${Error} Brook 当前版本获取失败 !" && exit 1
 	brook_now_ver="v${brook_now_ver}"
 	if [[ "${brook_now_ver}" != "${brook_new_ver}" ]]; then
-		echo -e "${Info} 发现 Brook 已有新版本 [ ${brook_new_ver} ]"
+		echo -e "${Info} 发现 Brook 已有新版本 [ ${brook_new_ver} ]，旧版本 [ ${brook_now_ver} ]"
 		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ $yn == [Yy] ]]; then
