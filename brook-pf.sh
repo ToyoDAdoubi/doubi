@@ -103,7 +103,7 @@ check_ver_comparison(){
 	fi
 }
 Download_brook(){
-	mkdir ${file}
+	[[ ! -e ${file} ]] && mkdir ${file}
 	cd ${file}
 	if [[ "${Download_type}" == "1" ]]; then
 		if [[ ${bit} == "x86_64" ]]; then

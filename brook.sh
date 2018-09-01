@@ -99,7 +99,7 @@ check_ver_comparison(){
 	fi
 }
 Download_brook(){
-	mkdir ${file}
+	[[ ! -e ${file} ]] && mkdir ${file}
 	cd ${file}
 	if [[ ${bit} == "x86_64" ]]; then
 		wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook"
