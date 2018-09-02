@@ -81,7 +81,7 @@ Download_Server_Status_client(){
 	wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/ServerStatus-Toyo/master/clients/client-linux.py"
 	[[ ! -e "client-linux.py" ]] && echo -e "${Error} ServerStatus 客户端下载失败 !" && exit 1
 	mv client-linux.py status-client.py
-	[[ ! -e "status-client.py" ]] && echo -e "${Error} ServerStatus 服务端文件夹重命名失败 !" && rm -rf client-linux.py && exit 1
+	[[ ! -e "status-client.py" ]] && echo -e "${Error} ServerStatus 客户端重命名失败 !" && rm -rf client-linux.py && exit 1
 }
 Service_Server_Status_server(){
 	if [[ ${release} = "centos" ]]; then
@@ -766,7 +766,13 @@ Set_iptables(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.loan/Bash/status.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	softs_domain=$(wget --no-check-certificate -qO- "https://doub.pw/new_softs.txt")
+	if [[ -z ${softs_domain} ]]; then
+		softs_domain="https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/"
+	else
+		softs_domain="https://${softs_domain}/Bash/"
+	fi
+	sh_new_ver=$(wget --no-check-certificate -qO- "${softs_domain}status.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
 	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/status.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
@@ -783,9 +789,9 @@ Update_Shell(){
 				Service_Server_Status_server
 			fi
 			if [[ $sh_new_type == "softs" ]]; then
-				wget -N --no-check-certificate https://softs.loan/Bash/status.sh && chmod +x status.sh
+				wget -N --no-check-certificate "${softs_domain}status.sh" && chmod +x status.sh
 			else
-				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/status.sh && chmod +x status.sh
+				wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/status.sh" && chmod +x status.sh
 			fi
 			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
 		else

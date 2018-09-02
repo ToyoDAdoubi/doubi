@@ -51,7 +51,8 @@ check_pid(){
 }
 Download_dowsdns(){
 	cd "/usr/local"
-	wget -N --no-check-certificate "https://softs.loan/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/dowsDNS/Linux%2BMac/dowsDNS.zip"
+	softs_domain=$(wget --no-check-certificate -qO- "https://doub.pw/new_softs.txt")
+	wget -N --no-check-certificate "https://${softs_domain}/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/dowsDNS/Linux%2BMac/dowsDNS.zip"
 	[[ ! -e "dowsDNS.zip" ]] && echo -e "${Error} DowsDNS 下载失败 !" && exit 1
 	unzip dowsDNS.zip && rm -rf dowsDNS.zip
 	[[ ! -e "dowsDNS-master" ]] && echo -e "${Error} DowsDNS 解压失败 !" && exit 1
@@ -60,14 +61,14 @@ Download_dowsdns(){
 }
 Service_dowsdns(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate "https://softs.loan/Bash/other/dowsdns_centos" -O /etc/init.d/dowsdns; then
+		if ! wget --no-check-certificate "${softs_domain}other/dowsdns_centos" -O /etc/init.d/dowsdns; then
 			echo -e "${Error} DowsDNS 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/dowsdns
 		chkconfig --add dowsdns
 		chkconfig dowsdns on
 	else
-		if ! wget --no-check-certificate "https://softs.loan/Bash/other/dowsdns_debian" -O /etc/init.d/dowsdns; then
+		if ! wget --no-check-certificate "${softs_domain}other/dowsdns_debian" -O /etc/init.d/dowsdns; then
 			echo -e "${Error} DowsDNS 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/dowsdns
@@ -543,7 +544,13 @@ View_Log(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.loan/Bash/dowsdns.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	softs_domain=$(wget --no-check-certificate -qO- "https://doub.pw/new_softs.txt")
+	if [[ -z ${softs_domain} ]]; then
+		softs_domain="https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/"
+	else
+		softs_domain="https://${softs_domain}/Bash/"
+	fi
+	sh_new_ver=$(wget --no-check-certificate -qO- "${softs_domain}dowsdns.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
 	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/dowsdns.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
@@ -556,9 +563,9 @@ Update_Shell(){
 				Service_dowsdns
 			fi
 			if [[ ${sh_new_type} == "softs" ]]; then
-				wget -N --no-check-certificate https://softs.loan/Bash/dowsdns.sh && chmod +x dowsdns.sh
+				wget -N --no-check-certificate "${softs_domain}dowsdns.sh" && chmod +x dowsdns.sh
 			else
-				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/dowsdns.sh && chmod +x dowsdns.sh
+				wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/dowsdns.sh" && chmod +x dowsdns.sh
 			fi
 			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
 		else

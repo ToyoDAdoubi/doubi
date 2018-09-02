@@ -304,7 +304,13 @@ uninstallSocat(){
 }
 Update_Shell(){
 	echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget --no-check-certificate -qO- "https://softs.loan/Bash/socat.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
+	softs_domain=$(wget --no-check-certificate -qO- "https://doub.pw/new_softs.txt")
+	if [[ -z ${softs_domain} ]]; then
+		softs_domain="https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/"
+	else
+		softs_domain="https://${softs_domain}/Bash/"
+	fi
+	sh_new_ver=$(wget --no-check-certificate -qO- "${softs_domain}socat.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
 	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/socat.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && exit 0
 	if [[ ${sh_new_ver} != ${sh_ver} ]]; then
@@ -313,9 +319,9 @@ Update_Shell(){
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
 			if [[ $sh_new_type == "softs" ]]; then
-				wget -N --no-check-certificate https://softs.loan/Bash/socat.sh && chmod +x socat.sh
+				wget -N --no-check-certificate "${softs_domain}socat.sh" && chmod +x socat.sh
 			else
-				wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/socat.sh && chmod +x socat.sh
+				wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/socat.sh" && chmod +x socat.sh
 			fi
 			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
 		else
