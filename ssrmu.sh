@@ -515,8 +515,8 @@ Set_config_obfs(){
  ${Green_font_prefix}5.${Font_color_suffix} tls1.2_ticket_auth
  ${Tip} 如果使用 ShadowsocksR 代理游戏，建议选择 混淆兼容原版或 plain 混淆，然后客户端选择 plain，否则会增加延迟 !
  另外, 如果你选择了 tls1.2_ticket_auth，那么客户端可以选择 tls1.2_ticket_fastauth，这样即能伪装特征 又不会增加延迟 !" && echo
-	stty erase '^H' && read -p "(默认: 5. tls1.2_ticket_auth):" ssr_obfs
-	[[ -z "${ssr_obfs}" ]] && ssr_obfs="5"
+	stty erase '^H' && read -p "(默认: 2. http_simple):" ssr_obfs
+	[[ -z "${ssr_obfs}" ]] && ssr_obfs="2"
 	if [[ ${ssr_obfs} == "1" ]]; then
 		ssr_obfs="plain"
 	elif [[ ${ssr_obfs} == "2" ]]; then
@@ -528,7 +528,7 @@ Set_config_obfs(){
 	elif [[ ${ssr_obfs} == "5" ]]; then
 		ssr_obfs="tls1.2_ticket_auth"
 	else
-		ssr_obfs="tls1.2_ticket_auth"
+		ssr_obfs="http_simple"
 	fi
 	echo && echo ${Separator_1} && echo -e "	混淆 : ${Green_font_prefix}${ssr_obfs}${Font_color_suffix}" && echo ${Separator_1} && echo
 	if [[ ${ssr_obfs} != "plain" ]]; then
