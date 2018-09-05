@@ -55,7 +55,7 @@ do_start(){
 		if [[ $? -eq 0 ]]; then
 			echo -e "${Info} $NAME 启动成功 !"
 		else
-			echo -e "${Error} $NAME 启动失败 !"
+			echo -e "${Error} $NAME 启动失败 !请查看日志文件检查问题所在。"
 		fi
 	fi
 }
