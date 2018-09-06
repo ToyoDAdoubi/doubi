@@ -5,21 +5,21 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.11
+#	Version: 1.0.12
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.11"
+sh_ver="1.0.12"
 file="/usr/local/ServerStatus"
 web_file="/usr/local/ServerStatus/web"
 server_file="/usr/local/ServerStatus/server"
 server_conf="/usr/local/ServerStatus/server/config.json"
-client_file="/usr/local/ServerStatus/status-client.py"
+server_conf_1="/usr/local/ServerStatus/server/config.conf"
+client_file="/usr/local/ServerStatus/client"
 client_log_file="/tmp/serverstatus_client.log"
 server_log_file="/tmp/serverstatus_server.log"
 jq_file="${file}/jq"
-port="35601"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -46,10 +46,10 @@ check_sys(){
 	bit=`uname -m`
 }
 check_installed_server_status(){
-	[[ ! -e "${server_file}" ]] && echo -e "${Error} ServerStatus 服务端没有安装，请检查 !" && exit 1
+	[[ ! -e "${server_file}/sergate" ]] && echo -e "${Error} ServerStatus 服务端没有安装，请检查 !" && exit 1
 }
 check_installed_client_status(){
-	[[ ! -e "${client_file}" ]] && echo -e "${Error} ServerStatus 客户端没有安装，请检查 !" && exit 1
+	[[ ! -e "${client_file}/status-client.py" ]] && echo -e "${Error} ServerStatus 客户端没有安装，请检查 !" && exit 1
 }
 check_pid_server(){
 	PID=`ps -ef| grep "sergate"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
@@ -58,30 +58,64 @@ check_pid_client(){
 	PID=`ps -ef| grep "status-client.py"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
 }
 Download_Server_Status_server(){
-	cd "/usr/local"
+	cd "/tmp"
 	wget -N --no-check-certificate "https://github.com/ToyoDAdoubi/ServerStatus-Toyo/archive/master.zip"
 	[[ ! -e "master.zip" ]] && echo -e "${Error} ServerStatus 服务端下载失败 !" && exit 1
-	unzip master.zip && rm -rf master.zip
-	[[ ! -e "ServerStatus-Toyo-master" ]] && echo -e "${Error} ServerStatus 服务端解压失败 !" && exit 1
-	if [[ ! -e "${file}" ]]; then
-		mv ServerStatus-Toyo-master ServerStatus
-	else
-		mv ServerStatus-Toyo-master/* "${file}"
-		rm -rf ServerStatus-Toyo-master
-	fi
-	[[ ! -e "${server_file}" ]] && echo -e "${Error} ServerStatus 服务端文件夹重命名失败 !" && rm -rf ServerStatus-Toyo-master && exit 1
-	cd "${server_file}"
+	unzip master.zip
+	rm -rf master.zip
+	[[ ! -e "/tmp/ServerStatus-Toyo-master" ]] && echo -e "${Error} ServerStatus 服务端解压失败 !" && exit 1
+	cd "/tmp/ServerStatus-Toyo-master/server"
 	make
-	[[ ! -e "sergate" ]] && echo -e "${Error} ServerStatus 服务端安装失败 !" && exit 1
+	[[ ! -e "sergate" ]] && echo -e "${Error} ServerStatus 服务端编译失败 !" && rm -rf "/tmp/ServerStatus-Toyo-master" && exit 1
+	[[ ! -e "${file}" ]] && mkdir "${file}"
+	if [[ ! -e "${server_file}" ]]; then
+		mkdir "${server_file}"
+		mv "/tmp/ServerStatus-Toyo-master/server/sergate" "${server_file}/sergate"
+		mv "/tmp/ServerStatus-Toyo-master/web" "${web_file}"
+	else
+		if [[ -e "${server_file}/sergate" ]]; then
+			mv "${server_file}/sergate" "${server_file}/sergate1"
+			mv "/tmp/ServerStatus-Toyo-master/server/sergate" "${server_file}/sergate"
+		else
+			mv "/tmp/ServerStatus-Toyo-master/server/sergate" "${server_file}/sergate"
+			mv "/tmp/ServerStatus-Toyo-master/web" "${web_file}"
+		fi
+	fi
+	if [[ ! -e "${server_file}/sergate" ]]; then
+		echo -e "${Error} ServerStatus 服务端移动重命名失败 !"
+		[[ -e "${server_file}/sergate1" ]] && mv "${server_file}/sergate1" "${server_file}/sergate"
+		rm -rf "/tmp/ServerStatus-Toyo-master"
+		exit 1
+	else
+		[[ -e "${server_file}/sergate1" ]] && rm -rf "${server_file}/sergate1"
+		rm -rf "/tmp/ServerStatus-Toyo-master"
+	fi
 }
 Download_Server_Status_client(){
-	cd "/usr/local"
-	[[ ! -e ${file} ]] && mkdir "${file}"
-	cd "${file}"
-	wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/ServerStatus-Toyo/master/clients/client-linux.py"
-	[[ ! -e "client-linux.py" ]] && echo -e "${Error} ServerStatus 客户端下载失败 !" && exit 1
-	mv client-linux.py status-client.py
-	[[ ! -e "status-client.py" ]] && echo -e "${Error} ServerStatus 客户端重命名失败 !" && rm -rf client-linux.py && exit 1
+	cd "/tmp"
+	wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/ServerStatus-Toyo/master/clients/status-client.py"
+	[[ ! -e "status-client.py" ]] && echo -e "${Error} ServerStatus 客户端下载失败 !" && exit 1
+	[[ ! -e "${file}" ]] && mkdir "${file}"
+	if [[ ! -e "${client_file}" ]]; then
+		mkdir "${client_file}"
+		mv status-client.py "${client_file}/status-client.py"
+	else
+		if [[ -e "${client_file}/status-client.py" ]]; then
+			mv "${client_file}/status-client.py" "${client_file}/status-client1.py"
+			mv status-client.py "${client_file}/status-client.py"
+		else
+			mv status-client.py "${client_file}/status-client.py"
+		fi
+	fi
+	if [[ ! -e "${client_file}/status-client.py" ]]; then
+		echo -e "${Error} ServerStatus 客户端移动失败 !"
+		[[ -e "${client_file}/status-client1.py" ]] && mv "${client_file}/status-client1.py" "${client_file}/status-client.py"
+		rm -rf "tmp/status-client.py"
+		exit 1
+	else
+		[[ -e "${client_file}/status-client1.py" ]] && rm -rf "${client_file}/status-client1.py"
+		rm -rf "tmp/status-client.py"
+	fi
 }
 Service_Server_Status_server(){
 	if [[ ${release} = "centos" ]]; then
@@ -163,28 +197,37 @@ Write_server_config(){
    "password": "password",
    "name": "Server 01",
    "type": "KVM",
-   "host": "MineCloud",
-   "location": "RU KHB",
+   "host": "",
+   "location": "Hong Kong",
    "disabled": false
   }
  ]
 }
 EOF
 }
+Write_server_config_conf(){
+	cat > ${server_conf_1}<<-EOF
+PORT = ${server_port_s}
+EOF
+}
 Read_config_client(){
-	[[ ! -e ${client_file} ]] && echo -e "${Error} ServerStatus 客户端文件不存在 !" && exit 1
-	client_text="$(cat "${client_file}"|sed 's/\"//g;s/,//g;s/ //g')"
+	[[ ! -e "${client_file}/status-client.py" ]] && echo -e "${Error} ServerStatus 客户端文件不存在 !" && exit 1
+	client_text="$(cat "${client_file}/status-client.py"|sed 's/\"//g;s/,//g;s/ //g')"
 	client_server="$(echo -e "${client_text}"|grep "SERVER="|awk -F "=" '{print $2}')"
 	client_port="$(echo -e "${client_text}"|grep "PORT="|awk -F "=" '{print $2}')"
 	client_user="$(echo -e "${client_text}"|grep "USER="|awk -F "=" '{print $2}')"
 	client_password="$(echo -e "${client_text}"|grep "PASSWORD="|awk -F "=" '{print $2}')"
+}
+Read_config_server(){
+	[[ ! -e "${server_conf_1}" ]] && echo -e "${Error} ServerStatus 服务端配置文件不存在 !" && exit 1
+	server_port="$(cat "${server_conf_1}"|grep "PORT = "|awk '{print $3}')"
 }
 Set_server(){
 	mode=$1
 	[[ -z ${mode} ]] && mode="server"
 	if [[ ${mode} == "server" ]]; then
 		echo -e "请输入 ServerStatus 服务端中网站要设置的 域名[server]
-默认为本机IP为域名，例如输入: toyoo.ml，如果要使用本机IP，请留空直接回车"
+默认为本机IP为域名，例如输入: toyoo.pw ，如果要使用本机IP，请留空直接回车"
 		stty erase '^H' && read -p "(默认: 本机IP):" server_s
 		[[ -z "$server_s" ]] && server_s=""
 	else
@@ -197,17 +240,38 @@ Set_server(){
 	echo -e "	IP/域名[server]: ${Red_background_prefix} ${server_s} ${Font_color_suffix}"
 	echo "	================================================" && echo
 }
+Set_server_http_port(){
+	while true
+		do
+		echo -e "请输入 ServerStatus 服务端中网站要设置的 域名/IP的端口[1-65535]（如果是域名的话，一般用 80 端口）"
+		stty erase '^H' && read -p "(默认: 8888):" server_http_port_s
+		[[ -z "$server_http_port_s" ]] && server_http_port_s="8888"
+		expr ${server_http_port_s} + 0 &>/dev/null
+		if [[ $? -eq 0 ]]; then
+			if [[ ${server_http_port_s} -ge 1 ]] && [[ ${server_http_port_s} -le 65535 ]]; then
+				echo && echo "	================================================"
+				echo -e "	端口: ${Red_background_prefix} ${server_http_port_s} ${Font_color_suffix}"
+				echo "	================================================" && echo
+				break
+			else
+				echo "输入错误, 请输入正确的端口。"
+			fi
+		else
+			echo "输入错误, 请输入正确的端口。"
+		fi
+	done
+}
 Set_server_port(){
 	while true
 		do
-		echo -e "请输入 ServerStatus 服务端中网站要设置的 域名/IP的端口[1-65535]（如果是域名的话，一般建议用 80 端口）"
-		stty erase '^H' && read -p "(默认: 8888):" server_port_s
-		[[ -z "$server_port_s" ]] && server_port_s="8888"
+		echo -e "请输入 ServerStatus 服务端监听的端口[1-65535]（用于服务端接收客户端消息的端口，客户端要填写这个端口）"
+		stty erase '^H' && read -p "(默认: 35601):" server_port_s
+		[[ -z "$server_port_s" ]] && server_port_s="35601"
 		expr ${server_port_s} + 0 &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${server_port_s} -ge 1 ]] && [[ ${server_port_s} -le 65535 ]]; then
 				echo && echo "	================================================"
-				echo -e "	IP/域名[server]: ${Red_background_prefix} ${server_port_s} ${Font_color_suffix}"
+				echo -e "	端口: ${Red_background_prefix} ${server_port_s} ${Font_color_suffix}"
 				echo "	================================================" && echo
 				break
 			else
@@ -279,6 +343,7 @@ Set_config_server(){
 }
 Set_config_client(){
 	Set_server "client"
+	Set_server_port
 	Set_username "client"
 	Set_password "client"
 }
@@ -296,7 +361,9 @@ Set_ServerStatus_server(){
  ${Green_font_prefix} 7.${Font_color_suffix} 修改 节点配置 - 节点位置
  ${Green_font_prefix} 8.${Font_color_suffix} 修改 节点配置 - 全部参数
 ————————
- ${Green_font_prefix} 9.${Font_color_suffix} 启用/禁用 节点配置" && echo
+ ${Green_font_prefix} 9.${Font_color_suffix} 启用/禁用 节点配置
+————————
+ ${Green_font_prefix}10.${Font_color_suffix} 修改 服务端监听端口" && echo
 	stty erase '^H' && read -p "(默认: 取消):" server_num
 	[[ -z "${server_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${server_num} == "1" ]]; then
@@ -317,8 +384,14 @@ Set_ServerStatus_server(){
 		Modify_ServerStatus_server_all
 	elif [[ ${server_num} == "9" ]]; then
 		Modify_ServerStatus_server_disabled
+	elif [[ ${server_num} == "10" ]]; then
+		Read_config_server
+		Del_iptables "${server_port}"
+		Set_server_port
+		Write_server_config_conf
+		Add_iptables "${server_port_s}"
 	else
-		echo -e "${Error} 请输入正确的数字[1-9]" && exit 1
+		echo -e "${Error} 请输入正确的数字[1-10]" && exit 1
 	fi
 	Restart_ServerStatus_server
 }
@@ -518,13 +591,16 @@ Set_ServerStatus_client(){
 	check_installed_client_status
 	Set_config_client
 	Read_config_client
+	Del_iptables_OUT "${client_port}"
 	Modify_config_client
+	Add_iptables_OUT "${server_port_s}"
 	Restart_ServerStatus_client
 }
 Modify_config_client(){
-	sed -i 's/SERVER = "'"${client_server}"'"/SERVER = "'"${server_s}"'"/g' ${client_file}
-	sed -i 's/USER = "'"${client_user}"'"/USER = "'"${username_s}"'"/g' ${client_file}
-	sed -i 's/PASSWORD = "'"${client_password}"'"/PASSWORD = "'"${password_s}"'"/g' ${client_file}
+	sed -i 's/SERVER = "'"${client_server}"'"/SERVER = "'"${server_s}"'"/g' "${client_file}/status-client.py"
+	sed -i "s/PORT = ${client_port}/PORT = ${server_port_s}/g" "${client_file}/status-client.py"
+	sed -i 's/USER = "'"${client_user}"'"/USER = "'"${username_s}"'"/g' "${client_file}/status-client.py"
+	sed -i 's/PASSWORD = "'"${client_password}"'"/PASSWORD = "'"${password_s}"'"/g' "${client_file}/status-client.py"
 }
 Install_jq(){
 	if [[ ! -e ${jq_file} ]]; then
@@ -541,7 +617,8 @@ Install_jq(){
 	fi
 }
 Install_caddy(){
-	echo -e "是否由脚本自动配置HTTP服务(服务端的在线监控网站)[Y/n]"
+	echo
+	echo -e "${Info} 是否由脚本自动配置HTTP服务(服务端的在线监控网站)，如果选择 N，则请在其他HTTP服务中配置网站根目录为：${Green_font_prefix}${web_file}${Font_color_suffix} [Y/n]"
 	stty erase '^H' && read -p "(默认: Y 自动部署):" caddy_yn
 	[[ -z "$caddy_yn" ]] && caddy_yn="y"
 	if [[ "${caddy_yn}" == [Yy] ]]; then
@@ -549,13 +626,14 @@ Install_caddy(){
 			wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh
 			chmod +x caddy_install.sh
 			bash caddy_install.sh install
-			[[ ! -e "/usr/local/caddy/caddy" ]] && echo -e "${Error} Caddy安装失败，请手动部署，Web网页文件位置：${Web_file}" && exit 0
+			rm -rf caddy_install.sh
+			[[ ! -e "/usr/local/caddy/caddy" ]] && echo -e "${Error} Caddy安装失败，请手动部署，Web网页文件位置：${Web_file}" && exit 1
 		else
 			echo -e "${Info} 发现Caddy已安装，开始配置..."
 		fi
 		if [[ ! -s "/usr/local/caddy/Caddyfile" ]]; then
 			cat > "/usr/local/caddy/Caddyfile"<<-EOF
-http://${server_s}:${server_port_s} {
+http://${server_s}:${server_http_port_s} {
  root ${web_file}
  timeouts none
  gzip
@@ -565,7 +643,7 @@ EOF
 		else
 			echo -e "${Info} 发现 Caddy 配置文件非空，开始追加 ServerStatus 网站配置内容到文件最后..."
 			cat >> "/usr/local/caddy/Caddyfile"<<-EOF
-http://${server_s}:${server_port_s} {
+http://${server_s}:${server_http_port_s} {
  root ${web_file}
  timeouts none
  gzip
@@ -578,8 +656,9 @@ EOF
 	fi
 }
 Install_ServerStatus_server(){
-	[[ -e "${server_file}" ]] && echo -e "${Error} 检测到 ServerStatus 服务端已安装 !" && exit 1
+	[[ -e "${server_file}/sergate" ]] && echo -e "${Error} 检测到 ServerStatus 服务端已安装 !" && exit 1
 	Set_server "server"
+	Set_server_http_port
 	Set_server_port
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency "server"
@@ -591,19 +670,19 @@ Install_ServerStatus_server(){
 	Service_Server_Status_server
 	echo -e "${Info} 开始写入 配置文件..."
 	Write_server_config
+	Write_server_config_conf
 	echo -e "${Info} 开始设置 iptables防火墙..."
 	Set_iptables
 	echo -e "${Info} 开始添加 iptables防火墙规则..."
-	Add_iptables
-	port="${server_port_s}"
-	Add_iptables
+	Add_iptables "${server_port_s}"
+	Add_iptables "${server_http_port_s}"
 	echo -e "${Info} 开始保存 iptables防火墙规则..."
 	Save_iptables
 	echo -e "${Info} 所有步骤 安装完毕，开始启动..."
 	Start_ServerStatus_server
 }
 Install_ServerStatus_client(){
-	[[ -e ${client_file} ]] && echo -e "${Error} 检测到 ServerStatus 客户端已安装 !" && exit 1
+	[[ -e "${client_file}/status-client.py" ]] && echo -e "${Error} 检测到 ServerStatus 客户端已安装 !" && exit 1
 	echo -e "${Info} 开始设置 用户配置..."
 	Set_config_client
 	echo -e "${Info} 开始安装/配置 依赖..."
@@ -618,10 +697,34 @@ Install_ServerStatus_client(){
 	echo -e "${Info} 开始设置 iptables防火墙..."
 	Set_iptables
 	echo -e "${Info} 开始添加 iptables防火墙规则..."
-	Add_iptables
+	Add_iptables_OUT "${server_port_s}"
 	echo -e "${Info} 开始保存 iptables防火墙规则..."
 	Save_iptables
 	echo -e "${Info} 所有步骤 安装完毕，开始启动..."
+	Start_ServerStatus_client
+}
+Update_ServerStatus_server(){
+	check_installed_server_status
+	check_pid_server
+	[[ ! -z ${PID} ]] && /etc/init.d/status-server stop
+	Download_Server_Status_server
+	Read_config_server
+	server_port_s=${server_port}
+	Write_server_config_conf
+	Start_ServerStatus_server
+}
+Update_ServerStatus_client(){
+	check_installed_server_status
+	check_pid_client
+	[[ ! -z ${PID} ]] && /etc/init.d/status-client stop
+	Read_config_client
+	server_s=${client_server}
+	server_port_s=${client_port}
+	username_s=${client_user}
+	password_s=${client_password}
+	Download_Server_Status_client
+	Read_config_client
+	Modify_config_client
 	Start_ServerStatus_client
 }
 Start_ServerStatus_server(){
@@ -644,24 +747,27 @@ Restart_ServerStatus_server(){
 }
 Uninstall_ServerStatus_server(){
 	check_installed_server_status
-	echo "确定要卸载 ServerStatus 服务端(如果安装了客户端 不会一起删除) ? [y/N]"
+	echo "确定要卸载 ServerStatus 服务端(如果同时安装了客户端，则只会删除服务端) ? [y/N]"
 	echo
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid_server
 		[[ ! -z $PID ]] && kill -9 ${PID}
-		Del_iptables
-		if [[ -e "${client_file}" ]]; then
-			mv "${client_file}" "/usr/local/status-client.py"
-			rm -rf "${file}"
-			mkdir "${file}"
-			mv "/usr/local/status-client.py" "${client_file}"
+		Read_config_server
+		Del_iptables "${server_port}"
+		if [[ -e "${client_file}/status-client.py" ]]; then
+			rm -rf "${server_file}"
+			rm -rf "${web_file}"
 		else
 			rm -rf "${file}"
 		fi
 		rm -rf "/etc/init.d/status-server"
 		/etc/init.d/caddy stop
+		wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh
+		chmod +x caddy_install.sh
+		bash caddy_install.sh uninstall
+		rm -rf caddy_install.sh
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del status-server
 		else
@@ -692,18 +798,19 @@ Restart_ServerStatus_client(){
 }
 Uninstall_ServerStatus_client(){
 	check_installed_client_status
-	echo "确定要卸载 ServerStatus 客户端 ? [y/N]"
+	echo "确定要卸载 ServerStatus 客户端(如果同时安装了服务端，则只会删除客户端) ? [y/N]"
 	echo
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid_client
 		[[ ! -z $PID ]] && kill -9 ${PID}
-		Del_iptables
-		if [[ -e "${server_file}" ]]; then
-			rm -rf ${client_file}
+		Read_config_client
+		Del_iptables_OUT "${client_port}"
+		if [[ -e "${server_file}/sergate" ]]; then
+			rm -rf "${client_file}"
 		else
-			rm -rf ${file}
+			rm -rf "${file}"
 		fi
 		rm -rf /etc/init.d/status-client
 		if [[ ${release} = "centos" ]]; then
@@ -739,13 +846,25 @@ View_server_Log(){
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${erver_log_file}${Font_color_suffix} 命令。" && echo
 	tail -f ${erver_log_file}
 }
+Add_iptables_OUT(){
+	iptables_ADD_OUT_port=$1
+	iptables -I OUTPUT -m state --state NEW -m tcp -p tcp --dport ${iptables_ADD_OUT_port} -j ACCEPT
+	iptables -I OUTPUT -m state --state NEW -m udp -p udp --dport ${iptables_ADD_OUT_port} -j ACCEPT
+}
+Del_iptables_OUT(){
+	iptables_DEL_OUT_port=$1
+	iptables -D OUTPUT -m state --state NEW -m tcp -p tcp --dport ${iptables_DEL_OUT_port} -j ACCEPT
+	iptables -D OUTPUT -m state --state NEW -m udp -p udp --dport ${iptables_DEL_OUT_port} -j ACCEPT
+}
 Add_iptables(){
-	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${port} -j ACCEPT
-	iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${port} -j ACCEPT
+	iptables_ADD_IN_port=$1
+	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${iptables_ADD_IN_port} -j ACCEPT
+	iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${iptables_ADD_IN_port} -j ACCEPT
 }
 Del_iptables(){
-	iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${port} -j ACCEPT
-	iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${port} -j ACCEPT
+	iptables_DEL_IN_port=$1
+	iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${iptables_DEL_IN_port} -j ACCEPT
+	iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${iptables_DEL_IN_port} -j ACCEPT
 }
 Save_iptables(){
 	if [[ ${release} == "centos" ]]; then
@@ -805,21 +924,22 @@ menu_client(){
 echo && echo -e "  ServerStatus 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- Toyo | doub.io/shell-jc3 --
   
- ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+ ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
  ————————————
- ${Green_font_prefix}1.${Font_color_suffix} 安装 客户端
- ${Green_font_prefix}2.${Font_color_suffix} 卸载 客户端
+ ${Green_font_prefix} 1.${Font_color_suffix} 安装 客户端
+ ${Green_font_prefix} 2.${Font_color_suffix} 升级 客户端
+ ${Green_font_prefix} 3.${Font_color_suffix} 卸载 客户端
 ————————————
- ${Green_font_prefix}3.${Font_color_suffix} 启动 客户端
- ${Green_font_prefix}4.${Font_color_suffix} 停止 客户端
- ${Green_font_prefix}5.${Font_color_suffix} 重启 客户端
+ ${Green_font_prefix} 4.${Font_color_suffix} 启动 客户端
+ ${Green_font_prefix} 5.${Font_color_suffix} 停止 客户端
+ ${Green_font_prefix} 6.${Font_color_suffix} 重启 客户端
 ————————————
- ${Green_font_prefix}6.${Font_color_suffix} 设置 客户端配置
- ${Green_font_prefix}7.${Font_color_suffix} 查看 客户端信息
- ${Green_font_prefix}8.${Font_color_suffix} 查看 客户端日志
+ ${Green_font_prefix} 7.${Font_color_suffix} 设置 客户端配置
+ ${Green_font_prefix} 8.${Font_color_suffix} 查看 客户端信息
+ ${Green_font_prefix} 9.${Font_color_suffix} 查看 客户端日志
 ————————————
- ${Green_font_prefix}9.${Font_color_suffix} 切换为 服务端菜单" && echo
-if [[ -e ${client_file} ]]; then
+ ${Green_font_prefix}10.${Font_color_suffix} 切换为 服务端菜单" && echo
+if [[ -e "${client_file}/status-client.py" ]]; then
 	check_pid_client
 	if [[ ! -z "${PID}" ]]; then
 		echo -e " 当前状态: 客户端 ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}"
@@ -830,7 +950,7 @@ else
 	echo -e " 当前状态: 客户端 ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-9]:" num
+stty erase '^H' && read -p " 请输入数字 [0-10]:" num
 case "$num" in
 	0)
 	Update_Shell
@@ -839,31 +959,34 @@ case "$num" in
 	Install_ServerStatus_client
 	;;
 	2)
-	Uninstall_ServerStatus_client
+	Update_ServerStatus_client
 	;;
 	3)
-	Start_ServerStatus_client
+	Uninstall_ServerStatus_client
 	;;
 	4)
-	Stop_ServerStatus_client
+	Start_ServerStatus_client
 	;;
 	5)
-	Restart_ServerStatus_client
+	Stop_ServerStatus_client
 	;;
 	6)
-	Set_ServerStatus_client
+	Restart_ServerStatus_client
 	;;
 	7)
-	View_ServerStatus_client
+	Set_ServerStatus_client
 	;;
 	8)
-	View_client_Log
+	View_ServerStatus_client
 	;;
 	9)
+	View_client_Log
+	;;
+	10)
 	menu_server
 	;;
 	*)
-	echo "请输入正确数字 [0-9]"
+	echo "请输入正确数字 [0-10]"
 	;;
 esac
 }
@@ -871,21 +994,22 @@ menu_server(){
 echo && echo -e "  ServerStatus 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- Toyo | doub.io/shell-jc3 --
   
- ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+ ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
  ————————————
- ${Green_font_prefix}1.${Font_color_suffix} 安装 服务端
- ${Green_font_prefix}2.${Font_color_suffix} 卸载 服务端
+ ${Green_font_prefix} 1.${Font_color_suffix} 安装 服务端
+ ${Green_font_prefix} 2.${Font_color_suffix} 更新 服务端
+ ${Green_font_prefix} 3.${Font_color_suffix} 卸载 服务端
 ————————————
- ${Green_font_prefix}3.${Font_color_suffix} 启动 服务端
- ${Green_font_prefix}4.${Font_color_suffix} 停止 服务端
- ${Green_font_prefix}5.${Font_color_suffix} 重启 服务端
+ ${Green_font_prefix} 4.${Font_color_suffix} 启动 服务端
+ ${Green_font_prefix} 5.${Font_color_suffix} 停止 服务端
+ ${Green_font_prefix} 6.${Font_color_suffix} 重启 服务端
 ————————————
- ${Green_font_prefix}6.${Font_color_suffix} 设置 服务端配置
- ${Green_font_prefix}7.${Font_color_suffix} 查看 服务端信息
- ${Green_font_prefix}8.${Font_color_suffix} 查看 服务端日志
+ ${Green_font_prefix} 7.${Font_color_suffix} 设置 服务端配置
+ ${Green_font_prefix} 8.${Font_color_suffix} 查看 服务端信息
+ ${Green_font_prefix} 9.${Font_color_suffix} 查看 服务端日志
 ————————————
- ${Green_font_prefix}9.${Font_color_suffix} 切换为 客户端菜单" && echo
-if [[ -e ${server_file} ]]; then
+ ${Green_font_prefix}10.${Font_color_suffix} 切换为 客户端菜单" && echo
+if [[ -e "${server_file}/sergate" ]]; then
 	check_pid_server
 	if [[ ! -z "${PID}" ]]; then
 		echo -e " 当前状态: 服务端 ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}"
@@ -896,7 +1020,7 @@ else
 	echo -e " 当前状态: 服务端 ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-9]:" num
+stty erase '^H' && read -p " 请输入数字 [0-10]:" num
 case "$num" in
 	0)
 	Update_Shell
@@ -905,31 +1029,34 @@ case "$num" in
 	Install_ServerStatus_server
 	;;
 	2)
-	Uninstall_ServerStatus_server
+	Update_ServerStatus_server
 	;;
 	3)
-	Start_ServerStatus_server
+	Uninstall_ServerStatus_server
 	;;
 	4)
-	Stop_ServerStatus_server
+	Start_ServerStatus_server
 	;;
 	5)
-	Restart_ServerStatus_server
+	Stop_ServerStatus_server
 	;;
 	6)
-	Set_ServerStatus_server
+	Restart_ServerStatus_server
 	;;
 	7)
-	List_ServerStatus_server
+	Set_ServerStatus_server
 	;;
 	8)
-	View_server_Log
+	List_ServerStatus_server
 	;;
 	9)
+	View_server_Log
+	;;
+	10)
 	menu_client
 	;;
 	*)
-	echo "请输入正确数字 [0-9]"
+	echo "请输入正确数字 [0-10]"
 	;;
 esac
 }
