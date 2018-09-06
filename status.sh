@@ -715,7 +715,7 @@ Update_ServerStatus_server(){
 	Start_ServerStatus_server
 }
 Update_ServerStatus_client(){
-	check_installed_server_status
+	check_installed_client_status
 	check_pid_client
 	[[ ! -z ${PID} ]] && /etc/init.d/status-client stop
 	if [[ ! -e "${client_file}/status-client.py" ]]; then
