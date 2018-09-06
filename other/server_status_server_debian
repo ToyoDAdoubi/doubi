@@ -28,12 +28,10 @@ check_running(){
 	fi
 }
 Read_config(){
-	if [[ ! -e "${CONF1}" ]]; then
-		port="--port=$(cat "${CONF1}"|grep "PORT = "|awk '{print $3}')"
-		port="--port=${port}"
+	if [[ -e "${CONF1}" ]]; then
+		port="$(cat "${CONF1}"|grep "PORT = "|awk '{print $3}')"
 	else
-		port=""
-		echo -e "${Error} ServerStatus 服务端配置文件不存在 !" && exit 1
+		port="35601"
 	if
 }
 do_start(){

@@ -30,12 +30,10 @@ check_running(){
 	fi
 }
 Read_config(){
-	if [[ ! -e "${CONF1}" ]]; then
-		port="--port=$(cat "${CONF1}"|grep "PORT = "|awk '{print $3}')"
-		port="--port=${port}"
+	if [[ -e "${CONF1}" ]]; then
+		port="$(cat "${CONF1}"|grep "PORT = "|awk '{print $3}')"
 	else
-		port=""
-		echo -e "${Error} ServerStatus 服务端配置文件不存在 !" && exit 1
+		port="35601"
 	if
 }
 do_start(){
@@ -45,7 +43,7 @@ do_start(){
 	else
 		Read_config
 		cd "${SERVER_BIN}"
-		nohup "./$NAME_BIN" --config="$CONF" --web-dir="$WEB_BIN" "${port}" > /tmp/serverstatus_server.log 2>&1 &
+		nohup "./$NAME_BIN" --config="$CONF" --web-dir="$WEB_BIN" --port=${port} > /tmp/serverstatus_server.log 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
