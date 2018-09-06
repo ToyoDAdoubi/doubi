@@ -32,7 +32,7 @@ Read_config(){
 		port="$(cat "${CONF1}"|grep "PORT = "|awk '{print $3}')"
 	else
 		port="35601"
-	if
+	fi
 }
 do_start(){
 	check_running
