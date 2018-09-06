@@ -927,7 +927,7 @@ echo && echo -e "  ServerStatus 一键安装管理脚本 ${Red_font_prefix}[v${s
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
  ————————————
  ${Green_font_prefix} 1.${Font_color_suffix} 安装 客户端
- ${Green_font_prefix} 2.${Font_color_suffix} 升级 客户端
+ ${Green_font_prefix} 2.${Font_color_suffix} 更新 客户端
  ${Green_font_prefix} 3.${Font_color_suffix} 卸载 客户端
 ————————————
  ${Green_font_prefix} 4.${Font_color_suffix} 启动 客户端
