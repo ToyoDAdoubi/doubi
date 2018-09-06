@@ -714,11 +714,20 @@ Update_ServerStatus_client(){
 	check_installed_server_status
 	check_pid_client
 	[[ ! -z ${PID} ]] && /etc/init.d/status-client stop
-	Read_config_client
-	server_s=${client_server}
-	server_port_s=${client_port}
-	username_s=${client_user}
-	password_s=${client_password}
+	if [[ ! -e "${client_file}/status-client.py" ]]; then
+		if [[ ! -e "${file}/status-client.py" ]]; then
+			echo -e "${Error} ServerStatus 客户端文件不存在 !" && exit 1
+		else
+			client_text="$(cat "${file}/status-client.py"|sed 's/\"//g;s/,//g;s/ //g')"
+			rm -rf "${file}/status-client.py"
+		fi
+	else
+		client_text="$(cat "${client_file}/status-client.py"|sed 's/\"//g;s/,//g;s/ //g')"
+	fi
+	server_s="$(echo -e "${client_text}"|grep "SERVER="|awk -F "=" '{print $2}')"
+	server_port_s="$(echo -e "${client_text}"|grep "PORT="|awk -F "=" '{print $2}')"
+	username_s="$(echo -e "${client_text}"|grep "USER="|awk -F "=" '{print $2}')"
+	password_s="$(echo -e "${client_text}"|grep "PASSWORD="|awk -F "=" '{print $2}')"
 	Download_Server_Status_client
 	Read_config_client
 	Modify_config_client
