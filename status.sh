@@ -708,9 +708,6 @@ Update_ServerStatus_server(){
 	check_pid_server
 	[[ ! -z ${PID} ]] && /etc/init.d/status-server stop
 	Download_Server_Status_server
-	Read_config_server
-	server_port_s=${server_port}
-	Write_server_config_conf
 	Start_ServerStatus_server
 }
 Update_ServerStatus_client(){
