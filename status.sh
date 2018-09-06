@@ -720,6 +720,8 @@ Update_ServerStatus_server(){
 	check_pid_server
 	[[ ! -z ${PID} ]] && /etc/init.d/status-server stop
 	Download_Server_Status_server
+	rm -rf /etc/init.d/status-server
+	Service_Server_Status_server
 	Start_ServerStatus_server
 }
 Update_ServerStatus_client(){
@@ -743,6 +745,8 @@ Update_ServerStatus_client(){
 	Download_Server_Status_client
 	Read_config_client
 	Modify_config_client
+	rm -rf /etc/init.d/status-client
+	Service_Server_Status_client
 	Start_ServerStatus_client
 }
 Start_ServerStatus_server(){
