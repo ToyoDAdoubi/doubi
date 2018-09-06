@@ -215,8 +215,16 @@ PORT = ${server_port_s}
 EOF
 }
 Read_config_client(){
-	[[ ! -e "${client_file}/status-client.py" ]] && echo -e "${Error} ServerStatus 客户端文件不存在 !" && exit 1
-	client_text="$(cat "${client_file}/status-client.py"|sed 's/\"//g;s/,//g;s/ //g')"
+	if [[ ! -e "${client_file}/status-client.py" ]]; then
+		if [[ ! -e "${file}/status-client.py" ]]; then
+			echo -e "${Error} ServerStatus 客户端文件不存在 !" && exit 1
+		else
+			client_text="$(cat "${file}/status-client.py"|sed 's/\"//g;s/,//g;s/ //g')"
+			rm -rf "${file}/status-client.py"
+		fi
+	else
+		client_text="$(cat "${client_file}/status-client.py"|sed 's/\"//g;s/,//g;s/ //g')"
+	fi
 	client_server="$(echo -e "${client_text}"|grep "SERVER="|awk -F "=" '{print $2}')"
 	client_port="$(echo -e "${client_text}"|grep "PORT="|awk -F "=" '{print $2}')"
 	client_user="$(echo -e "${client_text}"|grep "USER="|awk -F "=" '{print $2}')"
