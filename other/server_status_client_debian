@@ -12,7 +12,13 @@
 
 NAME="ServerStatus Client"
 NAME_BIN="status-client.py"
-BIN="/usr/local/ServerStatus/client/status-client.py"
+if [[ -e "/usr/local/ServerStatus/client/status-client.py" ]]; then
+	BIN="/usr/local/ServerStatus/client/status-client.py"
+elif [[ -e "/usr/local/ServerStatus/status-client.py" ]]; then
+	BIN="/usr/local/ServerStatus/status-client.py"
+else
+	echo -e "${Error_font_prefix}[错误]${Font_suffix} 客户端文件($NAME_BIN)找不到 !" && exit 1
+fi
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
 RETVAL=0
 
