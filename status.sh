@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.12
+#	Version: 1.0.13
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.12"
+sh_ver="1.0.13"
 file="/usr/local/ServerStatus"
 web_file="/usr/local/ServerStatus/web"
 server_file="/usr/local/ServerStatus/server"
@@ -49,7 +49,11 @@ check_installed_server_status(){
 	[[ ! -e "${server_file}/sergate" ]] && echo -e "${Error} ServerStatus 服务端没有安装，请检查 !" && exit 1
 }
 check_installed_client_status(){
-	[[ ! -e "${client_file}/status-client.py" ]] && echo -e "${Error} ServerStatus 客户端没有安装，请检查 !" && exit 1
+	if [[ ! -e "${client_file}/status-client.py" ]]; then
+		if [[ ! -e "${file}/status-client.py" ]]; then
+			echo -e "${Error} ServerStatus 客户端没有安装，请检查 !" && exit 1
+		fi
+	fi
 }
 check_pid_server(){
 	PID=`ps -ef| grep "sergate"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
@@ -953,7 +957,16 @@ if [[ -e "${client_file}/status-client.py" ]]; then
 		echo -e " 当前状态: 客户端 ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}"
 	fi
 else
-	echo -e " 当前状态: 客户端 ${Red_font_prefix}未安装${Font_color_suffix}"
+	if [[ -e "${file}/status-client.py" ]]; then
+		check_pid_client
+		if [[ ! -z "${PID}" ]]; then
+			echo -e " 当前状态: 客户端 ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}"
+		else
+			echo -e " 当前状态: 客户端 ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}"
+		fi
+	else
+		echo -e " 当前状态: 客户端 ${Red_font_prefix}未安装${Font_color_suffix}"
+	fi
 fi
 echo
 stty erase '^H' && read -p " 请输入数字 [0-10]:" num
