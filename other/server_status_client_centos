@@ -15,7 +15,7 @@
 NAME="ServerStatus Client"
 NAME_BIN="status-client.py"
 SERVER_BIN="/usr/local/ServerStatus"
-BIN="/usr/local/ServerStatus/status-client.py"
+BIN="/usr/local/ServerStatus/client/status-client.py"
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
 RETVAL=0
 

@@ -17,6 +17,7 @@ NAME_BIN="sergate"
 SERVER_BIN="/usr/local/ServerStatus/server"
 WEB_BIN="/usr/local/ServerStatus/web"
 CONF="/usr/local/ServerStatus/server/config.json"
+CONF1="/usr/local/ServerStatus/server/config.conf"
 Info_font_prefix="\033[32m" && Error_font_prefix="\033[31m" && Info_background_prefix="\033[42;37m" && Error_background_prefix="\033[41;37m" && Font_suffix="\033[0m"
 RETVAL=0
 
@@ -28,17 +29,22 @@ check_running(){
 		return 1
 	fi
 }
+Read_config(){
+	[[ ! -e "${CONF1}" ]] && echo -e "${Error} ServerStatus 服务端配置文件不存在 !" && exit 1
+	port="$(cat "${CONF1}"|grep "PORT = "|awk '{print $3}')"
+}
 do_start(){
 	check_running
 	if [[ $? -eq 0 ]]; then
 		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
+		Read_config
 		cd "${SERVER_BIN}"
-		nohup "./$NAME_BIN" --config="$CONF" --web-dir="$WEB_BIN" > /tmp/serverstatus_server.log 2>&1 &
+		nohup "./$NAME_BIN" --config="$CONF" --web-dir="$WEB_BIN" --port=${port} > /tmp/serverstatus_server.log 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
-			echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME 启动成功 !"
+			echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME 启动成功[监听端口：${port}] !"
 		else
 			echo -e "${Error_font_prefix}[错误]${Font_suffix} $NAME 启动失败 !"
 		fi
