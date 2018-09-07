@@ -106,23 +106,23 @@ Download_Server_Status_client(){
 	[[ ! -e "${file}" ]] && mkdir "${file}"
 	if [[ ! -e "${client_file}" ]]; then
 		mkdir "${client_file}"
-		mv status-client.py "${client_file}/status-client.py"
+		mv "/tmp/status-client.py" "${client_file}/status-client.py"
 	else
 		if [[ -e "${client_file}/status-client.py" ]]; then
 			mv "${client_file}/status-client.py" "${client_file}/status-client1.py"
-			mv status-client.py "${client_file}/status-client.py"
+			mv "/tmp/status-client.py" "${client_file}/status-client.py"
 		else
-			mv status-client.py "${client_file}/status-client.py"
+			mv "/tmp/status-client.py" "${client_file}/status-client.py"
 		fi
 	fi
 	if [[ ! -e "${client_file}/status-client.py" ]]; then
 		echo -e "${Error} ServerStatus 客户端移动失败 !"
 		[[ -e "${client_file}/status-client1.py" ]] && mv "${client_file}/status-client1.py" "${client_file}/status-client.py"
-		rm -rf "tmp/status-client.py"
+		rm -rf "/tmp/status-client.py"
 		exit 1
 	else
 		[[ -e "${client_file}/status-client1.py" ]] && rm -rf "${client_file}/status-client1.py"
-		rm -rf "tmp/status-client.py"
+		rm -rf "/tmp/status-client.py"
 	fi
 }
 Service_Server_Status_server(){
