@@ -11,6 +11,8 @@ export PATH
 #=================================================
 
 sh_ver="1.0.13"
+filepath=$(cd "$(dirname "$0")"; pwd)
+file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/ServerStatus"
 web_file="/usr/local/ServerStatus/web"
 server_file="/usr/local/ServerStatus/server"
@@ -70,7 +72,8 @@ Download_Server_Status_server(){
 	[[ ! -e "/tmp/ServerStatus-Toyo-master" ]] && echo -e "${Error} ServerStatus 服务端解压失败 !" && exit 1
 	cd "/tmp/ServerStatus-Toyo-master/server"
 	make
-	[[ ! -e "sergate" ]] && echo -e "${Error} ServerStatus 服务端编译失败 !" && rm -rf "/tmp/ServerStatus-Toyo-master" && exit 1
+	[[ ! -e "sergate" ]] && echo -e "${Error} ServerStatus 服务端编译失败 !" && cd "${file_1}" && rm -rf "/tmp/ServerStatus-Toyo-master" && exit 1
+	cd "${file_1}"
 	[[ ! -e "${file}" ]] && mkdir "${file}"
 	if [[ ! -e "${server_file}" ]]; then
 		mkdir "${server_file}"
@@ -99,6 +102,7 @@ Download_Server_Status_client(){
 	cd "/tmp"
 	wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/ServerStatus-Toyo/master/clients/status-client.py"
 	[[ ! -e "status-client.py" ]] && echo -e "${Error} ServerStatus 客户端下载失败 !" && exit 1
+	cd "${file_1}"
 	[[ ! -e "${file}" ]] && mkdir "${file}"
 	if [[ ! -e "${client_file}" ]]; then
 		mkdir "${client_file}"
