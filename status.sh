@@ -235,8 +235,13 @@ Read_config_client(){
 	client_password="$(echo -e "${client_text}"|grep "PASSWORD="|awk -F "=" '{print $2}')"
 }
 Read_config_server(){
-	[[ ! -e "${server_conf_1}" ]] && echo -e "${Error} ServerStatus 服务端配置文件不存在 !" && exit 1
-	server_port="$(cat "${server_conf_1}"|grep "PORT = "|awk '{print $3}')"
+	if [[ ! -e "${server_conf_1}" ]]; then
+		server_port_s="35601"
+		Write_server_config_conf
+		server_port="35601"
+	else
+		server_port="$(cat "${server_conf_1}"|grep "PORT = "|awk '{print $3}')"
+	fi
 }
 Set_server(){
 	mode=$1
