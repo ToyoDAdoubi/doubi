@@ -794,11 +794,13 @@ Uninstall_ServerStatus_server(){
 			rm -rf "${file}"
 		fi
 		rm -rf "/etc/init.d/status-server"
-		/etc/init.d/caddy stop
-		wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh
-		chmod +x caddy_install.sh
-		bash caddy_install.sh uninstall
-		rm -rf caddy_install.sh
+		if [[ -e "/etc/init.d/caddy" ]]; then
+			/etc/init.d/caddy stop
+			wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh
+			chmod +x caddy_install.sh
+			bash caddy_install.sh uninstall
+			rm -rf caddy_install.sh
+		fi
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del status-server
 		else
