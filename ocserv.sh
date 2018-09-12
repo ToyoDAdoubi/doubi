@@ -476,7 +476,7 @@ Set_iptables(){
 	ifconfig_status=$(ifconfig)
 	if [[ -z ${ifconfig_status} ]]; then
 		echo -e "${Error} ifconfig 未安装 !"
-		stty erase '^H' && read -p "请手动输入你的网卡名(一般情况下，网卡名为 eth0，Debian9 则为 ens3，CentOS Ubuntu 最新版本可能为 enpXsX，OpenVZ 虚拟化则为 venet0):" Network_card
+		stty erase '^H' && read -p "请手动输入你的网卡名(一般情况下，网卡名为 eth0，Debian9 则为 ens3，CentOS Ubuntu 最新版本可能为 enpXsX(X代表数字或字母)，OpenVZ 虚拟化则为 venet0):" Network_card
 		[[ -z "${Network_card}" ]] && echo "取消..." && exit 1
 	else
 		Network_card=$(ifconfig|grep "eth0")
@@ -492,7 +492,7 @@ Set_iptables(){
 					Network_card="venet0"
 				else
 					ifconfig
-					stty erase '^H' && read -p "检测到本服务器的网卡非 eth0 \ ens3(Debian9) \ venet0(OpenVZ) \ enpXsX(CentOS Ubuntu 最新版本)，请根据上面输出的网卡信息手动输入你的网卡名:" Network_card
+					stty erase '^H' && read -p "检测到本服务器的网卡非 eth0 \ ens3(Debian9) \ venet0(OpenVZ) \ enpXsX(CentOS Ubuntu 最新版本，X代表数字或字母)，请根据上面输出的网卡信息手动输入你的网卡名:" Network_card
 					[[ -z "${Network_card}" ]] && echo "取消..." && exit 1
 				fi
 			fi
