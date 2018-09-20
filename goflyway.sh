@@ -556,24 +556,13 @@ Set_iptables(){
 	fi
 }
 Update_Shell(){
-	softs_domain=$(wget --no-check-certificate -qO- -t1 -T3 "https://doub.pw/new_softs.txt")
-	if [[ -z ${softs_domain} ]]; then
-		softs_domain="https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/"
-	else
-		softs_domain="https://${softs_domain}/Bash/"
-	fi
-	sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "${softs_domain}goflyway.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
-	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/goflyway.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
-	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 无法链接到 逗比云 或 Github !" && exit 0
+	sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/goflyway.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 无法链接到 Github !" && exit 0
 	if [[ -e "/etc/init.d/goflyway" ]]; then
 		rm -rf /etc/init.d/goflyway
 		Service_goflyway
 	fi
-	if [[ $sh_new_type == "softs" ]]; then
-		wget -N --no-check-certificate "${softs_domain}goflyway.sh" && chmod +x goflyway.sh
-	else
-		wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/goflyway.sh" && chmod +x goflyway.sh
-	fi
+	wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/goflyway.sh" && chmod +x goflyway.sh
 	echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
 check_sys

@@ -72,13 +72,7 @@ check_new_ver(){
 版本列表请去这里获取：${Green_font_prefix}[ https://github.com/txthinking/brook/releases ]${Font_color_suffix}"
 	stty erase '^H' && read -p "直接回车即自动获取:" brook_new_ver
 	if [[ -z ${brook_new_ver} ]]; then
-		if [[ "${Download_type}" == "1" ]]; then
-			softs_domain=$(wget --no-check-certificate -qO- -t1 -T3 "https://doub.pw/new_softs.txt")
-			[[ -z ${softs_domain} ]] && softs_domain="softs.wtf"
-			brook_new_ver=$(wget -qO- "https://${softs_domain}/?dir=%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux"|grep 'data-name="Brook-x64-v'|head -n 1|awk -F 'Linux/Brook-x64-' '{print $2}'|sed 's/\">//')
-		else
-			brook_new_ver=$(wget -qO- https://api.github.com/repos/txthinking/brook/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
-		fi
+		brook_new_ver=$(wget -qO- https://api.github.com/repos/txthinking/brook/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
 		[[ -z ${brook_new_ver} ]] && echo -e "${Error} Brook 最新版本获取失败！" && exit 1
 		echo -e "${Info} 检测到 Brook 最新版本为 [ ${brook_new_ver} ]"
 	else
@@ -107,64 +101,29 @@ check_ver_comparison(){
 Download_brook(){
 	[[ ! -e ${file} ]] && mkdir ${file}
 	cd ${file}
-	if [[ "${Download_type}" == "1" ]]; then
-		softs_domain=$(wget --no-check-certificate -qO- -t1 -T3 "https://doub.pw/new_softs.txt")
-		[[ -z ${softs_domain} ]] && softs_domain="softs.wtf"
-		if [[ ${bit} == "x86_64" ]]; then
-			wget --no-check-certificate -N "https://${softs_domain}/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux/Brook-x64-${brook_new_ver}"
-			mv "Brook-x64-${brook_new_ver}" brook
-		else
-			wget --no-check-certificate -N "https://${softs_domain}/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/PC/Brook/Linux/Brook-x32-${brook_new_ver}"
-			mv "Brook-x32-${brook_new_ver}" brook
-		fi
+	if [[ ${bit} == "x86_64" ]]; then
+		wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook"
 	else
-		if [[ ${bit} == "x86_64" ]]; then
-			wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook"
-		else
-			wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook_linux_386"
-			mv brook_linux_386 brook
-		fi
+		wget --no-check-certificate -N "https://github.com/txthinking/brook/releases/download/${brook_new_ver}/brook_linux_386"
+		mv brook_linux_386 brook
 	fi
 	[[ ! -e "brook" ]] && echo -e "${Error} Brook 下载失败 !" && exit 1
 	chmod +x brook
 }
 Service_brook(){
-	if [[ "${Download_type}" == "1" ]]; then
-		softs_domain=$(wget --no-check-certificate -qO- "https://doub.pw/new_softs.txt")
-		if [[ -z ${softs_domain} ]]; then
-			softs_domain="https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/"
-		else
-			softs_domain="https://${softs_domain}/Bash/"
+	if [[ ${release} = "centos" ]]; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/brook-pf_centos -O /etc/init.d/brook-pf; then
+			echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
 		fi
-		if [[ ${release} = "centos" ]]; then
-			if ! wget --no-check-certificate "${softs_domain}other/brook-pf_centos" -O /etc/init.d/brook-pf; then
-				echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
-			fi
-			chmod +x /etc/init.d/brook-pf
-			chkconfig --add brook-pf
-			chkconfig brook-pf on
-		else
-			if ! wget --no-check-certificate "${softs_domain}other/brook-pf_debian" -O /etc/init.d/brook-pf; then
-				echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
-			fi
-			chmod +x /etc/init.d/brook-pf
-			update-rc.d -f brook-pf defaults
-		fi
+		chmod +x /etc/init.d/brook-pf
+		chkconfig --add brook-pf
+		chkconfig brook-pf on
 	else
-		if [[ ${release} = "centos" ]]; then
-			if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/brook-pf_centos -O /etc/init.d/brook-pf; then
-				echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
-			fi
-			chmod +x /etc/init.d/brook-pf
-			chkconfig --add brook-pf
-			chkconfig brook-pf on
-		else
-			if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/brook-pf_debian -O /etc/init.d/brook-pf; then
-				echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
-			fi
-			chmod +x /etc/init.d/brook-pf
-			update-rc.d -f brook-pf defaults
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/brook-pf_debian -O /etc/init.d/brook-pf; then
+			echo -e "${Error} Brook服务 管理脚本下载失败 !" && exit 1
 		fi
+		chmod +x /etc/init.d/brook-pf
+		update-rc.d -f brook-pf defaults
 	fi
 	echo -e "${Info} Brook服务 管理脚本下载完成 !"
 }
@@ -482,24 +441,10 @@ Install_brook(){
 	[[ -e ${brook_file} ]] && echo -e "${Error} 检测到 Brook 已安装 !" && exit 1
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency
-	
-	echo && echo -e "请选择你的服务器是国内还是国外
- ${Green_font_prefix}1.${Font_color_suffix}  国内服务器(逗比云)
- ${Green_font_prefix}2.${Font_color_suffix}  国外服务器(Github)
- 
- ${Tip} 因为国内对 Github 限速，这会导致国内服务器下载速度极慢，所以选择 国内服务器 选项就会从我的 逗比云 下载!" && echo
-	stty erase '^H' && read -p "(默认: 2 国外服务器):" bk_Download
-	[[ -z "${bk_Download}" ]] && bk_Download="2"
-	if [[ ${bk_Download} == "1" ]]; then
-		Download_type="1"
-	else
-		Download_type="2"
-	fi
 	echo -e "${Info} 开始检测最新版本..."
 	check_new_ver
 	echo -e "${Info} 开始下载/安装..."
 	Download_brook
-	
 	echo -e "${Info} 开始下载/安装 服务脚本(init)..."
 	Service_brook
 	echo -e "${Info} 开始写入 配置文件..."
@@ -678,24 +623,13 @@ Set_iptables(){
 	fi
 }
 Update_Shell(){
-	softs_domain=$(wget --no-check-certificate -qO- -t1 -T3 "https://doub.pw/new_softs.txt")
-	if [[ -z ${softs_domain} ]]; then
-		softs_domain="https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/"
-	else
-		softs_domain="https://${softs_domain}/Bash/"
-	fi
-	sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "${softs_domain}brook-pf.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="softs"
-	[[ -z ${sh_new_ver} ]] && sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook-pf.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
-	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 无法链接到 逗比云 或 Github !" && exit 0
+	sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook-pf.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 无法链接到 Github !" && exit 0
 	if [[ -e "/etc/init.d/brook-pf" ]]; then
 		rm -rf /etc/init.d/brook-pf
 		Service_brook
 	fi
-	if [[ ${sh_new_type} == "softs" ]]; then
-		wget -N --no-check-certificate "${softs_domain}brook-pf.sh" && chmod +x brook.sh
-	else
-		wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook-pf.sh" && chmod +x brook.sh
-	fi
+	wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook-pf.sh" && chmod +x brook.sh
 	echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
 check_sys
