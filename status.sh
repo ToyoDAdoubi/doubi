@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.13
+#	Version: 1.0.14
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.13"
+sh_ver="1.0.14"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/ServerStatus"
@@ -424,7 +424,7 @@ List_ServerStatus_server(){
 	conf_list_all=""
 	for((integer = 0; integer <= ${conf_text_total_a}; integer++))
 	do
-		now_text=$(${jq_file} '.servers' ${server_conf}|${jq_file} ".[${integer}]"|sed 's/\"//g;s/,//g'|sed '$d;1d')
+		now_text=$(${jq_file} '.servers' ${server_conf}|${jq_file} ".[${integer}]"|sed 's/\"//g;s/,$//g'|sed '$d;1d')
 		now_text_username=$(echo -e "${now_text}"|grep "username"|awk -F ": " '{print $2}')
 		now_text_password=$(echo -e "${now_text}"|grep "password"|awk -F ": " '{print $2}')
 		now_text_name=$(echo -e "${now_text}"|grep "name"|grep -v "username"|awk -F ": " '{print $2}')
@@ -470,7 +470,7 @@ Del_ServerStatus_server(){
 		del_username_max_text_last=`echo ${del_username_max_text:((${#del_username_max_text} - 1))}`
 		if [[ ${del_username_max_text_last} != "," ]]; then
 			del_list_num=$(expr $del_username_min - 1)
-			sed -i "${del_list_num}s/,//g" ${server_conf}
+			sed -i "${del_list_num}s/,$//g" ${server_conf}
 		fi
 		sed -i "${del_username_min},${del_username_max}d" ${server_conf}
 		echo -e "${Info} 节点删除成功 ${Green_font_prefix}[ 节点用户名: ${del_server_username} ]${Font_color_suffix} "
@@ -503,7 +503,7 @@ Modify_ServerStatus_server_password(){
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_password
 		Set_password_num_a=$(expr $Set_username_num + 1)
-		Set_password_num_text=$(sed -n "${Set_password_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
+		Set_password_num_text=$(sed -n "${Set_password_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_password_num_a}"'s/"password": "'"${Set_password_num_text}"'"/"password": "'"${password_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功 [ 原节点密码: ${Set_password_num_text}, 新节点密码: ${password_s} ]"
 	else
@@ -519,7 +519,7 @@ Modify_ServerStatus_server_name(){
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_name
 		Set_name_num_a=$(expr $Set_username_num + 2)
-		Set_name_num_a_text=$(sed -n "${Set_name_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
+		Set_name_num_a_text=$(sed -n "${Set_name_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_name_num_a}"'s/"name": "'"${Set_name_num_a_text}"'"/"name": "'"${name_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功 [ 原节点名称: ${Set_name_num_a_text}, 新节点名称: ${name_s} ]"
 	else
@@ -535,7 +535,7 @@ Modify_ServerStatus_server_type(){
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_type
 		Set_type_num_a=$(expr $Set_username_num + 3)
-		Set_type_num_a_text=$(sed -n "${Set_type_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
+		Set_type_num_a_text=$(sed -n "${Set_type_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_type_num_a}"'s/"type": "'"${Set_type_num_a_text}"'"/"type": "'"${type_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功 [ 原节点虚拟化: ${Set_type_num_a_text}, 新节点虚拟化: ${type_s} ]"
 	else
@@ -551,7 +551,7 @@ Modify_ServerStatus_server_location(){
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_location
 		Set_location_num_a=$(expr $Set_username_num + 5)
-		Set_location_num_a_text=$(sed -n "${Set_location_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
+		Set_location_num_a_text=$(sed -n "${Set_location_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_location_num_a}"'s/"location": "'"${Set_location_num_a_text}"'"/"location": "'"${location_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功 [ 原节点位置: ${Set_location_num_a_text}, 新节点位置: ${location_s} ]"
 	else
@@ -572,16 +572,16 @@ Modify_ServerStatus_server_all(){
 		Set_location
 		sed -i "${Set_username_num}"'s/"username": "'"${manually_username}"'"/"username": "'"${username_s}"'"/g' ${server_conf}
 		Set_password_num_a=$(expr $Set_username_num + 1)
-		Set_password_num_text=$(sed -n "${Set_password_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
+		Set_password_num_text=$(sed -n "${Set_password_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_password_num_a}"'s/"password": "'"${Set_password_num_text}"'"/"password": "'"${password_s}"'"/g' ${server_conf}
 		Set_name_num_a=$(expr $Set_username_num + 2)
-		Set_name_num_a_text=$(sed -n "${Set_name_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
+		Set_name_num_a_text=$(sed -n "${Set_name_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_name_num_a}"'s/"name": "'"${Set_name_num_a_text}"'"/"name": "'"${name_s}"'"/g' ${server_conf}
 		Set_type_num_a=$(expr $Set_username_num + 3)
-		Set_type_num_a_text=$(sed -n "${Set_type_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
+		Set_type_num_a_text=$(sed -n "${Set_type_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_type_num_a}"'s/"type": "'"${Set_type_num_a_text}"'"/"type": "'"${type_s}"'"/g' ${server_conf}
 		Set_location_num_a=$(expr $Set_username_num + 5)
-		Set_location_num_a_text=$(sed -n "${Set_location_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
+		Set_location_num_a_text=$(sed -n "${Set_location_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_location_num_a}"'s/"location": "'"${Set_location_num_a_text}"'"/"location": "'"${location_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功。"
 	else
@@ -596,7 +596,7 @@ Modify_ServerStatus_server_disabled(){
 	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_disabled_num_a=$(expr $Set_username_num + 6)
-		Set_disabled_num_a_text=$(sed -n "${Set_disabled_num_a}p" ${server_conf}|sed 's/\"//g;s/,//g'|awk -F ": " '{print $2}')
+		Set_disabled_num_a_text=$(sed -n "${Set_disabled_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		if [[ ${Set_disabled_num_a_text} == "false" ]]; then
 			disabled_s="true"
 		else
