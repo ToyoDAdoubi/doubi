@@ -3,37 +3,37 @@
 ## 脚本索引
 
 * **代理相关**
-  * [*ssr.sh*](#ssrsh)
-  * [*ssrmu.sh*](#ssrmush)
-  * [*brook.sh*](#brooksh)
-  * [*goflyway.sh*](#goflywaysh)
-  * [*lightsocks.sh*](#lightsockssh)
-  * [*mtproxy.sh*](#mtproxysh)
+  * [ssr.sh](#ssrsh)
+  * [ssrmu.sh](#ssrmush)
+  * [brook.sh](#brooksh)
+  * [goflyway.sh](#goflywaysh)
+  * [lightsocks.sh](#lightsockssh)
+  * [mtproxy.sh](#mtproxysh)
 * **中转相关**
-  * [*iptables-pf.sh*](#iptables-pfsh)
-  * [*brook-pf.sh*](#brook-pfsh)
-  * [*haproxy.sh*](#haproxysh)
-  * [*socat.sh*](#socatsh)
-  * [*tinymapper.sh*](#tinymappersh)
+  * [iptables-pf.sh](#iptables-pfsh)
+  * [brook-pf.sh](#brook-pfsh)
+  * [haproxy.sh](#haproxysh)
+  * [socat.sh](#socatsh)
+  * [tinymapper.sh](#tinymappersh)
 * **BT下载相关**
-  * [*aria2.sh*](#aria2sh)
-  * [*cloudt.sh*](#cloudtsh)
-  * [*pserver.sh*](#pserversh)
+  * [aria2.sh](#aria2sh)
+  * [cloudt.sh](#cloudtsh)
+  * [pserver.sh](#pserversh)
 * **服务器相关**
-  * [*bbr.sh*](#bbrsh)
-  * [*status.sh*](#statussh)
-  * [*ban_iptables.sh*](#ban_iptablessh)
-  * [*ssh_port.sh*](#ssh_portsh)
+  * [bbr.sh](#bbrsh)
+  * [status.sh](#statussh)
+  * [ban_iptables.sh](#ban_iptablessh)
+  * [ssh_port.sh](#ssh_portsh)
 * **VPN 相关**
-  * [*ocserv.sh*](#ocservsh)
+  * [ocserv.sh](#ocservsh)
 * **DNS 相关**
-  * [*dowsdns.sh*](#dowsdnssh)
+  * [dowsdns.sh](#dowsdnssh)
 * **HTTP 相关**
-  * [*caddy_install.sh*](#caddy_installsh)
-  * [*pythonhttp.sh*](#pythonhttpsh)
+  * [caddy_install.sh](#caddy_installsh)
+  * [pythonhttp.sh](#pythonhttpsh)
 * **其他**
-  * [*adbyby.sh*](#adbybysh)
-  * [*libsodium.sh*](#libsodiumsh)
+  * [adbyby.sh](#adbybysh)
+  * [libsodium.sh](#libsodiumsh)
 
 ---
 
