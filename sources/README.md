@@ -2,7 +2,7 @@
 # 一些 Debian 系统软件包镜像源(sources)
 
 本页面是一些Debian系统的 apt-get 软件包镜像源(sources)。  
-***注意：本页面仅针对 Debian 7 / Debian 8 系统，Debian 9 请不要执行下面代码更换！***
+> 注意：本页面仅针对 Debian 7 / Debian 8 系统，Debian 9 请不要执行下面代码更换！
 
 ----
 
