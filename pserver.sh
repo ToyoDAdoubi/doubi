@@ -111,14 +111,14 @@ Download_shanhou(){
 }
 Service_ps(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/pserver_centos" -O /etc/init.d/pserver; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/pserver_centos" -O /etc/init.d/pserver; then
 			echo -e "${Error} Peerflix Server服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/pserver
 		chkconfig --add pserver
 		chkconfig pserver on
 	else
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/pserver_debian" -O /etc/init.d/pserver; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/pserver_debian" -O /etc/init.d/pserver; then
 			echo -e "${Error} Peerflix Server服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/pserver

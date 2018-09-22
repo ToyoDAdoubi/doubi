@@ -96,14 +96,14 @@ Download_multi(){
 }
 Service_mtproxy(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/mtproxy_centos" -O /etc/init.d/mtproxy; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/mtproxy_centos" -O /etc/init.d/mtproxy; then
 			echo -e "${Error} MTProxy服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x "/etc/init.d/mtproxy"
 		chkconfig --add mtproxy
 		chkconfig mtproxy on
 	else
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/mtproxy_debian" -O /etc/init.d/mtproxy; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/mtproxy_debian" -O /etc/init.d/mtproxy; then
 			echo -e "${Error} MTProxy服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x "/etc/init.d/mtproxy"

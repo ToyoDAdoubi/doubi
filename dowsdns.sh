@@ -62,14 +62,14 @@ Download_dowsdns(){
 }
 Service_dowsdns(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/dowsdns_centos" -O /etc/init.d/dowsdns; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/dowsdns_centos" -O /etc/init.d/dowsdns; then
 			echo -e "${Error} DowsDNS 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/dowsdns
 		chkconfig --add dowsdns
 		chkconfig dowsdns on
 	else
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/dowsdns_debian" -O /etc/init.d/dowsdns; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/dowsdns_debian" -O /etc/init.d/dowsdns; then
 			echo -e "${Error} DowsDNS 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/dowsdns

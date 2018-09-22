@@ -60,14 +60,14 @@ Download_adbyby(){
 }
 Service_adbyby(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/adbyby_centos -O /etc/init.d/adbyby; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/adbyby_centos -O /etc/init.d/adbyby; then
 			echo -e "${Error} ADbyby服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/adbyby
 		chkconfig --add adbyby
 		chkconfig adbyby on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/adbyby_debian -O /etc/init.d/adbyby; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/adbyby_debian -O /etc/init.d/adbyby; then
 			echo -e "${Error} ADbyby服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/adbyby

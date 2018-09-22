@@ -118,14 +118,14 @@ Download_goflyway(){
 }
 Service_goflyway(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/goflyway_centos -O /etc/init.d/goflyway; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/goflyway_centos -O /etc/init.d/goflyway; then
 			echo -e "${Error} GoFlyway 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/goflyway
 		chkconfig --add goflyway
 		chkconfig goflyway on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/goflyway_debian -O /etc/init.d/goflyway; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/goflyway_debian -O /etc/init.d/goflyway; then
 			echo -e "${Error} GoFlyway 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/goflyway

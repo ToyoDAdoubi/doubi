@@ -105,14 +105,14 @@ Download_lightsocks(){
 }
 Service_lightsocks(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/lightsocks_centos" -O /etc/init.d/lightsocks; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/lightsocks_centos" -O /etc/init.d/lightsocks; then
 			echo -e "${Error} Lightsocks服务 管理脚本下载失败 !" && rm -rf "${file}" && exit 1
 		fi
 		chmod +x "/etc/init.d/lightsocks"
 		chkconfig --add lightsocks
 		chkconfig lightsocks on
 	else
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/lightsocks_debian" -O /etc/init.d/lightsocks; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/lightsocks_debian" -O /etc/init.d/lightsocks; then
 			echo -e "${Error} Lightsocks服务 管理脚本下载失败 !" && rm -rf "${file}" && exit 1
 		fi
 		chmod +x "/etc/init.d/lightsocks"
