@@ -41,6 +41,7 @@ do_start(){
 	else
 		Read_config
 		cd "${SERVER_BIN}"
+		ulimit -n 51200
 		nohup "./$NAME_BIN" --config="$CONF" --web-dir="$WEB_BIN" --port=${port} > /tmp/serverstatus_server.log 2>&1 &
 		sleep 2s
 		check_running

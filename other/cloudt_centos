@@ -80,6 +80,7 @@ do_start(){
 		read_config
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
+		ulimit -n 51200
 		if [[ -z ${user} ]]; then
 			./cloud-torrent -t "Cloud Torrent - DOUBI" -h "${host}" -p ${port} -l >> "${LOG}" 2>&1 &
 		else

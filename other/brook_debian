@@ -44,6 +44,7 @@ do_start(){
 		read_config
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
+		ulimit -n 51200
 		servers_all=""
 		for((integer = 1; integer <= ${user_all_num}; integer++))
 		do
@@ -52,6 +53,7 @@ do_start(){
 			password=$(echo "${user_text}"|awk '{print $2}')
 			servers_all="${servers_all}-l \":${port} ${password}\" "
 		done
+		#echo -e "nohup ./brook ${protocol} $(echo ${servers_all}) >> \"${LOG}\" 2>&1 &"
 		eval nohup ./brook ${protocol} $(echo ${servers_all}) >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running

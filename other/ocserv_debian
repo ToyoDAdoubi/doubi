@@ -37,6 +37,7 @@ do_start(){
 		echo -e "${Info} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
 		echo -e "${Info} $NAME 启动中..."
+		ulimit -n 51200
 		nohup ocserv -f -d 1 -c "${CONFIG}" > "${LOG}" 2>&1 &
 		sleep 2s
 		check_running

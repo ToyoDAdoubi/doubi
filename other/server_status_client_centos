@@ -14,7 +14,6 @@
 
 NAME="ServerStatus Client"
 NAME_BIN="status-client.py"
-SERVER_BIN="/usr/local/ServerStatus"
 if [[ -e "/usr/local/ServerStatus/client/status-client.py" ]]; then
 	BIN="/usr/local/ServerStatus/client/status-client.py"
 elif [[ -e "/usr/local/ServerStatus/status-client.py" ]]; then
@@ -38,7 +37,7 @@ do_start(){
 	if [[ $? -eq 0 ]]; then
 		echo -e "${Info_font_prefix}[信息]${Font_suffix} $NAME (PID ${PID}) 正在运行..." && exit 0
 	else
-		cd "${SERVER_BIN}"
+		ulimit -n 51200
 		nohup python "$BIN" > /tmp/serverstatus_client.log 2>&1 &
 		sleep 2s
 		check_running

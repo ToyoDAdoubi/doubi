@@ -45,6 +45,7 @@ do_start(){
 		read_config
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
+		ulimit -n 51200
 		if [[ -z ${proxy_pass} ]]; then
 			nohup ./goflyway -k="${passwd}" -l=":${port}" >> "${LOG}" 2>&1 &
 		else

@@ -56,6 +56,7 @@ do_start(){
 	else
 		read_config
 		echo -e "${Info} $NAME 启动中..."
+		ulimit -n 51200
 		PORT=${port} nohup node ${FILE} > "${LOG}" 2>&1 &
 		sleep 2s
 		check_running

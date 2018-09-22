@@ -74,6 +74,7 @@ do_start(){
 		read_config
 		cd ${FILE}
 		echo -e "${Info} ${NAME} 启动中..."
+		ulimit -n 51200
 		servers_all=""
 		for((integer = 1; integer <= ${user_all_num}; integer++))
 		do

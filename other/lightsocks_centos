@@ -38,6 +38,7 @@ do_start(){
 	else
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
+		ulimit -n 51200
 		nohup ./lightsocks >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
