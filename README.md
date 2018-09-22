@@ -1,40 +1,39 @@
 # 一个逗比写的逗比脚本
 
-<div align=center><img width="240" height="240" src="https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/db.gif"/></div>
-
 索引
 ===
 * 代理相关
-  * [**ssr.sh**](#ssr.sh)
-  * [**ssrmu.sh**](#ssrmu.sh)
-  * [**brook.sh**](#brook.sh)
-  * [**goflyway.sh**](#goflyway.sh)
-  * [lightsocks.sh](#lightsocks.sh)
-  * [.sh](#.sh)
+  * [**ssr.sh**](#ssrsh)
+  * [**ssrmu.sh**](#ssrmush)
+  * [**brook.sh**](#brooksh)
+  * [**goflyway.sh**](#goflywaysh)
+  * [lightsocks.sh](#lightsockssh)
 
 * 中转相关
-  * [brook-pf.sh](#brook-pf.sh)
-  * [haproxy.sh](#haproxy.sh)
-  * [socat.sh](#socat.sh)
-  * [tinymapper.sh](#tinymapper.sh)
+  * [brook-pf.sh](#brook-pfsh)
+  * [haproxy.sh](#haproxysh)
+  * [socat.sh](#socatsh)
+  * [tinymapper.sh](#tinymappersh)
 * BT下载相关脚
-  * [aria2.sh](#aria2.sh)
-  * [cloudt.sh](#cloudt.sh)
-  * [pserver.sh](#pserver.sh)
+  * [aria2.sh](#aria2sh)
+  * [cloudt.sh](#cloudtsh)
+  * [pserver.sh](#pserversh)
 * 服务器功能相关
-  * [status.sh](#status.sh)
-  * [ban_iptables.sh](#ban_iptables.sh)
-  * [ssh_port.sh](#ssh_port.sh)
+  * [status.sh](#statussh)
+  * [ban_iptables.sh](#ban_iptablessh)
+  * [ssh_port.sh](#ssh_portsh)
 * VPN 相关
-  * [ocserv.sh](#ocserv.sh)
+  * [ocserv.sh](#ocservsh)
 * DNS 相关
-  * [dowsdns.sh](#dowsdns.sh)
+  * [dowsdns.sh](#dowsdnssh)
 * HTTP 相关
-  * [caddy_install.sh](#caddy_install.sh)
-  * [pythonhttp.sh](#pythonhttp.sh)
+  * [caddy_install.sh](#caddy_installsh)
+  * [pythonhttp.sh](#pythonhttpsh)
 * 其他
-  * [adbyby.sh](#adbyby.sh)
-  * [libsodium.sh](#libsodium.sh)
+  * [adbyby.sh](#adbybysh)
+  * [libsodium.sh](#libsodiumsh)
+
+---
 
 ## ssr.sh
 
