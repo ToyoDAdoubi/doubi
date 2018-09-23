@@ -2,36 +2,36 @@
 
 ## 脚本索引
 
-* [**代理相关**](#代理相关)
+* [***代理相关***](#代理相关)
   * [ssr.sh](#ssrsh)
   * [ssrmu.sh](#ssrmush)
   * [brook.sh](#brooksh)
   * [goflyway.sh](#goflywaysh)
   * [lightsocks.sh](#lightsockssh)
   * [mtproxy.sh](#mtproxysh)
-* [**中转相关**](#中转相关)
+* [***中转相关***](#中转相关)
   * [iptables-pf.sh](#iptables-pfsh)
   * [brook-pf.sh](#brook-pfsh)
   * [haproxy.sh](#haproxysh)
   * [socat.sh](#socatsh)
   * [tinymapper.sh](#tinymappersh)
-* [**BT下载相关**](#bt下载相关)
+* [***BT下载相关***](#bt下载相关)
   * [aria2.sh](#aria2sh)
   * [cloudt.sh](#cloudtsh)
   * [pserver.sh](#pserversh)
-* [**服务器相关**](#服务器相关)
+* [***服务器相关***](#服务器相关)
   * [bbr.sh](#bbrsh)
   * [status.sh](#statussh)
   * [ban_iptables.sh](#ban_iptablessh)
   * [ssh_port.sh](#ssh_portsh)
-* [**VPN 相关**](#vpn相关)
+* [***VPN 相关***](#vpn相关)
   * [ocserv.sh](#ocservsh)
-* [**DNS 相关**](#dns相关)
+* [***DNS 相关***](#dns相关)
   * [dowsdns.sh](#dowsdnssh)
-* [**HTTP 相关**](#http相关)
+* [***HTTP 相关***](#http相关)
   * [caddy_install.sh](#caddy_installsh)
   * [pythonhttp.sh](#pythonhttpsh)
-* [**其他**](#其他)
+* [***其他***](#其他)
   * [adbyby.sh](#adbybysh)
   * [libsodium.sh](#libsodiumsh)
   * [ssrstatus.sh](#ssrstatussh)
@@ -423,7 +423,7 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 ```
 
 ---
-## pipes.sh
+## ~~pipes.sh~~
 
 - 脚本说明: PipeSocks 一键安装脚本（该软件已停更）
 - 系统支持: CentOS7 / Debian7+ / Ubuntu14+
@@ -435,7 +435,7 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/pipesocks/insta
 ```
 
 ---
-## gogo.sh
+## ~~gogo.sh~~
 
 - 脚本说明: GoGo Tunnel 一键安装脚本（该软件已停更）
 - 系统支持: CentOS6+ / Debian6+ / Ubuntu14+
