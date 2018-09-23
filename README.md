@@ -62,7 +62,7 @@
 ``` bash
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh && chmod +x ssr.sh && bash ssr.sh
 ```
----
+
 ---
 ## ssrmu.sh
 
@@ -138,6 +138,8 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 ```
 
 ---
+---
+---
 ## iptables-pf.sh
 
 - 脚本说明: iptables 端口转发 一键安装/管理脚本
@@ -198,6 +200,8 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 ```
 
 ---
+---
+---
 ## aria2.sh
 
 - 脚本说明: Aria2 一键安装脚本
@@ -235,6 +239,8 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/pserver.sh && chmod +x pserver.sh && bash pserver.sh
 ```
 
+---
+---
 ---
 ## bbr.sh
 
@@ -284,6 +290,8 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 ```
 
 ---
+---
+---
 ## ocserv.sh
 
 - 脚本说明: Ocserv AnyConnect 一键安装脚本
@@ -295,6 +303,8 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ocserv.sh && chmod +x ocserv.sh && bash ocserv.sh
 ```
 
+---
+---
 ---
 ## dowsdns.sh
 
@@ -317,6 +327,11 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 #### 下载安装:
 ``` bash
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh && chmod +x caddy_install.sh && bash caddy_install.sh
+ # 安装插件：
+ bash caddy_install.sh xxx,xxx
+  # 例如同时安装 http.filemanager 和 http.webdav插件：
+  bash caddy_install.sh http.filemanager,http.webdav
+  # 插件和Caddy是集成在一起的(单个二进制文件)，多个插件必须同时安装。
 # 卸载命令：
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh && chmod +x caddy_install.sh && caddy_install.sh uninstall
 ```
@@ -333,6 +348,8 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/pythonhttp.sh && chmod +x pythonhttp.sh && bash pythonhttp.sh
 ```
 
+---
+---
 ---
 ## adbyby.sh
 
