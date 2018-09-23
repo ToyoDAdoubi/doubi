@@ -267,7 +267,7 @@ Set_server_http_port(){
 		echo -e "请输入 ServerStatus 服务端中网站要设置的 域名/IP的端口[1-65535]（如果是域名的话，一般用 80 端口）"
 		stty erase '^H' && read -p "(默认: 8888):" server_http_port_s
 		[[ -z "$server_http_port_s" ]] && server_http_port_s="8888"
-		expr ${server_http_port_s} + 0 &>/dev/null
+		echo $[${server_http_port_s}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${server_http_port_s} -ge 1 ]] && [[ ${server_http_port_s} -le 65535 ]]; then
 				echo && echo "	================================================"
@@ -288,7 +288,7 @@ Set_server_port(){
 		echo -e "请输入 ServerStatus 服务端监听的端口[1-65535]（用于服务端接收客户端消息的端口，客户端要填写这个端口）"
 		stty erase '^H' && read -p "(默认: 35601):" server_port_s
 		[[ -z "$server_port_s" ]] && server_port_s="35601"
-		expr ${server_port_s} + 0 &>/dev/null
+		echo $[${server_port_s}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${server_port_s} -ge 1 ]] && [[ ${server_port_s} -le 65535 ]]; then
 				echo && echo "	================================================"
@@ -420,7 +420,7 @@ List_ServerStatus_server(){
 	conf_text=$(${jq_file} '.servers' ${server_conf}|${jq_file} ".[]|.username"|sed 's/\"//g')
 	conf_text_total=$(echo -e "${conf_text}"|wc -l)
 	[[ ${conf_text_total} = "0" ]] && echo -e "${Error} 没有发现 一个节点配置，请检查 !" && exit 1
-	conf_text_total_a=$(expr $conf_text_total - 1)
+	conf_text_total_a=$(echo $[${conf_text_total}-1])
 	conf_list_all=""
 	for((integer = 0; integer <= ${conf_text_total_a}; integer++))
 	do
@@ -464,12 +464,12 @@ Del_ServerStatus_server(){
 	[[ -z "${del_server_username}" ]] && echo -e "已取消..." && exit 1
 	del_username=`cat -n ${server_conf}|grep '"username": "'"${del_server_username}"'"'|awk '{print $1}'`
 	if [[ ! -z ${del_username} ]]; then
-		del_username_min=$(expr $del_username - 1)
-		del_username_max=$(expr $del_username + 7)
+		del_username_min=$(echo $[${del_username}-1])
+		del_username_max=$(echo $[${del_username}+7])
 		del_username_max_text=$(sed -n "${del_username_max}p" ${server_conf})
 		del_username_max_text_last=`echo ${del_username_max_text:((${#del_username_max_text} - 1))}`
 		if [[ ${del_username_max_text_last} != "," ]]; then
-			del_list_num=$(expr $del_username_min - 1)
+			del_list_num=$(echo $[${del_username_min}-1])
 			sed -i "${del_list_num}s/,$//g" ${server_conf}
 		fi
 		sed -i "${del_username_min},${del_username_max}d" ${server_conf}
@@ -502,7 +502,7 @@ Modify_ServerStatus_server_password(){
 	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_password
-		Set_password_num_a=$(expr $Set_username_num + 1)
+		Set_password_num_a=$(echo $[${Set_username_num}+1])
 		Set_password_num_text=$(sed -n "${Set_password_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_password_num_a}"'s/"password": "'"${Set_password_num_text}"'"/"password": "'"${password_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功 [ 原节点密码: ${Set_password_num_text}, 新节点密码: ${password_s} ]"
@@ -518,7 +518,7 @@ Modify_ServerStatus_server_name(){
 	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_name
-		Set_name_num_a=$(expr $Set_username_num + 2)
+		Set_name_num_a=$(echo $[${Set_username_num}+2])
 		Set_name_num_a_text=$(sed -n "${Set_name_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_name_num_a}"'s/"name": "'"${Set_name_num_a_text}"'"/"name": "'"${name_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功 [ 原节点名称: ${Set_name_num_a_text}, 新节点名称: ${name_s} ]"
@@ -534,7 +534,7 @@ Modify_ServerStatus_server_type(){
 	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_type
-		Set_type_num_a=$(expr $Set_username_num + 3)
+		Set_type_num_a=$(echo $[${Set_username_num}+3])
 		Set_type_num_a_text=$(sed -n "${Set_type_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_type_num_a}"'s/"type": "'"${Set_type_num_a_text}"'"/"type": "'"${type_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功 [ 原节点虚拟化: ${Set_type_num_a_text}, 新节点虚拟化: ${type_s} ]"
@@ -550,7 +550,7 @@ Modify_ServerStatus_server_location(){
 	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
 		Set_location
-		Set_location_num_a=$(expr $Set_username_num + 5)
+		Set_location_num_a=$(echo $[${Set_username_num}+5])
 		Set_location_num_a_text=$(sed -n "${Set_location_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_location_num_a}"'s/"location": "'"${Set_location_num_a_text}"'"/"location": "'"${location_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功 [ 原节点位置: ${Set_location_num_a_text}, 新节点位置: ${location_s} ]"
@@ -571,16 +571,16 @@ Modify_ServerStatus_server_all(){
 		Set_type
 		Set_location
 		sed -i "${Set_username_num}"'s/"username": "'"${manually_username}"'"/"username": "'"${username_s}"'"/g' ${server_conf}
-		Set_password_num_a=$(expr $Set_username_num + 1)
+		Set_password_num_a=$(echo $[${Set_username_num}+1])
 		Set_password_num_text=$(sed -n "${Set_password_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_password_num_a}"'s/"password": "'"${Set_password_num_text}"'"/"password": "'"${password_s}"'"/g' ${server_conf}
-		Set_name_num_a=$(expr $Set_username_num + 2)
+		Set_name_num_a=$(echo $[${Set_username_num}+2])
 		Set_name_num_a_text=$(sed -n "${Set_name_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_name_num_a}"'s/"name": "'"${Set_name_num_a_text}"'"/"name": "'"${name_s}"'"/g' ${server_conf}
-		Set_type_num_a=$(expr $Set_username_num + 3)
+		Set_type_num_a=$(echo $[${Set_username_num}+3])
 		Set_type_num_a_text=$(sed -n "${Set_type_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_type_num_a}"'s/"type": "'"${Set_type_num_a_text}"'"/"type": "'"${type_s}"'"/g' ${server_conf}
-		Set_location_num_a=$(expr $Set_username_num + 5)
+		Set_location_num_a=$(echo $[${Set_username_num}+5])
 		Set_location_num_a_text=$(sed -n "${Set_location_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		sed -i "${Set_location_num_a}"'s/"location": "'"${Set_location_num_a_text}"'"/"location": "'"${location_s}"'"/g' ${server_conf}
 		echo -e "${Info} 修改成功。"
@@ -595,7 +595,7 @@ Modify_ServerStatus_server_disabled(){
 	[[ -z "${manually_username}" ]] && echo -e "已取消..." && exit 1
 	Set_username_num=$(cat -n ${server_conf}|grep '"username": "'"${manually_username}"'"'|awk '{print $1}')
 	if [[ ! -z ${Set_username_num} ]]; then
-		Set_disabled_num_a=$(expr $Set_username_num + 6)
+		Set_disabled_num_a=$(echo $[${Set_username_num}+6])
 		Set_disabled_num_a_text=$(sed -n "${Set_disabled_num_a}p" ${server_conf}|sed 's/\"//g;s/,$//g'|awk -F ": " '{print $2}')
 		if [[ ${Set_disabled_num_a_text} == "false" ]]; then
 			disabled_s="true"

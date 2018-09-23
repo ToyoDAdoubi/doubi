@@ -249,7 +249,7 @@ Set_config_port(){
 	echo -e "请输入要设置的ShadowsocksR账号 端口"
 	stty erase '^H' && read -p "(默认: 2333):" ssr_port
 	[[ -z "$ssr_port" ]] && ssr_port="2333"
-	expr ${ssr_port} + 0 &>/dev/null
+	echo $[${ssr_port}+0] &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_port} -ge 1 ]] && [[ ${ssr_port} -le 65535 ]]; then
 			echo && echo ${Separator_1} && echo -e "	端口 : ${Green_font_prefix}${ssr_port}${Font_color_suffix}" && echo ${Separator_1} && echo
@@ -409,7 +409,7 @@ Set_config_protocol_param(){
 	echo -e "${Tip} 设备数限制：每个端口同一时间能链接的客户端数量(多端口模式，每个端口都是独立计算)，建议最少 2个。"
 	stty erase '^H' && read -p "(默认: 无限):" ssr_protocol_param
 	[[ -z "$ssr_protocol_param" ]] && ssr_protocol_param="" && echo && break
-	expr ${ssr_protocol_param} + 0 &>/dev/null
+	echo $[${ssr_protocol_param}+0] &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_protocol_param} -ge 1 ]] && [[ ${ssr_protocol_param} -le 9999 ]]; then
 			echo && echo ${Separator_1} && echo -e "	设备数限制 : ${Green_font_prefix}${ssr_protocol_param}${Font_color_suffix}" && echo ${Separator_1} && echo
@@ -429,7 +429,7 @@ Set_config_speed_limit_per_con(){
 	echo -e "${Tip} 单线程限速：每个端口 单线程的限速上限，多线程即无效。"
 	stty erase '^H' && read -p "(默认: 无限):" ssr_speed_limit_per_con
 	[[ -z "$ssr_speed_limit_per_con" ]] && ssr_speed_limit_per_con=0 && echo && break
-	expr ${ssr_speed_limit_per_con} + 0 &>/dev/null
+	echo $[${ssr_speed_limit_per_con}+0] &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_speed_limit_per_con} -ge 1 ]] && [[ ${ssr_speed_limit_per_con} -le 131072 ]]; then
 			echo && echo ${Separator_1} && echo -e "	单线程限速 : ${Green_font_prefix}${ssr_speed_limit_per_con} KB/S${Font_color_suffix}" && echo ${Separator_1} && echo
@@ -450,7 +450,7 @@ Set_config_speed_limit_per_user(){
 	echo -e "${Tip} 端口总限速：每个端口 总速度 限速上限，单个端口整体限速。"
 	stty erase '^H' && read -p "(默认: 无限):" ssr_speed_limit_per_user
 	[[ -z "$ssr_speed_limit_per_user" ]] && ssr_speed_limit_per_user=0 && echo && break
-	expr ${ssr_speed_limit_per_user} + 0 &>/dev/null
+	echo $[${ssr_speed_limit_per_user}+0] &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_speed_limit_per_user} -ge 1 ]] && [[ ${ssr_speed_limit_per_user} -le 131072 ]]; then
 			echo && echo ${Separator_1} && echo -e "	端口总限速 : ${Green_font_prefix}${ssr_speed_limit_per_user} KB/S${Font_color_suffix}" && echo ${Separator_1} && echo
@@ -1085,7 +1085,8 @@ Del_multi_port_user(){
 		del_user_determine=`echo ${del_user:((${#del_user} - 1))}`
 		if [[ ${del_user_determine} != "," ]]; then
 			del_user_num=$(sed -n -e "/${port}/=" ${config_user_file})
-			del_user_num=$(expr $del_user_num - 1)
+			echo $[${ssr_protocol_param}+0] &>/dev/null
+			del_user_num=$(echo $[${del_user_num}-1])
 			sed -i "${del_user_num}s/,//g" ${config_user_file}
 		fi
 		sed -i "/${port}/d" ${config_user_file}

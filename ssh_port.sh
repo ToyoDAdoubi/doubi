@@ -69,7 +69,7 @@ Set_port(){
 		echo -e "请输入新的SSH端口 [1-65535]"
 		stty erase '^H' && read -p "(输入为空则取消):" new_port
 		[[ -z "${new_port}" ]] && echo "取消..." && exit 1
-		expr ${new_port} + 0 &>/dev/null
+		echo $[${new_port}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${new_port} -ge 1 ]] && [[ ${new_port} -le 65535 ]]; then
 				if [[ ${new_port} == ${port} ]]; then

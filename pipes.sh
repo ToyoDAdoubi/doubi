@@ -143,7 +143,7 @@ Set_user_pipes(){
 		echo -e "请输入 PipeSocks 本地监听端口 [1-65535]"
 		stty erase '^H' && read -p "(默认: 2333):" pipes_port
 		[[ -z "$pipes_port" ]] && pipes_port="2333"
-		expr ${pipes_port} + 0 &>/dev/null
+		echo $[${pipes_port}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${pipes_port} -ge 1 ]] && [[ ${pipes_port} -le 65535 ]]; then
 				echo && echo "————————————————————"

@@ -168,7 +168,7 @@ Set_port_Modify(){
 		echo -e "请选择并输入要修改的 Brook 账号端口 [1-65535]"
 		stty erase '^H' && read -p "(默认取消):" bk_port_Modify
 		[[ -z "${bk_port_Modify}" ]] && echo "取消..." && exit 1
-		expr ${bk_port_Modify} + 0 &>/dev/null
+		echo $[${bk_port_Modify}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${bk_port_Modify} -ge 1 ]] && [[ ${bk_port_Modify} -le 65535 ]]; then
 				check_port "${bk_port_Modify}"
@@ -191,7 +191,7 @@ Set_port(){
 		echo -e "请输入 Brook 端口 [1-65535]（端口不能重复，避免冲突）"
 		stty erase '^H' && read -p "(默认: 2333):" bk_port
 		[[ -z "${bk_port}" ]] && bk_port="2333"
-		expr ${bk_port} + 0 &>/dev/null
+		echo $[${bk_port}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${bk_port} -ge 1 ]] && [[ ${bk_port} -le 65535 ]]; then
 				echo && echo "========================"

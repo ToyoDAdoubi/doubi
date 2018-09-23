@@ -70,7 +70,7 @@ addSocat(){
 		echo -e "请输入 Socat 的 本地监听端口 [1-65535]"
 		stty erase '^H' && read -p "(默认端口: 23333):" Socatport
 		[[ -z "$Socatport" ]] && Socatport="23333"
-		expr ${Socatport} + 0 &>/dev/null
+		echo $[${Socatport}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${Socatport} -ge 1 ]] && [[ ${Socatport} -le 65535 ]]; then
 				echo
@@ -92,7 +92,7 @@ addSocat(){
 		echo -e "请输入 Socat 远程被转发 端口 [1-65535]"
 		stty erase '^H' && read -p "(默认端口: ${Socatport}):" Socatport1
 		[[ -z "$Socatport1" ]] && Socatport1=${Socatport}
-		expr ${Socatport1} + 0 &>/dev/null
+		echo $[${Socatport1}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${Socatport1} -ge 1 ]] && [[ ${Socatport1} -le 65535 ]]; then
 				echo
@@ -241,7 +241,7 @@ delSocat(){
 	listSocat
 	stty erase '^H' && read -p "请输入数字 来选择要终止的 Socat 进程:" stopsocat
 	[[ -z "${stopsocat}" ]] && stopsocat="0"
-	expr ${stopsocat} + 0 &>/dev/null
+	echo $[${stopsocat}+0] &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${stopsocat} -ge 1 ]] && [[ ${stopsocat} -le ${socat_total} ]]; then
 			# 删除开机启动

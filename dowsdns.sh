@@ -122,7 +122,7 @@ Read_wrcd(){
 	[[ ! -e ${dowsdns_wrcd} ]] && echo -e "${Error} DowsDNS 泛域名解析 配置文件不存在 !" && exit 1
 	wrcd_json=$(cat -n ${dowsdns_wrcd}|sed '$d;1d;s/\"//g;s/,//g')
 	wrcd_json_num=$(echo -e "${wrcd_json}"|wc -l)
-	wrcd_json_num=$(expr $wrcd_json_num + 1)
+	wrcd_json_num=$(echo $[${wrcd_json_num}+1])
 	echo -e "当前DowsDNS 泛域名解析配置(不要问我为什么是从 2 开始)：\n"
 	echo -e "${wrcd_json}\n"
 }
@@ -138,7 +138,7 @@ Set_remote_dns_port(){
 		echo -e "请输入 DowsDNS 远程(上游)DNS解析服务器端口 [1-65535]"
 		stty erase '^H' && read -p "(默认: 53):" dd_remote_dns_port
 		[[ -z "$dd_remote_dns_port" ]] && dd_remote_dns_port="53"
-		expr ${dd_remote_dns_port} + 0 &>/dev/null
+		echo $[${dd_remote_dns_port}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${dd_remote_dns_port} -ge 1 ]] && [[ ${dd_remote_dns_port} -le 65535 ]]; then
 				echo
@@ -214,7 +214,7 @@ Set_local_dns_port(){
  注意：大部分设备是不支持设置 非53端口的DNS服务器的，所以非必须请直接回车默认使用 53端口。" && echo
 		stty erase '^H' && read -p "(默认: 53):" dd_local_dns_port
 		[[ -z "$dd_local_dns_port" ]] && dd_local_dns_port="53"
-		expr ${dd_local_dns_port} + 0 &>/dev/null
+		echo $[${dd_local_dns_port}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${dd_local_dns_port} -ge 1 ]] && [[ ${dd_local_dns_port} -le 65535 ]]; then
 				echo && echo "	================================================"
@@ -359,7 +359,7 @@ Del_wrcd(){
 		echo "请根据上面的列表选择你要删除的 泛域名解析 序号数字 [ 2-${wrcd_json_num} ]"
 		stty erase '^H' && read -p "(默认回车取消):" del_wrcd_num
 		[[ -z "$del_wrcd_num" ]] && echo "已取消..." && exit 0
-		expr ${del_wrcd_num} + 0 &>/dev/null
+		echo $[${del_wrcd_num}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${del_wrcd_num} -ge 2 ]] && [[ ${del_wrcd_num} -le ${wrcd_json_num} ]]; then
 				wrcd_text=$(cat ${dowsdns_wrcd}|sed -n "${del_wrcd_num}p")
@@ -367,7 +367,7 @@ Del_wrcd(){
 				wrcd_ip=$(echo -e "${wrcd_text}"|sed 's/\"//g;s/,//g'|awk -F ":" '{print $2}')
 				del_wrcd_determine=$(echo ${wrcd_text:((${#wrcd_text} - 1))})
 				if [[ ${del_wrcd_num} == ${wrcd_json_num} ]]; then
-					del_wrcd_determine_num=$(expr $del_wrcd_num - 1)
+					del_wrcd_determine_num=$(echo $[${del_wrcd_num}-1])
 					sed -i "${del_wrcd_determine_num}s/,//g" ${dowsdns_wrcd}
 				fi
 				sed -i "${del_wrcd_num}d" ${dowsdns_wrcd}
@@ -401,7 +401,7 @@ Modify_wrcd(){
 		echo "请根据上面的列表选择你要修改的 泛域名解析 序号数字 [ 2-${wrcd_json_num} ]"
 		stty erase '^H' && read -p "(默认回车取消):" modify_wrcd_num
 		[[ -z "$modify_wrcd_num" ]] && echo "已取消..." && exit 0
-		expr ${modify_wrcd_num} + 0 &>/dev/null
+		echo $[${modify_wrcd_num}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${modify_wrcd_num} -ge 2 ]] && [[ ${modify_wrcd_num} -le ${wrcd_json_num} ]]; then
 				wrcd_name_now=$(cat ${dowsdns_wrcd}|sed -n "${modify_wrcd_num}p"|sed 's/\"//g;s/,//g'|awk -F ":" '{print $1}')

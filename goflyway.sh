@@ -155,7 +155,7 @@ Set_port(){
 		echo -e "请输入 GoFlyway 监听端口 [1-65535]（如果要伪装或者套CDN，那么只能使用端口：80 8080 8880 2052 2082 2086 2095）"
 		stty erase '^H' && read -p "(默认: 2333):" new_port
 		[[ -z "${new_port}" ]] && new_port="2333"
-		expr ${new_port} + 0 &>/dev/null
+		echo $[${new_port}+0] &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${new_port} -ge 1 ]] && [[ ${new_port} -le 65535 ]]; then
 				echo && echo "========================"

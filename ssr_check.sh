@@ -30,7 +30,7 @@ set_config_port(){
 	echo -e "请输入 ShadowsocksR 账号端口"
 	stty erase '^H' && read -p "(默认: 2333):" port
 	[[ -z "$port" ]] && port="2333"
-	expr ${port} + 0 &>/dev/null
+	echo $[${port}+0] &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${port} -ge 1 ]] && [[ ${port} -le 65535 ]]; then
 			echo && echo -e "	端口 : ${Red_font_prefix}${port}${Font_color_suffix}" && echo
@@ -279,6 +279,7 @@ ssr_config(){
 		fi
 	fi
 	passwd=$(echo -e "${passwd_base64}"|base64 -d)
+	[[ ${debug} == [Yy] ]] && echo -e "${ip}\n${port}\n${method}\n${passwd}\n${protocol}\n${obfs}\n"
 	if [[ -z ${ip} ]] || [[ -z ${port} ]] || [[ -z ${method} ]] || [[ -z ${passwd} ]] || [[ -z ${protocol} ]] || [[ -z ${obfs} ]]; then
 		echo -e "${Error} 错误，有部分 账号参数为空！[ ${ip} ,${port} ,${method} ,${passwd} ,${protocol} ,${obfs} ]" | tee -a ${log_file}
 		if [[ ${analysis_type} == "add" ]]; then
@@ -356,6 +357,7 @@ View_log(){
 	cat "${log_file}"
 }
 action=$1
+debug=$2
 if [[ ${1} == "t" ]]; then
 	Test
 elif [[ ${1} == "a" ]]; then
