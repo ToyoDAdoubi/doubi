@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: ServerStatus client + server
-#	Version: 1.0.14
+#	Version: 1.0.15
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc3/
 #=================================================
 
-sh_ver="1.0.14"
+sh_ver="1.0.15"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/ServerStatus"
@@ -643,6 +643,8 @@ Install_caddy(){
 	stty erase '^H' && read -p "(默认: Y 自动部署):" caddy_yn
 	[[ -z "$caddy_yn" ]] && caddy_yn="y"
 	if [[ "${caddy_yn}" == [Yy] ]]; then
+		Set_server "server"
+		Set_server_http_port
 		if [[ ! -e "/usr/local/caddy/caddy" ]]; then
 			wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/caddy_install.sh
 			chmod +x caddy_install.sh
@@ -678,8 +680,6 @@ EOF
 }
 Install_ServerStatus_server(){
 	[[ -e "${server_file}/sergate" ]] && echo -e "${Error} 检测到 ServerStatus 服务端已安装 !" && exit 1
-	Set_server "server"
-	Set_server_http_port
 	Set_server_port
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency "server"
@@ -696,7 +696,7 @@ Install_ServerStatus_server(){
 	Set_iptables
 	echo -e "${Info} 开始添加 iptables防火墙规则..."
 	Add_iptables "${server_port_s}"
-	Add_iptables "${server_http_port_s}"
+	[[ ! -z "${server_http_port_s}" ]] && Add_iptables "${server_http_port_s}"
 	echo -e "${Info} 开始保存 iptables防火墙规则..."
 	Save_iptables
 	echo -e "${Info} 所有步骤 安装完毕，开始启动..."
@@ -704,6 +704,19 @@ Install_ServerStatus_server(){
 }
 Install_ServerStatus_client(){
 	[[ -e "${client_file}/status-client.py" ]] && echo -e "${Error} 检测到 ServerStatus 客户端已安装 !" && exit 1
+	check_sys
+	if [[ ${release} == "centos" ]]; then
+		cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+		if [[ $? != 0 ]]; then
+			echo -e "${Info} 检测到你的系统为 CentOS6，该系统自带的 Python2.6 版本过低，会导致无法运行客户端，如果你有能力升级为 Python2.7，那么请继续(否则建议更换系统)：[y/N]"
+			stty erase '^H' && read -p "(默认: N 继续安装):" sys_centos6
+			[[ -z "$sys_centos6" ]] && sys_centos6="n"
+			if [[ "${sys_centos6}" == [Nn] ]]; then
+				echo -e "\n${Info} 已取消...\n"
+				exit 1
+			fi
+		fi
+	fi
 	echo -e "${Info} 开始设置 用户配置..."
 	Set_config_client
 	echo -e "${Info} 开始安装/配置 依赖..."
