@@ -85,26 +85,32 @@ Download_mtproxy(){
 	rm -rf '/tmp/mtproxy'
 }
 Download_secret(){
+	[[ -e "${mtproxy_secret}" ]] && rm -rf "${mtproxy_secret}"
 	wget --no-check-certificate -q "https://core.telegram.org/getProxySecret" -O "${mtproxy_secret}"
-	[[ ! -e "${mtproxy_secret}" ]] && echo -e "${Error} MTProxy Secret下载失败!" && exit 1
+	[[ ! -e "${mtproxy_secret}" ]] && echo -e "${Error} MTProxy Secret下载失败! 脚本将会继续安装但会启动失败，请尝试手动下载：${Green_font_prefix}wget --no-check-certificate -q \"https://core.telegram.org/getProxySecret\" -O \"${mtproxy_secret}\"${Font_color_suffix}"
 	echo -e "${Info} MTProxy Secret下载成功!"
 }
 Download_multi(){
+	[[ -e "${mtproxy_multi}" ]] && rm -rf "${mtproxy_multi}"
 	wget --no-check-certificate -q "https://core.telegram.org/getProxyConfig" -O "${mtproxy_multi}"
-	[[ ! -e "${mtproxy_multi}" ]] && echo -e "${Error} MTProxy Multi下载失败!" && exit 1
+	[[ ! -e "${mtproxy_multi}" ]] && echo -e "${Error} MTProxy Multi下载失败!脚本将会继续安装但会启动失败，请尝试手动下载：${Green_font_prefix}wget --no-check-certificate -q \"https://core.telegram.org/getProxyConfig\" -O \"${mtproxy_multi}\"${Font_color_suffix}"
 	echo -e "${Info} MTProxy Secret下载成功!"
 }
 Service_mtproxy(){
 	if [[ ${release} = "centos" ]]; then
 		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/mtproxy_centos" -O /etc/init.d/mtproxy; then
-			echo -e "${Error} MTProxy服务 管理脚本下载失败 !" && exit 1
+			echo -e "${Error} MTProxy服务 管理脚本下载失败 !"
+			rm -rf "${file}"
+			exit 1
 		fi
 		chmod +x "/etc/init.d/mtproxy"
 		chkconfig --add mtproxy
 		chkconfig mtproxy on
 	else
 		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/mtproxy_debian" -O /etc/init.d/mtproxy; then
-			echo -e "${Error} MTProxy服务 管理脚本下载失败 !" && exit 1
+			echo -e "${Error} MTProxy服务 管理脚本下载失败 !"
+			rm -rf "${file}"
+			exit 1
 		fi
 		chmod +x "/etc/init.d/mtproxy"
 		update-rc.d -f mtproxy defaults
