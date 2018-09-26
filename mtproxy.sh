@@ -208,7 +208,7 @@ Set_tag(){
 Set_nat(){
 	echo -e "\n${Green_font_prefix}当前服务器所有网卡信息：${Font_color_suffix}\n"
 	ifconfig
-	echo "如果本机是NAT服务器（谷歌云、微软云、阿里云等），则请输入你的服务器内网IP，否则会导致无法使用。如果不是请直接回车！"
+	echo "如果本机是NAT服务器（谷歌云、微软云、阿里云等，网卡绑定的IP为 10.xx.xx.xx 开头的），则请输入你的服务器内网IP，否则会导致无法使用。如果不是请直接回车！"
 	stty erase '^H' && read -p "(默认：回车跳过):" mtp_nat
 	if [[ -z "${mtp_nat}" ]]; then
 		mtp_nat=""
