@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: GoFlyway
-#	Version: 1.0.9
+#	Version: 1.0.10
 #	Author: Toyo
 #	Blog: https://doub.io/goflyway-jc2/
 #=================================================
 
-sh_ver="1.0.9"
+sh_ver="1.0.10"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 Folder="/usr/local/goflyway"
@@ -200,9 +200,9 @@ Set_proxy_pass(){
 Set_protocol(){
 	echo -e "请选择 GoFlyway 传输协议
 	
- ${Green_font_prefix}1.${Font_color_suffix} HTTP(默认)
- ${Green_font_prefix}2.${Font_color_suffix} KCP(将TCP转为UDP传输，可复活被TCP阻断的IP)
- ${Tip} 如果使用 KCP 协议，那么客户端将不能使用 WebSocket模式和CDN模式，另外，部分地区对海外的UDP链接会QOS限速，这可能导致 KCP 协议速度不理想。" && echo
+ ${Green_font_prefix}1.${Font_color_suffix} HTTP (默认，要使用 CDN、WebSocket 则必须选择 HTTP 协议)
+ ${Green_font_prefix}2.${Font_color_suffix} KCP  (将 TCP 数据转为 KCP，并通过UDP方式传输，可复活被TCP阻断的IP)
+ ${Tip} 如果使用 KCP 协议，那么将不能使用 CDN、WebSocket。另外，部分地区对海外的UDP链接会QOS限速，这可能导致 KCP 协议速度不理想。" && echo
 	stty erase '^H' && read -p "(默认: 1. HTTP):" new_protocol
 	[[ -z "${new_protocol}" ]] && new_protocol="3"
 	if [[ ${new_protocol} == "1" ]]; then
@@ -408,7 +408,7 @@ urlsafe_base64(){
 }
 link_qr(){
 	PWDbase64=$(urlsafe_base64 "${passwd}")
-	base64=$(urlsafe_base64 "${ip}:${port}:${PWDbase64}")
+	base64=$(urlsafe_base64 "${ip}:${port}@${PWDbase64}:${protocol}")
 	url="goflyway://${base64}"
 	QRcode="http://doub.pw/qr/qr.php?text=${url}"
 	link=" 链接\t: ${Red_font_prefix}${url}${Font_color_suffix} \n 二维码 : ${Red_font_prefix}${QRcode}${Font_color_suffix} \n "
