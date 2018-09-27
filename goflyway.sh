@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: GoFlyway
-#	Version: 1.0.8
+#	Version: 1.0.9
 #	Author: Toyo
 #	Blog: https://doub.io/goflyway-jc2/
 #=================================================
 
-sh_ver="1.0.8"
+sh_ver="1.0.9"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 Folder="/usr/local/goflyway"
@@ -140,14 +140,24 @@ Write_config(){
 	cat > ${CONF}<<-EOF
 port=${new_port}
 passwd=${new_passwd}
+protocol=${new_protocol}
 proxy_pass=${new_proxy_pass}
 EOF
 }
 Read_config(){
 	[[ ! -e ${CONF} ]] && echo -e "${Error} GoFlyway 配置文件不存在 !" && exit 1
-	port=`cat ${CONF}|grep "port"|awk -F "=" '{print $NF}'`
-	passwd=`cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}'`
-	proxy_pass=`cat ${CONF}|grep "proxy_pass"|awk -F "=" '{print $NF}'`
+	port=$(cat ${CONF}|grep "port"|awk -F "=" '{print $NF}')
+	passwd=$(cat ${CONF}|grep "passwd"|awk -F "=" '{print $NF}')
+	proxy_pass=$(cat ${CONF}|grep "proxy_pass"|awk -F "=" '{print $NF}')
+	protocol=$(cat ${CONF}|grep "protocol"|awk -F "=" '{print $NF}')
+	if [[ -z "${protocol}" ]]; then
+		protocol="http"
+		new_protocol="http"
+		new_port="${port}"
+		new_passwd="${passwd}"
+		new_proxy_pass="${proxy_pass}"
+		Write_config
+	fi
 }
 Set_port(){
 	while true
@@ -187,16 +197,37 @@ Set_proxy_pass(){
 		echo "========================" && echo
 	fi
 }
+Set_protocol(){
+	echo -e "请选择 GoFlyway 传输协议
+	
+ ${Green_font_prefix}1.${Font_color_suffix} HTTP(默认)
+ ${Green_font_prefix}2.${Font_color_suffix} KCP(将TCP转为UDP传输，可复活被TCP阻断的IP)
+ ${Tip} 如果使用 KCP 协议，那么客户端将不能使用 WebSocket模式和CDN模式，另外，部分地区对海外的UDP链接会QOS限速，这可能导致 KCP 协议速度不理想。" && echo
+	stty erase '^H' && read -p "(默认: 1. HTTP):" new_protocol
+	[[ -z "${new_protocol}" ]] && new_protocol="3"
+	if [[ ${new_protocol} == "1" ]]; then
+		new_protocol="http"
+	elif [[ ${new_protocol} == "2" ]]; then
+		new_protocol="kcp"
+	else
+		new_protocol="http"
+	fi
+	echo && echo "========================"
+	echo -e "	密码 : ${Red_background_prefix} ${new_protocol^^} ${Font_color_suffix}"
+	echo "========================" && echo
+}
 Set_conf(){
 	Set_port
 	Set_passwd
+	Set_protocol
 	Set_proxy_pass
 }
 Modify_port(){
-	Set_port
 	Read_config
+	Set_port
 	new_passwd="${passwd}"
 	new_proxy_pass="${proxy_pass}"
+	new_protocol="${protocol}"
 	Del_iptables
 	Write_config
 	Add_iptables
@@ -204,24 +235,35 @@ Modify_port(){
 	Restart_goflyway
 }
 Modify_passwd(){
-	Set_passwd
 	Read_config
+	Set_passwd
 	new_port="${port}"
 	new_proxy_pass="${proxy_pass}"
+	new_protocol="${protocol}"
 	Write_config
 	Restart_goflyway
 }
 Modify_proxy_pass(){
-	Set_proxy_pass
 	Read_config
+	Set_proxy_pass
 	new_port="${port}"
 	new_passwd="${passwd}"
+	new_protocol="${protocol}"
+	Write_config
+	Restart_goflyway
+}
+Modify_protocol(){
+	Read_config
+	Set_protocol
+	new_port="${port}"
+	new_passwd="${passwd}"
+	new_proxy_pass="${proxy_pass}"
 	Write_config
 	Restart_goflyway
 }
 Modify_all(){
-	Set_conf
 	Read_config
+	Set_conf
 	Del_iptables
 	Write_config
 	Add_iptables
@@ -233,10 +275,11 @@ Set_goflyway(){
 	echo && echo -e "你要做什么？
  ${Green_font_prefix}1.${Font_color_suffix}  修改 端口配置
  ${Green_font_prefix}2.${Font_color_suffix}  修改 密码配置
- ${Green_font_prefix}3.${Font_color_suffix}  修改 伪装配置(反向代理)
- ${Green_font_prefix}4.${Font_color_suffix}  修改 全部配置
+ ${Green_font_prefix}3.${Font_color_suffix}  修改 传输协议
+ ${Green_font_prefix}4.${Font_color_suffix}  修改 伪装配置(反向代理)
+ ${Green_font_prefix}5.${Font_color_suffix}  修改 全部配置
 ————————————————
- ${Green_font_prefix}5.${Font_color_suffix}  监控 运行状态
+ ${Green_font_prefix}6.${Font_color_suffix}  监控 运行状态
  
  ${Tip} 用户的端口是不能重复的，密码可以重复 !" && echo
 	stty erase '^H' && read -p "(默认: 取消):" gf_modify
@@ -246,13 +289,15 @@ Set_goflyway(){
 	elif [[ ${gf_modify} == "2" ]]; then
 		Modify_passwd
 	elif [[ ${gf_modify} == "3" ]]; then
-		Modify_proxy_pass
+		Modify_protocol
 	elif [[ ${gf_modify} == "4" ]]; then
-		Modify_all
+		Modify_proxy_pass
 	elif [[ ${gf_modify} == "5" ]]; then
+		Modify_all
+	elif [[ ${gf_modify} == "6" ]]; then
 		Set_crontab_monitor_goflyway
 	else
-		echo -e "${Error} 请输入正确的数字(1-5)" && exit 1
+		echo -e "${Error} 请输入正确的数字(1-6)" && exit 1
 	fi
 }
 Install_goflyway(){
@@ -351,6 +396,7 @@ View_goflyway(){
 	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
 	echo -e " 端口\t: ${Green_font_prefix}${port}${Font_color_suffix}"
 	echo -e " 密码\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
+	echo -e " 协议\t: ${Green_font_prefix}${protocol^^}${Font_color_suffix}"
 	echo -e " 伪装\t: ${Green_font_prefix}${proxy_pass}${Font_color_suffix}"
 	echo -e "${link}"
 	echo -e "${Tip} 链接仅适用于Windows系统的 Goflyway Tools 客户端（https://doub.io/dbrj-11/）。"
