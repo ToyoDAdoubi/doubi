@@ -213,7 +213,7 @@ Set_protocol(){
 		new_protocol="http"
 	fi
 	echo && echo "========================"
-	echo -e "	密码 : ${Red_background_prefix} ${new_protocol^^} ${Font_color_suffix}"
+	echo -e "	协议 : ${Red_background_prefix} ${new_protocol^^} ${Font_color_suffix}"
 	echo "========================" && echo
 }
 Set_conf(){
