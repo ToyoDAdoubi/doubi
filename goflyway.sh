@@ -69,10 +69,10 @@ check_pid(){
 	PID=$(ps -ef| grep "goflyway"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}')
 }
 check_new_ver(){
-	new_ver=$(wget -qO- "https://github.com/coyove/goflyway/tags"|grep "/goflyway/releases/tag/"|grep -v '\-apk'|head -n 1|awk -F "/tag/" '{print $2}'|sed 's/\">//')
+	new_ver=$(wget --no-check-certificate -qO- -t1 -T3 https://api.github.com/repos/coyove/goflyway/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
 	if [[ -z ${new_ver} ]]; then
 		echo -e "${Error} GoFlyway 最新版本获取失败，请手动获取最新版本号[ https://github.com/coyove/goflyway/releases ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式如 v1.1.0a ] :" new_ver
+		stty erase '^H' && read -p "请输入版本号 [ 格式如 1.3.0a ] :" new_ver
 		[[ -z "${new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 GoFlyway 最新版本为 [ ${new_ver} ]"
