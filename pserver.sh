@@ -155,7 +155,7 @@ Set_port(){
 		echo -e "请输入 Peerflix Server 监听端口 [1-65535]（如果是绑定的域名，那么建议80端口）"
 		stty erase '^H' && read -p "(默认端口: 9000):" ps_port
 		[[ -z "${ps_port}" ]] && ps_port="9000"
-		echo $[${ps_port}+0] &>/dev/null
+		echo $((${ps_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${ps_port} -ge 1 ]] && [[ ${ps_port} -le 65535 ]]; then
 				echo && echo "========================"

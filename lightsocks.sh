@@ -170,7 +170,7 @@ Set_port(){
 		echo -e "请输入 Lightsocks 端口 [1-65535]（端口不能重复，避免冲突）"
 		stty erase '^H' && read -p "(默认: 随机端口):" ls_port
 		[[ -z "${ls_port}" ]] && ls_port=$(Generate_the_port 443 65500)
-		echo $[${ls_port}+0] &>/dev/null
+		echo $((${ls_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${ls_port} -ge 1 ]] && [[ ${ls_port} -le 65535 ]]; then
 				echo && echo "========================"
@@ -228,7 +228,7 @@ Modify_config_password(){
 	password_num=$(cat "${lightsocks_conf}"|grep -n '"password":'|awk -F ':' '{print $1}')
 	if [[ ${password_num} -gt 0 ]];then
 		sed -i "${password_num}d" ${lightsocks_conf}
-		password_num_1=$(echo $[${password_num}-1])
+		password_num_1=$(echo $((${password_num}-1)))
 		sed -i "${password_num_1}s/,//g" ${lightsocks_conf}
 	else
 		echo -e "${Error} 配置文件修改错误！"

@@ -163,7 +163,7 @@ Get_User_transfer(){
 	#echo "all_port=${all_port}"
 	port_num=$(echo "${all_port}"|grep -nw "${transfer_port}"|awk -F ":" '{print $1}')
 	#echo "port_num=${port_num}"
-	port_num_1=$(echo $[${port_num}-1])
+	port_num_1=$(echo $((${port_num}-1)))
 	#echo "port_num_1=${port_num_1}"
 	transfer_enable_1=$(${jq_file} ".[${port_num_1}].transfer_enable" ${config_user_mudb_file})
 	#echo "transfer_enable_1=${transfer_enable_1}"
@@ -171,9 +171,9 @@ Get_User_transfer(){
 	#echo "u_1=${u_1}"
 	d_1=$(${jq_file} ".[${port_num_1}].d" ${config_user_mudb_file})
 	#echo "d_1=${d_1}"
-	transfer_enable_Used_2_1=$(echo $[${u_1}+${d_1}])
+	transfer_enable_Used_2_1=$(echo $((${u_1}+${d_1})))
 	#echo "transfer_enable_Used_2_1=${transfer_enable_Used_2_1}"
-	transfer_enable_Used_1=$(echo $[${transfer_enable_1}-${transfer_enable_Used_2_1}])
+	transfer_enable_Used_1=$(echo $((${transfer_enable_1}-${transfer_enable_Used_2_1})))
 	#echo "transfer_enable_Used_1=${transfer_enable_Used_1}"
 	
 	if [[ ${transfer_enable_1} -lt 1024 ]]; then
@@ -384,7 +384,7 @@ Set_config_port(){
 	echo -e "请输入要设置的用户 端口(请勿重复, 用于区分)"
 	stty erase '^H' && read -p "(默认: 2333):" ssr_port
 	[[ -z "$ssr_port" ]] && ssr_port="2333"
-	echo $[${ssr_port}+0] &>/dev/null
+	echo $((${ssr_port}+0)) &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_port} -ge 1 ]] && [[ ${ssr_port} -le 65535 ]]; then
 			echo && echo ${Separator_1} && echo -e "	端口 : ${Green_font_prefix}${ssr_port}${Font_color_suffix}" && echo ${Separator_1} && echo
@@ -545,7 +545,7 @@ Set_config_protocol_param(){
 	echo -e "${Tip} 设备数限制：每个端口同一时间能链接的客户端数量(多端口模式，每个端口都是独立计算)，建议最少 2个。"
 	stty erase '^H' && read -p "(默认: 无限):" ssr_protocol_param
 	[[ -z "$ssr_protocol_param" ]] && ssr_protocol_param="" && echo && break
-	echo $[${ssr_protocol_param}+0] &>/dev/null
+	echo $((${ssr_protocol_param}+0)) &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_protocol_param} -ge 1 ]] && [[ ${ssr_protocol_param} -le 9999 ]]; then
 			echo && echo ${Separator_1} && echo -e "	设备数限制 : ${Green_font_prefix}${ssr_protocol_param}${Font_color_suffix}" && echo ${Separator_1} && echo
@@ -565,7 +565,7 @@ Set_config_speed_limit_per_con(){
 	echo -e "${Tip} 单线程限速：每个端口 单线程的限速上限，多线程即无效。"
 	stty erase '^H' && read -p "(默认: 无限):" ssr_speed_limit_per_con
 	[[ -z "$ssr_speed_limit_per_con" ]] && ssr_speed_limit_per_con=0 && echo && break
-	echo $[${ssr_speed_limit_per_con}+0] &>/dev/null
+	echo $((${ssr_speed_limit_per_con}+0)) &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_speed_limit_per_con} -ge 1 ]] && [[ ${ssr_speed_limit_per_con} -le 131072 ]]; then
 			echo && echo ${Separator_1} && echo -e "	单线程限速 : ${Green_font_prefix}${ssr_speed_limit_per_con} KB/S${Font_color_suffix}" && echo ${Separator_1} && echo
@@ -586,7 +586,7 @@ Set_config_speed_limit_per_user(){
 	echo -e "${Tip} 端口总限速：每个端口 总速度 限速上限，单个端口整体限速。"
 	stty erase '^H' && read -p "(默认: 无限):" ssr_speed_limit_per_user
 	[[ -z "$ssr_speed_limit_per_user" ]] && ssr_speed_limit_per_user=0 && echo && break
-	echo $[${ssr_speed_limit_per_user}+0] &>/dev/null
+	echo $((${ssr_speed_limit_per_user}+0)) &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_speed_limit_per_user} -ge 1 ]] && [[ ${ssr_speed_limit_per_user} -le 131072 ]]; then
 			echo && echo ${Separator_1} && echo -e "	用户总限速 : ${Green_font_prefix}${ssr_speed_limit_per_user} KB/S${Font_color_suffix}" && echo ${Separator_1} && echo
@@ -606,7 +606,7 @@ Set_config_transfer(){
 	echo -e "请输入要设置的用户 可使用的总流量上限(单位: GB, 1-838868 GB)"
 	stty erase '^H' && read -p "(默认: 无限):" ssr_transfer
 	[[ -z "$ssr_transfer" ]] && ssr_transfer="838868" && echo && break
-	echo $[${ssr_transfer}+0] &>/dev/null
+	echo $((${ssr_transfer}+0)) &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_transfer} -ge 1 ]] && [[ ${ssr_transfer} -le 838868 ]]; then
 			echo && echo ${Separator_1} && echo -e "	用户总流量 : ${Green_font_prefix}${ssr_transfer} GB${Font_color_suffix}" && echo ${Separator_1} && echo
@@ -631,7 +631,7 @@ Set_config_forbid(){
 	echo && echo ${Separator_1} && echo -e "	禁止的端口 : ${Green_font_prefix}${ssr_forbid}${Font_color_suffix}" && echo ${Separator_1} && echo
 }
 Set_config_enable(){
-	user_total=$(echo $[${user_total}-1])
+	user_total=$(echo $((${user_total}-1)))
 	for((integer = 0; integer <= ${user_total}; integer++))
 	do
 		echo -e "integer=${integer}"
@@ -644,7 +644,7 @@ Set_config_enable(){
 			ssr_port_num=$(cat "${config_user_mudb_file}"|grep -n '"port": '${ssr_port}','|awk -F ":" '{print $1}')
 			echo -e "ssr_port_num=${ssr_port_num}"
 			[[ "${ssr_port_num}" == "null" ]] && echo -e "${Error} 获取当前端口[${ssr_port}]的行数失败 !" && exit 1
-			ssr_enable_num=$(echo $[${ssr_port_num}-5])
+			ssr_enable_num=$(echo $((${ssr_port_num}-5)))
 			echo -e "ssr_enable_num=${ssr_enable_num}"
 			break
 		fi
@@ -1239,7 +1239,7 @@ List_port_user(){
 		user_port=$(echo "${user_info}"|sed -n "${integer}p"|awk '{print $4}')
 		user_username=$(echo "${user_info}"|sed -n "${integer}p"|awk '{print $2}'|sed 's/\[//g;s/\]//g')
 		Get_User_transfer "${user_port}"
-		transfer_enable_Used_233=$(echo $[${transfer_enable_Used_233}+${transfer_enable_Used_2_1}])
+		transfer_enable_Used_233=$(echo $((${transfer_enable_Used_233}+${transfer_enable_Used_2_1})))
 		user_list_all=${user_list_all}"用户名: ${Green_font_prefix} "${user_username}"${Font_color_suffix}\t 端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 流量使用情况(已用+剩余=总): ${Green_font_prefix}${transfer_enable_Used_2}${Font_color_suffix} + ${Green_font_prefix}${transfer_enable_Used}${Font_color_suffix} = ${Green_font_prefix}${transfer_enable}${Font_color_suffix}\n"
 	done
 	Get_User_transfer_all

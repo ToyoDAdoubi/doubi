@@ -170,7 +170,7 @@ Del_forwarding(){
 	View_forwarding
 	stty erase '^H' && read -p "请输入数字 来选择要删除的 iptables 端口转发规则(默认回车取消):" Del_forwarding_num
 	[[ -z "${Del_forwarding_num}" ]] && Del_forwarding_num="0"
-	echo $[${Del_forwarding_num}+0] &>/dev/null
+	echo $((${Del_forwarding_num}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${Del_forwarding_num} -ge 1 ]] && [[ ${Del_forwarding_num} -le ${forwarding_total} ]]; then
 			forwarding_type=$(echo -e "${forwarding_text}"| awk '{print $4}' | sed -n "${Del_forwarding_num}p")

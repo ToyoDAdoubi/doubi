@@ -203,7 +203,7 @@ Set_local_Port(){
 		echo -e "请输入 tinyPortMapper 的 本地监听端口 [1-65535]"
 		stty erase '^H' && read -p "(默认回车取消):" local_Port
 		[[ -z "${local_Port}" ]] && echo "已取消..." && exit 1
-		echo $[${local_Port}+0] &>/dev/null
+		echo $((${local_Port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${local_Port} -ge 1 ]] && [[ ${local_Port} -le 65535 ]]; then
 				echo
@@ -226,7 +226,7 @@ Set_Mapper_Port(){
 		echo -e "请输入 tinyPortMapper 远程被转发 端口 [1-65535](就是被中转服务器的端口)"
 		stty erase '^H' && read -p "(默认同本地监听端口: ${local_Port}):" Mapper_Port
 		[[ -z "${Mapper_Port}" ]] && Mapper_Port=${local_Port}
-		echo $[${Mapper_Port}+0] &>/dev/null
+		echo $((${Mapper_Port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${Mapper_Port} -ge 1 ]] && [[ ${Mapper_Port} -le 65535 ]]; then
 				echo

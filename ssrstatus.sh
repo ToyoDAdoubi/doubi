@@ -57,7 +57,7 @@ set_config_port(){
 	echo -e "请输入 ShadowsocksR 账号端口"
 	stty erase '^H' && read -p "(默认: 2333):" port
 	[[ -z "$port" ]] && port="2333"
-	echo $[${port}+0] &>/dev/null
+	echo $((${port}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${port} -ge 1 ]] && [[ ${port} -le 65535 ]]; then
 			echo && echo -e "	端口 : ${Red_font_prefix}${port}${Font_color_suffix}" && echo
@@ -242,7 +242,7 @@ Set_server_port(){
 		echo -e "请输入 SSRStatus 网站要设置的 域名/IP的端口[1-65535]（如果是域名的话，一般建议用 http 80 端口）"
 		stty erase '^H' && read -p "(默认: 8888):" server_port_s
 		[[ -z "$server_port_s" ]] && server_port_s="8888"
-		echo $[${server_port_s}+0] &>/dev/null
+		echo $((${server_port_s}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${server_port_s} -ge 1 ]] && [[ ${server_port_s} -le 65535 ]]; then
 				echo && echo -e "	IP/域名[server]: ${Red_background_prefix} ${server_port_s} ${Font_color_suffix}" && echo
@@ -518,7 +518,7 @@ Test_one(){
 	echo -e "请选择你要单独测试的账号序号"
 	stty erase '^H' && read -p "(默认取消):" Test_one_num
 	[[ -z "${Test_one_num}" ]] && echo "已取消..." && exit 1
-	echo $[${Test_one_num}+0] &>/dev/null
+	echo $((${Test_one_num}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${Test_one_num} -ge 1 ]] && [[ ${Test_one_num} -le ${Like_num} ]]; then
 			analysis_type="add" && Analysis_Config "${Test_one_num}"
@@ -596,7 +596,7 @@ Del_SSRStatus(){
 	echo -e "请选择你要删除的账号序号"
 	stty erase '^H' && read -p "(默认取消):" Del_num
 	[[ -z "${Del_num}" ]] && echo "已取消..." && exit 1
-	echo $[${Del_num}+0] &>/dev/null
+	echo $((${Del_num}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${Del_num} -ge 1 ]] && [[ ${Del_num} -le ${Like_num} ]]; then
 			sed -i "${Del_num}d" ${config_file}
@@ -621,7 +621,7 @@ Modify_SSRStatus(){
 	echo -e "请选择你要修改的账号序号"
 	stty erase '^H' && read -p "(默认取消):" Modify_num
 	[[ -z "${Modify_num}" ]] && echo "已取消..." && exit 1
-	echo $[${Modify_num}+0] &>/dev/null
+	echo $((${Modify_num}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${Modify_num} -ge 1 ]] && [[ ${Modify_num} -le ${Like_num} ]]; then
 			set_config_user
@@ -661,7 +661,7 @@ Modify_SSRStatus_disabled(){
 	echo -e "请选择你要启用/禁用的账号序号"
 	stty erase '^H' && read -p "(默认取消):" Modify_num
 	[[ -z "${Modify_num}" ]] && echo "已取消..." && exit 1
-	echo $[${Modify_num}+0] &>/dev/null
+	echo $((${Modify_num}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${Modify_num} -ge 1 ]] && [[ ${Modify_num} -le ${Like_num} ]]; then
 			Config_old=$(echo -e "${Like}"|sed -n "${Modify_num}"p)

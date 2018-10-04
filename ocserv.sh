@@ -248,7 +248,7 @@ Set_tcp_port(){
 	echo -e "请输入VPN服务端的TCP端口"
 	stty erase '^H' && read -p "(默认: 443):" set_tcp_port
 	[[ -z "$set_tcp_port" ]] && set_tcp_port="443"
-	echo $[${set_tcp_port}+0] &>/dev/null
+	echo $((${set_tcp_port}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${set_tcp_port} -ge 1 ]] && [[ ${set_tcp_port} -le 65535 ]]; then
 			echo && echo -e "	TCP端口 : ${Red_font_prefix}${set_tcp_port}${Font_color_suffix}" && echo
@@ -267,7 +267,7 @@ Set_udp_port(){
 	echo -e "请输入VPN服务端的UDP端口"
 	stty erase '^H' && read -p "(默认: ${set_tcp_port}):" set_udp_port
 	[[ -z "$set_udp_port" ]] && set_udp_port="${set_tcp_port}"
-	echo $[${set_udp_port}+0] &>/dev/null
+	echo $((${set_udp_port}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
 		if [[ ${set_udp_port} -ge 1 ]] && [[ ${set_udp_port} -le 65535 ]]; then
 			echo && echo -e "	TCP端口 : ${Red_font_prefix}${set_udp_port}${Font_color_suffix}" && echo
