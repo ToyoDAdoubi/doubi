@@ -155,10 +155,10 @@ Installation_dependency(){
 	if [[ ${release} = "centos" ]]; then
 		yum update
 		yum -y groupinstall "Development Tools"
-		yum install vim -y
+		yum install nano -y
 	else
 		apt-get update
-		apt-get install vim build-essential -y
+		apt-get install nano build-essential -y
 	fi
 }
 Install_aria2(){
@@ -369,14 +369,14 @@ Set_aria2_RPC_passwd_port_dir(){
 Set_aria2_vim_conf(){
 	Read_config
 	aria2_port_old=${aria2_port}
-	echo -e "${Tip} 手动修改配置文件须知（VIM 编辑器）：
-${Green_font_prefix}1.${Font_color_suffix} 配置文件中含有中文注释，如果你的服务器或SSH工具不支持中文现在，将会乱码(请本地编辑)。
-${Green_font_prefix}2.${Font_color_suffix} 打开配置文件后，按 ${Green_font_prefix}I键${Font_color_suffix} 进入编辑模式(左下角显示 ${Green_font_prefix}-- INSERT --${Font_color_suffix})，然后就可以编辑文件了，
-   编辑文件完成后，按 ${Green_font_prefix}Esc键${Font_color_suffix} 退出编辑模式，然后输入 ${Green_font_prefix}:wq${Font_color_suffix} (半角 小写)回车，即保存并退出。
-${Green_font_prefix}3.${Font_color_suffix} 如果你不想要保存，那么按 ${Green_font_prefix}Esc键${Font_color_suffix} 退出编辑模式，然后输入 ${Green_font_prefix}:q!${Font_color_suffix} (半角 小写)回车，即不保存退出。
-${Green_font_prefix}4.${Font_color_suffix} 如果你打算在本地编辑配置文件，那么配置文件位置： ${Green_font_prefix}/root/.aria2/aria2.conf${Font_color_suffix} (注意是隐藏目录) 。" && echo
-	stty erase '^H' && read -p "如果理解 VIM 使用方法，请按任意键继续，如要取消请使用 Ctrl+C 。" var
-	vim ${aria2_conf}
+	echo -e "${Tip} 手动修改配置文件须知（nano 文本编辑器详细使用教程：https://doub.io/linux-jc13/）：
+${Green_font_prefix}1.${Font_color_suffix} 配置文件中含有中文注释，如果你的 服务器系统 或 SSH工具 不支持中文显示，将会乱码(请本地编辑)。
+${Green_font_prefix}2.${Font_color_suffix} 一会自动打开配置文件后，就可以开始手动编辑文件了。
+${Green_font_prefix}3.${Font_color_suffix} 如果要退出并保存文件，那么按 ${Green_font_prefix}Ctrl+X键${Font_color_suffix} 后，输入 ${Green_font_prefix}y${Font_color_suffix} 后，再按一下 ${Green_font_prefix}回车键${Font_color_suffix} 即可。
+${Green_font_prefix}4.${Font_color_suffix} 如果要退出并不保存文件，那么按 ${Green_font_prefix}Ctrl+X键${Font_color_suffix} 后，输入 ${Green_font_prefix}n${Font_color_suffix} 即可。
+${Green_font_prefix}5.${Font_color_suffix} 如果你想在本地编辑配置文件，那么配置文件位置： ${Green_font_prefix}/root/.aria2/aria2.conf${Font_color_suffix} (注意是隐藏目录) 。" && echo
+	stty erase '^H' && read -p "如果已经理解 nano 使用方法，请按任意键继续，如要取消请使用 Ctrl+C 。" var
+	nano "${aria2_conf}"
 	Read_config
 	if [[ ${aria2_port_old} != ${aria2_port} ]]; then
 		aria2_RPC_port=${aria2_port}
