@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Cloud Torrent
-#	Version: 1.2.4
+#	Version: 1.2.5
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-12/
 #=================================================
 
-sh_ver="1.2.4"
+sh_ver="1.2.5"
 file="/usr/local/cloudtorrent"
 ct_file="/usr/local/cloudtorrent/cloud-torrent"
 dl_file="/usr/local/cloudtorrent/downloads"
@@ -178,8 +178,8 @@ Set_user(){
 	echo "========================" && echo
 
 	echo "请输入 Cloud Torrent 用户名的密码"
-	stty erase '^H' && read -p "(默认密码: doub.io):" ct_passwd
-	[[ -z "${ct_passwd}" ]] && ct_passwd="doub.io"
+	stty erase '^H' && read -p "(默认密码: 随机生成10位数字+字母):" ct_passwd
+	[[ -z "${ct_passwd}" ]] && ct_passwd=$(date +%s%N | md5sum | head -c 10)
 	echo && echo "========================"
 	echo -e "	密码 : ${Red_background_prefix} ${ct_passwd} ${Font_color_suffix}"
 	echo "========================" && echo
