@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Cloud Torrent
-#	Version: 1.2.3
+#	Version: 1.2.4
 #	Author: Toyo
 #	Blog: https://doub.io/wlzy-12/
 #=================================================
 
-sh_ver="1.2.3"
+sh_ver="1.2.4"
 file="/usr/local/cloudtorrent"
 ct_file="/usr/local/cloudtorrent/cloud-torrent"
 dl_file="/usr/local/cloudtorrent/downloads"
@@ -53,7 +53,7 @@ check_pid(){
 	PID=$(ps -ef | grep cloud-torrent | grep -v grep | awk '{print $2}')
 }
 check_new_ver(){
-	ct_new_ver=$(wget --no-check-certificate -qO- https://github.com/jpillora/cloud-torrent/releases/latest | grep "<title>" | sed -r 's/.*Release (.+) · jpillora.*/\1/')
+	ct_new_ver=$(wget --no-check-certificate -qO- -t2 -T3 https://api.github.com/repos/jpillora/cloud-torrent/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g;s/v//g')
 	if [[ -z ${ct_new_ver} ]]; then
 		echo -e "${Error} Cloud Torrent 最新版本获取失败，请手动获取最新版本号[ https://github.com/jpillora/cloud-torrent/releases ]"
 		stty erase '^H' && read -p "请输入版本号 [ 格式 x.x.xx , 如 0.8.21 ] :" ct_new_ver
@@ -83,8 +83,10 @@ Download_ct(){
 	cd ${file}
 	if [[ ${bit} == "x86_64" ]]; then
 		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_amd64.gz"
-	else
+	elif [[ ${bit} == "i386" || ${bit} == "i686" ]]; then
 		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_386.gz"
+	else
+		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_arm.gz"
 	fi
 	[[ ! -e "cloud-torrent.gz" ]] && echo -e "${Error} Cloud Torrent 下载失败 !" && exit 1
 	gzip -d cloud-torrent.gz
