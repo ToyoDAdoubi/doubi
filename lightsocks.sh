@@ -71,7 +71,7 @@ check_new_ver(){
 	lightsocks_new_ver=$(wget --no-check-certificate -qO- https://github.com/gwuhaolin/lightsocks/releases/latest | grep "<title>" | sed -r 's/.*Release (.+) · gwuhaolin.*/\1/')
 	if [[ -z ${lightsocks_new_ver} ]]; then
 		echo -e "${Error} Lightsocks 最新版本获取失败，请手动获取最新版本号[ https://github.com/gwuhaolin/lightsocks/releases/latest ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 1.0.6 ] :" lightsocks_new_ver
+		read -e -p "请输入版本号 [ 格式是日期 , 如 1.0.6 ] :" lightsocks_new_ver
 		[[ -z "${lightsocks_new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 Lightsocks 最新版本为 [ ${lightsocks_new_ver} ]"
@@ -168,7 +168,7 @@ Set_port(){
 	while true
 		do
 		echo -e "请输入 Lightsocks 端口 [1-65535]（端口不能重复，避免冲突）"
-		stty erase '^H' && read -p "(默认: 随机端口):" ls_port
+		read -e -p "(默认: 随机端口):" ls_port
 		[[ -z "${ls_port}" ]] && ls_port=$(Generate_the_port 443 65500)
 		echo $((${ls_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -194,7 +194,7 @@ Set_lightsocks(){
  ${Green_font_prefix}3.${Font_color_suffix}  监控 运行状态
  
  ${Tip} 因为 Lightsocks 限制，所以密码只能自动生成 !" && echo
-	stty erase '^H' && read -p "(默认: 取消):" ls_modify
+	read -e -p "(默认: 取消):" ls_modify
 	[[ -z "${ls_modify}" ]] && echo "已取消..." && exit 1
 	if [[ ${ls_modify} == "1" ]]; then
 		Modify_user "port"
@@ -291,7 +291,7 @@ Uninstall_lightsocks(){
 	check_installed_status
 	echo "确定要卸载 Lightsocks ? (y/N)"
 	echo
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
@@ -402,7 +402,7 @@ View_user_connection_info(){
 	echo && echo -e "请选择要显示的格式：
  ${Green_font_prefix}1.${Font_color_suffix} 显示 IP 格式
  ${Green_font_prefix}2.${Font_color_suffix} 显示 IP+IP归属地 格式" && echo
-	stty erase '^H' && read -p "(默认: 1):" lightsocks_connection_info
+	read -e -p "(默认: 1):" lightsocks_connection_info
 	[[ -z "${lightsocks_connection_info}" ]] && lightsocks_connection_info="1"
 	if [[ "${lightsocks_connection_info}" == "1" ]]; then
 		View_user_connection_info_1 ""
@@ -449,7 +449,7 @@ Set_crontab_monitor_lightsocks(){
 	if [[ -z "${crontab_monitor_lightsocks_status}" ]]; then
 		echo && echo -e "当前监控模式: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
 		echo -e "确定要开启 ${Green_font_prefix}Lightsocks 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[Y/n]"
-		stty erase '^H' && read -p "(默认: y):" crontab_monitor_lightsocks_status_ny
+		read -e -p "(默认: y):" crontab_monitor_lightsocks_status_ny
 		[[ -z "${crontab_monitor_lightsocks_status_ny}" ]] && crontab_monitor_lightsocks_status_ny="y"
 		if [[ ${crontab_monitor_lightsocks_status_ny} == [Yy] ]]; then
 			crontab_monitor_lightsocks_cron_start
@@ -459,7 +459,7 @@ Set_crontab_monitor_lightsocks(){
 	else
 		echo && echo -e "当前监控模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
 		echo -e "确定要关闭 ${Green_font_prefix}Lightsocks 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动SSR服务端)[y/N]"
-		stty erase '^H' && read -p "(默认: n):" crontab_monitor_lightsocks_status_ny
+		read -e -p "(默认: n):" crontab_monitor_lightsocks_status_ny
 		[[ -z "${crontab_monitor_lightsocks_status_ny}" ]] && crontab_monitor_lightsocks_status_ny="n"
 		if [[ ${crontab_monitor_lightsocks_status_ny} == [Yy] ]]; then
 			crontab_monitor_lightsocks_cron_stop
@@ -580,7 +580,7 @@ else
 		echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 	fi
 	echo
-	stty erase '^H' && read -p " 请输入数字 [0-10]:" num
+	read -e -p " 请输入数字 [0-10]:" num
 	case "$num" in
 		0)
 		Update_Shell

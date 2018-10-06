@@ -128,7 +128,7 @@ Read_wrcd(){
 }
 Set_remote_dns_server(){
 	echo "请输入 DowsDNS 远程(上游)DNS解析服务器IP"
-	stty erase '^H' && read -p "(默认: 114.114.114.114):" dd_remote_dns_server
+	read -e -p "(默认: 114.114.114.114):" dd_remote_dns_server
 	[[ -z "${dd_remote_dns_server}" ]] && dd_remote_dns_server="114.114.114.114"
 	echo
 }
@@ -136,7 +136,7 @@ Set_remote_dns_port(){
 	while true
 		do
 		echo -e "请输入 DowsDNS 远程(上游)DNS解析服务器端口 [1-65535]"
-		stty erase '^H' && read -p "(默认: 53):" dd_remote_dns_port
+		read -e -p "(默认: 53):" dd_remote_dns_port
 		[[ -z "$dd_remote_dns_port" ]] && dd_remote_dns_port="53"
 		echo $((${dd_remote_dns_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -160,7 +160,7 @@ Set_remote_dns(){
  ${Green_font_prefix}3.${Font_color_suffix} 208.67.222.222 53
  ${Green_font_prefix}4.${Font_color_suffix} 208.67.222.222 5353
  ${Green_font_prefix}5.${Font_color_suffix} 自定义输入" && echo
-	stty erase '^H' && read -p "(默认: 1. 114.114.114.114 53):" dd_remote_dns
+	read -e -p "(默认: 1. 114.114.114.114 53):" dd_remote_dns
 	[[ -z "${dd_remote_dns}" ]] && dd_remote_dns="1"
 	if [[ ${dd_remote_dns} == "1" ]]; then
 		dd_remote_dns_server="114.114.114.114"
@@ -191,7 +191,7 @@ Set_local_dns_server(){
 	echo -e "请选择并输入 DowsDNS 的本地监听方式
  ${Green_font_prefix}1.${Font_color_suffix} 127.0.0.1 (只允许本地和局域网设备访问)
  ${Green_font_prefix}2.${Font_color_suffix} 0.0.0.0 (允许外网访问)" && echo
-	stty erase '^H' && read -p "(默认: 2. 0.0.0.0):" dd_local_dns_server
+	read -e -p "(默认: 2. 0.0.0.0):" dd_local_dns_server
 	[[ -z "${dd_local_dns_server}" ]] && dd_local_dns_server="2"
 	if [[ ${dd_local_dns_server} == "1" ]]; then
 		dd_local_dns_server="127.0.0.1"
@@ -212,7 +212,7 @@ Set_local_dns_port(){
 		do
 		echo -e "请输入 DowsDNS 监听端口 [1-65535]
  注意：大部分设备是不支持设置 非53端口的DNS服务器的，所以非必须请直接回车默认使用 53端口。" && echo
-		stty erase '^H' && read -p "(默认: 53):" dd_local_dns_port
+		read -e -p "(默认: 53):" dd_local_dns_port
 		[[ -z "$dd_local_dns_port" ]] && dd_local_dns_port="53"
 		echo $((${dd_local_dns_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -232,7 +232,7 @@ Set_local_dns_port(){
 Set_sni_proxy_on(){
 	echo "是否开启 DowsDNS SNI代理功能？[y/N]
  注意：开启此功能后，任何自定义设置的 hosts或泛域名解析(包括DowsDNS自带的)，都指向设置的SNI代理IP，如果你没有SNI代理IP，请输入 N !"
-	stty erase '^H' && read -p "(默认: N 关闭):" dd_sni_proxy_on
+	read -e -p "(默认: N 关闭):" dd_sni_proxy_on
 	[[ -z "${dd_sni_proxy_on}" ]] && dd_sni_proxy_on="n"
 	if [[ ${dd_sni_proxy_on} == [Yy] ]]; then
 		dd_sni_proxy_on="true"
@@ -247,7 +247,7 @@ Set_sni_proxy_ip(){
 	ddd_sni_proxy_ip=$(wget --no-check-certificate -t2 -T4 -qO- "https://raw.githubusercontent.com/dowsnature/dowsDNS/master/conf/config.json"|grep "sni_proxy_ip"|awk -F ":" '{print $NF}'|sed -r 's/.*\"(.+)\".*/\1/')
 	[[ -z ${ddd_sni_proxy_ip} ]] && ddd_sni_proxy_ip="219.76.4.3"
 	echo "请输入 DowsDNS SNI代理 IP（如果没有就直接回车）"
-	stty erase '^H' && read -p "(默认: ${ddd_sni_proxy_ip}):" dd_sni_proxy_ip
+	read -e -p "(默认: ${ddd_sni_proxy_ip}):" dd_sni_proxy_ip
 	[[ -z "${dd_sni_proxy_ip}" ]] && dd_sni_proxy_ip="${ddd_sni_proxy_ip}"
 	echo && echo "	================================================"
 	echo -e "	SNI代理 IP : ${Red_background_prefix} ${dd_sni_proxy_ip} ${Font_color_suffix}"
@@ -274,13 +274,13 @@ Set_wrcd_name(){
 	echo "请输入 DowsDNS 要添加/修改的域名(子域名或泛域名)
  注意：假如你想要 youtube.com 及其二级域名全部指向 指定的IP，那么你需要添加 *.youtube.com 和 youtube.com 这两个域名解析才有效。
  这意味着 *.youtube.com 仅代表如 www.youtube.com xxx.youtube.com 这样的二级域名，而不能代表一级域名(顶级域名) youtube.com ！"
-	stty erase '^H' && read -p "(默认回车取消):" wrcd_name
+	read -e -p "(默认回车取消):" wrcd_name
 	[[ -z "${wrcd_name}" ]] && echo "已取消..." && exit 0
 	echo
 }
 Set_wrcd_name_1(){
 	echo "检测到当前添加的域名为 泛域名，是否自动添加 上级域名(如顶级域名，就是上面示例说的 youtube.com) [Y/n]"
-	stty erase '^H' && read -p "(默认: Y 添加):" wrcd_name_1
+	read -e -p "(默认: Y 添加):" wrcd_name_1
 	[[ -z "${wrcd_name_1}" ]] && wrcd_name_1="y"
 	if [[ ${wrcd_name_1} == [Yy] ]]; then
 		wrcd_name_1=$(echo -e "${wrcd_name}"|cut -c 3-100)
@@ -294,7 +294,7 @@ Set_wrcd_name_1(){
 Set_wrcd_ip(){
 	echo "请输入 DowsDNS 刚才添加/修改的域名要指向的IP
  注意：如果你开启了 SNI代理功能(config.json)，那么你这里设置的自定义泛域名解析都会被 SNI代理功能的SNI代理IP设置所覆盖，也就是统一指向 SNI代理的IP，这里的IP设置就没意义了。"
-	stty erase '^H' && read -p "(默认回车取消):" wrcd_ip
+	read -e -p "(默认回车取消):" wrcd_ip
 	[[ -z "${wrcd_ip}" ]] && echo "已取消..." && exit 0
 	echo
 }
@@ -306,7 +306,7 @@ Set_dowsdns_wrcd(){
  ${Green_font_prefix}1.${Font_color_suffix} 添加 泛域名解析
  ${Green_font_prefix}2.${Font_color_suffix} 删除 泛域名解析
  ${Green_font_prefix}3.${Font_color_suffix} 修改 泛域名解析" && echo
-	stty erase '^H' && read -p "(默认: 取消):" wrcd_modify
+	read -e -p "(默认: 取消):" wrcd_modify
 	[[ -z "${wrcd_modify}" ]] && echo "已取消..." && exit 1
 	if [[ ${wrcd_modify} == "0" ]]; then
 		Read_wrcd
@@ -341,7 +341,7 @@ Add_wrcd(){
 			fi
 		fi
 		echo && echo "是否继续添加 泛域名解析？[Y/n]"
-		stty erase '^H' && read -p "(默认: Y 继续添加):" wrcd_add_1
+		read -e -p "(默认: Y 继续添加):" wrcd_add_1
 		[[ -z "${wrcd_add_1}" ]] && wrcd_add_1="y"
 		if [[ ${wrcd_add_1} == [Yy] ]]; then
 			continue
@@ -357,7 +357,7 @@ Del_wrcd(){
 		do
 		Read_wrcd
 		echo "请根据上面的列表选择你要删除的 泛域名解析 序号数字 [ 2-${wrcd_json_num} ]"
-		stty erase '^H' && read -p "(默认回车取消):" del_wrcd_num
+		read -e -p "(默认回车取消):" del_wrcd_num
 		[[ -z "$del_wrcd_num" ]] && echo "已取消..." && exit 0
 		echo $((${del_wrcd_num}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -377,7 +377,7 @@ Del_wrcd(){
 					echo -e "${Error} 删除泛域名解析 失败！" && exit 0
 				fi
 				echo && echo "是否继续删除 泛域名解析？[Y/n]"
-				stty erase '^H' && read -p "(默认: Y 继续删除):" wrcd_del_1
+				read -e -p "(默认: Y 继续删除):" wrcd_del_1
 				[[ -z "${wrcd_del_1}" ]] && wrcd_del_1="y"
 				if [[ ${wrcd_del_1} == [Yy] ]]; then
 					continue
@@ -399,7 +399,7 @@ Modify_wrcd(){
 		do
 		Read_wrcd
 		echo "请根据上面的列表选择你要修改的 泛域名解析 序号数字 [ 2-${wrcd_json_num} ]"
-		stty erase '^H' && read -p "(默认回车取消):" modify_wrcd_num
+		read -e -p "(默认回车取消):" modify_wrcd_num
 		[[ -z "$modify_wrcd_num" ]] && echo "已取消..." && exit 0
 		echo $((${modify_wrcd_num}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -479,7 +479,7 @@ Uninstall_dowsdns(){
 	check_installed_status
 	echo "确定要卸载 DowsDNS ? (y/N)"
 	echo
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
@@ -582,7 +582,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-9]:" num
+read -e -p " 请输入数字 [0-9]:" num
 case "$num" in
 	0)
 	Update_Shell

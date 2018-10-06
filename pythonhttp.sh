@@ -15,7 +15,7 @@ sethttp(){
 	while true
 	do
 	echo -e "请输入要开放的HTTP服务端口 [1-65535]"
-	stty erase '^H' && read -p "(默认端口: 8000):" httpport
+	read -e -p "(默认端口: 8000):" httpport
 	[[ -z "$httpport" ]] && httpport="8000"
 	expr ${httpport} + 0 &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -33,7 +33,7 @@ sethttp(){
 	done
 	#设置目录
 	echo "请输入要开放的目录(绝对路径)"
-	stty erase '^H' && read -p "(直接回车, 默认当前文件夹):" httpfile
+	read -e -p "(直接回车, 默认当前文件夹):" httpfile
 	if [[ ! -z $httpfile ]]; then
 		[[ ! -e $httpfile ]] && echo -e "\033[41;37m [错误] \033[0m 输入的目录不存在 或 当前用户无权限访问, 请检查!" && exit 1
 	else
@@ -48,7 +48,7 @@ sethttp(){
 	echo -e "	目录 : \033[41;37m ${httpfile} \033[0m"
 	echo "========================"
 	echo
-	stty erase '^H' && read -p "按任意键继续，如有错误，请使用 Ctrl + C 退出." var
+	read -e -p "按任意键继续，如有错误，请使用 Ctrl + C 退出." var
 }
 iptables_add(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${httpport} -j ACCEPT

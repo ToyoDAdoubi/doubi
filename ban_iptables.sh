@@ -258,7 +258,7 @@ ENTER_Ban_KEY_WORDS_type(){
  1. 手动输入（只支持单个关键词）
  2. 本地文件读取（支持批量读取关键词，每行一个关键词）
  3. 网络地址读取（支持批量读取关键词，每行一个关键词）" && echo
-		stty erase '^H' && read -p "(默认: 1. 手动输入):" key_word_type
+		read -e -p "(默认: 1. 手动输入):" key_word_type
 	fi
 	[[ -z "${key_word_type}" ]] && key_word_type="1"
 	if [[ ${key_word_type} == "1" ]]; then
@@ -287,7 +287,7 @@ ENTER_Ban_PORT(){
  多端口：25,26,465,587（多个端口用英文逗号分割）
  连续端口段：25:587（25-587之间的所有端口）" && echo
 	fi
-	stty erase '^H' && read -p "(回车默认取消):" PORT
+	read -e -p "(回车默认取消):" PORT
 	[[ -z "${PORT}" ]] && echo "已取消..." && View_ALL && exit 0
 }
 ENTER_Ban_KEY_WORDS(){
@@ -299,12 +299,12 @@ ENTER_Ban_KEY_WORDS(){
  关键词：www.youtube.com，即禁止访问任何包含关键词 www.youtube.com 的域名（子域名屏蔽）。
  更多效果自行测试（如关键词 .zip 即可禁止下载任何 .zip 后缀的文件）。" && echo
 	fi
-	stty erase '^H' && read -p "(回车默认取消):" key_word
+	read -e -p "(回车默认取消):" key_word
 	[[ -z "${key_word}" ]] && echo "已取消..." && View_ALL && exit 0
 }
 ENTER_Ban_KEY_WORDS_file(){
 	echo -e "请输入欲封禁/解封的 关键词本地文件（请使用绝对路径）" && echo
-	stty erase '^H' && read -p "(默认 读取脚本同目录下的 key_word.txt ):" key_word
+	read -e -p "(默认 读取脚本同目录下的 key_word.txt ):" key_word
 	[[ -z "${key_word}" ]] && key_word="key_word.txt"
 	if [[ -e "${key_word}" ]]; then
 		key_word=$(cat "${key_word}")
@@ -315,7 +315,7 @@ ENTER_Ban_KEY_WORDS_file(){
 }
 ENTER_Ban_KEY_WORDS_url(){
 	echo -e "请输入欲封禁/解封的 关键词网络文件地址（例如 http://xxx.xx/key_word.txt）" && echo
-	stty erase '^H' && read -p "(回车默认取消):" key_word
+	read -e -p "(回车默认取消):" key_word
 	[[ -z "${key_word}" ]] && echo "已取消..." && View_ALL && exit 0
 	key_word=$(wget --no-check-certificate -t3 -T5 -qO- "${key_word}")
 	[[ -z ${key_word} ]] && echo -e "${Error} 网络文件内容为空或访问超时 !" && View_ALL && exit 0
@@ -323,12 +323,12 @@ ENTER_Ban_KEY_WORDS_url(){
 ENTER_UnBan_KEY_WORDS(){
 	View_KEY_WORDS
 	echo -e "请输入欲解封的 关键词（根据上面的列表输入完整准确的 关键词）" && echo
-	stty erase '^H' && read -p "(回车默认取消):" key_word
+	read -e -p "(回车默认取消):" key_word
 	[[ -z "${key_word}" ]] && echo "已取消..." && View_ALL && exit 0
 }
 ENTER_UnBan_PORT(){
 	echo -e "请输入欲解封的 端口（根据上面的列表输入完整准确的 端口，包括逗号、冒号）" && echo
-	stty erase '^H' && read -p "(回车默认取消):" PORT
+	read -e -p "(回车默认取消):" PORT
 	[[ -z "${PORT}" ]] && echo "已取消..." && View_ALL && exit 0
 }
 Ban_PORT(){
@@ -463,7 +463,7 @@ echo && echo -e " iptables防火墙 封禁管理脚本 ${Red_font_prefix}[v${sh_
 ————————————
  ${Green_font_prefix}12.${Font_color_suffix} 升级脚本
 " && echo
-stty erase '^H' && read -p " 请输入数字 [0-12]:" num
+read -e -p " 请输入数字 [0-12]:" num
 case "$num" in
 	0)
 	View_ALL

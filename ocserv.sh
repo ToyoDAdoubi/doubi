@@ -121,7 +121,7 @@ crl_signing_key' > ca.tmpl
 	Get_ip
 	if [[ -z "$ip" ]]; then
 		echo -e "${Error} 检测外网IP失败 !"
-		stty erase '^H' && read -p "请手动输入你的服务器外网IP:" ip
+		read -e -p "请手动输入你的服务器外网IP:" ip
 		[[ -z "${ip}" ]] && echo "取消..." && over
 	fi
 	echo -e 'cn = "'${ip}'"
@@ -224,7 +224,7 @@ Set_ocserv(){
 	Add_iptables
 	Save_iptables
 	echo "是否重启 ocserv ? (Y/n)"
-	stty erase '^H' && read -p "(默认: Y):" yn
+	read -e -p "(默认: Y):" yn
 	[[ -z ${yn} ]] && yn="y"
 	if [[ ${yn} == [Yy] ]]; then
 		Restart_ocserv
@@ -232,13 +232,13 @@ Set_ocserv(){
 }
 Set_username(){
 	echo "请输入 要添加的VPN账号 用户名"
-	stty erase '^H' && read -p "(默认: admin):" username
+	read -e -p "(默认: admin):" username
 	[[ -z "${username}" ]] && username="admin"
 	echo && echo -e "	用户名 : ${Red_font_prefix}${username}${Font_color_suffix}" && echo
 }
 Set_passwd(){
 	echo "请输入 要添加的VPN账号 密码"
-	stty erase '^H' && read -p "(默认: doub.io):" userpass
+	read -e -p "(默认: doub.io):" userpass
 	[[ -z "${userpass}" ]] && userpass="doub.io"
 	echo && echo -e "	密码 : ${Red_font_prefix}${userpass}${Font_color_suffix}" && echo
 }
@@ -246,7 +246,7 @@ Set_tcp_port(){
 	while true
 	do
 	echo -e "请输入VPN服务端的TCP端口"
-	stty erase '^H' && read -p "(默认: 443):" set_tcp_port
+	read -e -p "(默认: 443):" set_tcp_port
 	[[ -z "$set_tcp_port" ]] && set_tcp_port="443"
 	echo $((${set_tcp_port}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -265,7 +265,7 @@ Set_udp_port(){
 	while true
 	do
 	echo -e "请输入VPN服务端的UDP端口"
-	stty erase '^H' && read -p "(默认: ${set_tcp_port}):" set_udp_port
+	read -e -p "(默认: ${set_tcp_port}):" set_udp_port
 	[[ -z "$set_udp_port" ]] && set_udp_port="${set_tcp_port}"
 	echo $((${set_udp_port}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -335,7 +335,7 @@ Del_User(){
 	List_User
 	[[ ${User_num} == 1 ]] && echo -e "${Error} 当前仅剩一个账号配置，无法删除 !" && exit 1
 	echo -e "请输入要删除的VPN账号的用户名"
-	stty erase '^H' && read -p "(默认取消):" Del_username
+	read -e -p "(默认取消):" Del_username
 	[[ -z "${Del_username}" ]] && echo "已取消..." && exit 1
 	user_status=$(cat "${passwd_file}"|grep "${Del_username}"':*:')
 	[[ -z ${user_status} ]] && echo -e "${Error} 用户名不存在 ! [${Del_username}]" && exit 1
@@ -350,7 +350,7 @@ Del_User(){
 Modify_User_disabled(){
 	List_User
 	echo -e "请输入要启用/禁用的VPN账号的用户名"
-	stty erase '^H' && read -p "(默认取消):" Modify_username
+	read -e -p "(默认取消):" Modify_username
 	[[ -z "${Modify_username}" ]] && echo "已取消..." && exit 1
 	user_status=$(cat "${passwd_file}"|grep "${Modify_username}"':*:')
 	[[ -z ${user_status} ]] && echo -e "${Error} 用户名不存在 ! [${Modify_username}]" && exit 1
@@ -385,7 +385,7 @@ Set_Pass(){
  ${Green_font_prefix} 3.${Font_color_suffix} 启用/禁用 账号配置
  
  注意：添加/修改/删除 账号配置后，VPN服务端会实时读取，无需重启服务端 !" && echo
-	stty erase '^H' && read -p "(默认: 取消):" set_num
+	read -e -p "(默认: 取消):" set_num
 	[[ -z "${set_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${set_num} == "0" ]]; then
 		List_User
@@ -421,7 +421,7 @@ Uninstall_ocserv(){
 	check_installed_status "un"
 	echo "确定要卸载 ocserv ? (y/N)"
 	echo
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
@@ -476,7 +476,7 @@ Set_iptables(){
 	ifconfig_status=$(ifconfig)
 	if [[ -z ${ifconfig_status} ]]; then
 		echo -e "${Error} ifconfig 未安装 !"
-		stty erase '^H' && read -p "请手动输入你的网卡名(一般情况下，网卡名为 eth0，Debian9 则为 ens3，CentOS Ubuntu 最新版本可能为 enpXsX(X代表数字或字母)，OpenVZ 虚拟化则为 venet0):" Network_card
+		read -e -p "请手动输入你的网卡名(一般情况下，网卡名为 eth0，Debian9 则为 ens3，CentOS Ubuntu 最新版本可能为 enpXsX(X代表数字或字母)，OpenVZ 虚拟化则为 venet0):" Network_card
 		[[ -z "${Network_card}" ]] && echo "取消..." && exit 1
 	else
 		Network_card=$(ifconfig|grep "eth0")
@@ -492,7 +492,7 @@ Set_iptables(){
 					Network_card="venet0"
 				else
 					ifconfig
-					stty erase '^H' && read -p "检测到本服务器的网卡非 eth0 \ ens3(Debian9) \ venet0(OpenVZ) \ enpXsX(CentOS Ubuntu 最新版本，X代表数字或字母)，请根据上面输出的网卡信息手动输入你的网卡名:" Network_card
+					read -e -p "检测到本服务器的网卡非 eth0 \ ens3(Debian9) \ venet0(OpenVZ) \ enpXsX(CentOS Ubuntu 最新版本，X代表数字或字母)，请根据上面输出的网卡信息手动输入你的网卡名:" Network_card
 					[[ -z "${Network_card}" ]] && echo "取消..." && exit 1
 				fi
 			fi
@@ -544,7 +544,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-9]:" num
+read -e -p " 请输入数字 [0-9]:" num
 case "$num" in
 	0)
 	Update_Shell

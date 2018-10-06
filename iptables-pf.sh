@@ -63,28 +63,28 @@ install_iptables(){
 	echo -e "${Info} iptables 配置完毕 !"
 }
 Set_forwarding_port(){
-	stty erase '^H' && read -p "请输入 iptables 欲转发至的 远程端口 [1-65535] (支持端口段 如 2333-6666, 被转发服务器):" forwarding_port
+	read -e -p "请输入 iptables 欲转发至的 远程端口 [1-65535] (支持端口段 如 2333-6666, 被转发服务器):" forwarding_port
 	[[ -z "${forwarding_port}" ]] && echo "取消..." && exit 1
 	echo && echo -e "	欲转发端口 : ${Red_font_prefix}${forwarding_port}${Font_color_suffix}" && echo
 }
 Set_forwarding_ip(){
-		stty erase '^H' && read -p "请输入 iptables 欲转发至的 远程IP(被转发服务器):" forwarding_ip
+		read -e -p "请输入 iptables 欲转发至的 远程IP(被转发服务器):" forwarding_ip
 		[[ -z "${forwarding_ip}" ]] && echo "取消..." && exit 1
 		echo && echo -e "	欲转发服务器IP : ${Red_font_prefix}${forwarding_ip}${Font_color_suffix}" && echo
 }
 Set_local_port(){
 	echo -e "请输入 iptables 本地监听端口 [1-65535] (支持端口段 如 2333-6666)"
-	stty erase '^H' && read -p "(默认端口: ${forwarding_port}):" local_port
+	read -e -p "(默认端口: ${forwarding_port}):" local_port
 	[[ -z "${local_port}" ]] && local_port="${forwarding_port}"
 	echo && echo -e "	本地监听端口 : ${Red_font_prefix}${local_port}${Font_color_suffix}" && echo
 }
 Set_local_ip(){
-	stty erase '^H' && read -p "请输入 本服务器的 网卡IP(注意是网卡绑定的IP，而不仅仅是公网IP，回车自动检测外网IP):" local_ip
+	read -e -p "请输入 本服务器的 网卡IP(注意是网卡绑定的IP，而不仅仅是公网IP，回车自动检测外网IP):" local_ip
 	if [[ -z "${local_ip}" ]]; then
 		local_ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
 		if [[ -z "${local_ip}" ]]; then
 			echo "${Error} 无法检测到本服务器的公网IP，请手动输入"
-			stty erase '^H' && read -p "请输入 本服务器的 网卡IP(注意是网卡绑定的IP，而不仅仅是公网IP):" local_ip
+			read -e -p "请输入 本服务器的 网卡IP(注意是网卡绑定的IP，而不仅仅是公网IP):" local_ip
 			[[ -z "${local_ip}" ]] && echo "取消..." && exit 1
 		fi
 	fi
@@ -95,7 +95,7 @@ Set_forwarding_type(){
  1. TCP
  2. UDP
  3. TCP+UDP\n"
-	stty erase '^H' && read -p "(默认: TCP+UDP):" forwarding_type_num
+	read -e -p "(默认: TCP+UDP):" forwarding_type_num
 	[[ -z "${forwarding_type_num}" ]] && forwarding_type_num="3"
 	if [[ ${forwarding_type_num} == "1" ]]; then
 		forwarding_type="TCP"
@@ -121,7 +121,7 @@ Set_Config(){
 	欲转发 IP\t: ${Green_font_prefix}${forwarding_ip}${Font_color_suffix}
 	转发类型\t: ${Green_font_prefix}${forwarding_type}${Font_color_suffix}
 ——————————————————————————————\n"
-	stty erase '^H' && read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
+	read -e -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
 }
 Add_forwarding(){
 	check_iptables
@@ -168,7 +168,7 @@ Del_forwarding(){
 	while true
 	do
 	View_forwarding
-	stty erase '^H' && read -p "请输入数字 来选择要删除的 iptables 端口转发规则(默认回车取消):" Del_forwarding_num
+	read -e -p "请输入数字 来选择要删除的 iptables 端口转发规则(默认回车取消):" Del_forwarding_num
 	[[ -z "${Del_forwarding_num}" ]] && Del_forwarding_num="0"
 	echo $((${Del_forwarding_num}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -190,7 +190,7 @@ Del_forwarding(){
 Uninstall_forwarding(){
 	check_iptables
 	echo -e "确定要清空 iptables 所有端口转发规则 ? [y/N]"
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		forwarding_text=$(iptables -t nat -vnL PREROUTING|tail -n +3)
@@ -262,7 +262,7 @@ echo && echo -e " iptables 端口转发一键管理脚本 ${Red_font_prefix}[v${
  ${Green_font_prefix}5.${Font_color_suffix} 删除 iptables 端口转发
 ————————————
 注意：初次使用前请请务必执行 ${Green_font_prefix}1. 安装 iptables${Font_color_suffix}(不仅仅是安装)" && echo
-stty erase '^H' && read -p " 请输入数字 [0-5]:" num
+read -e -p " 请输入数字 [0-5]:" num
 case "$num" in
 	0)
 	Update_Shell

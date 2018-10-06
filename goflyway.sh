@@ -72,7 +72,7 @@ check_new_ver(){
 	new_ver=$(wget --no-check-certificate -qO- -t1 -T3 https://api.github.com/repos/coyove/goflyway/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
 	if [[ -z ${new_ver} ]]; then
 		echo -e "${Error} GoFlyway 最新版本获取失败，请手动获取最新版本号[ https://github.com/coyove/goflyway/releases ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式如 1.3.0a ] :" new_ver
+		read -e -p "请输入版本号 [ 格式如 1.3.0a ] :" new_ver
 		[[ -z "${new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 GoFlyway 最新版本为 [ ${new_ver} ]"
@@ -83,7 +83,7 @@ check_ver_comparison(){
 	[[ -z ${now_ver} ]] && echo "${new_ver}" > ${Now_ver_File}
 	if [[ ${now_ver} != ${new_ver} ]]; then
 		echo -e "${Info} 发现 GoFlyway 已有新版本 [ ${new_ver} ]，当前版本 [ ${now_ver} ]"
-		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
+		read -e -p "是否更新 ? [Y/n] :" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ $yn == [Yy] ]]; then
 			check_pid
@@ -163,7 +163,7 @@ Set_port(){
 	while true
 		do
 		echo -e "请输入 GoFlyway 监听端口 [1-65535]（如果要伪装或者套CDN，那么只能使用端口：80 8080 8880 2052 2082 2086 2095）"
-		stty erase '^H' && read -p "(默认: 2333):" new_port
+		read -e -p "(默认: 2333):" new_port
 		[[ -z "${new_port}" ]] && new_port="2333"
 		echo $((${new_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -182,7 +182,7 @@ Set_port(){
 }
 Set_passwd(){
 	echo "请输入 GoFlyway 密码"
-	stty erase '^H' && read -p "(默认: doub.io):" new_passwd
+	read -e -p "(默认: doub.io):" new_passwd
 	[[ -z "${new_passwd}" ]] && new_passwd="doub.io"
 	echo && echo "========================"
 	echo -e "	密码 : ${Red_background_prefix} ${new_passwd} ${Font_color_suffix}"
@@ -190,7 +190,7 @@ Set_passwd(){
 }
 Set_proxy_pass(){
 	echo "请输入 GoFlyway 要伪装的网站(反向代理，只支持 HTTP:// 网站)"
-	stty erase '^H' && read -p "(默认不伪装):" new_proxy_pass
+	read -e -p "(默认不伪装):" new_proxy_pass
 	if [[ ! -z ${new_proxy_pass} ]]; then
 		echo && echo "========================"
 		echo -e "	伪装 : ${Red_background_prefix} ${new_proxy_pass} ${Font_color_suffix}"
@@ -203,7 +203,7 @@ Set_protocol(){
  ${Green_font_prefix}1.${Font_color_suffix} HTTP (默认，要使用 CDN、WebSocket 则必须选择 HTTP 协议)
  ${Green_font_prefix}2.${Font_color_suffix} KCP  (将 TCP 数据转为 KCP，并通过UDP方式传输，可复活被TCP阻断的IP)
  ${Tip} 如果使用 KCP 协议，那么将不能使用 CDN、WebSocket。另外，部分地区对海外的UDP链接会QOS限速，这可能导致 KCP 协议速度不理想。" && echo
-	stty erase '^H' && read -p "(默认: 1. HTTP):" new_protocol
+	read -e -p "(默认: 1. HTTP):" new_protocol
 	[[ -z "${new_protocol}" ]] && new_protocol="3"
 	if [[ ${new_protocol} == "1" ]]; then
 		new_protocol="http"
@@ -282,7 +282,7 @@ Set_goflyway(){
  ${Green_font_prefix}6.${Font_color_suffix}  监控 运行状态
  
  ${Tip} 用户的端口是不能重复的，密码可以重复 !" && echo
-	stty erase '^H' && read -p "(默认: 取消):" gf_modify
+	read -e -p "(默认: 取消):" gf_modify
 	[[ -z "${gf_modify}" ]] && echo "已取消..." && exit 1
 	if [[ ${gf_modify} == "1" ]]; then
 		Modify_port
@@ -357,7 +357,7 @@ Uninstall_goflyway(){
 	check_installed_status
 	echo "确定要卸载 GoFlyway ? (y/N)"
 	echo
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
@@ -467,7 +467,7 @@ View_user_connection_info(){
 	echo && echo -e "请选择要显示的格式：
  ${Green_font_prefix}1.${Font_color_suffix} 显示 IP 格式
  ${Green_font_prefix}2.${Font_color_suffix} 显示 IP+IP归属地 格式" && echo
-	stty erase '^H' && read -p "(默认: 1):" goflyway_connection_info
+	read -e -p "(默认: 1):" goflyway_connection_info
 	[[ -z "${goflyway_connection_info}" ]] && goflyway_connection_info="1"
 	if [[ "${goflyway_connection_info}" == "1" ]]; then
 		View_user_connection_info_1 ""
@@ -514,7 +514,7 @@ Set_crontab_monitor_goflyway(){
 	if [[ -z "${crontab_monitor_goflyway_status}" ]]; then
 		echo && echo -e "当前监控模式: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
 		echo -e "确定要开启 ${Green_font_prefix}Goflyway 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Goflyway 服务端)[Y/n]"
-		stty erase '^H' && read -p "(默认: y):" crontab_monitor_goflyway_status_ny
+		read -e -p "(默认: y):" crontab_monitor_goflyway_status_ny
 		[[ -z "${crontab_monitor_goflyway_status_ny}" ]] && crontab_monitor_goflyway_status_ny="y"
 		if [[ ${crontab_monitor_goflyway_status_ny} == [Yy] ]]; then
 			crontab_monitor_goflyway_cron_start
@@ -524,7 +524,7 @@ Set_crontab_monitor_goflyway(){
 	else
 		echo && echo -e "当前监控模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
 		echo -e "确定要关闭 ${Green_font_prefix}Goflyway 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Goflyway 服务端)[y/N]"
-		stty erase '^H' && read -p "(默认: n):" crontab_monitor_goflyway_status_ny
+		read -e -p "(默认: n):" crontab_monitor_goflyway_status_ny
 		[[ -z "${crontab_monitor_goflyway_status_ny}" ]] && crontab_monitor_goflyway_status_ny="n"
 		if [[ ${crontab_monitor_goflyway_status_ny} == [Yy] ]]; then
 			crontab_monitor_goflyway_cron_stop
@@ -645,7 +645,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-10]:" num
+read -e -p " 请输入数字 [0-10]:" num
 case "$num" in
 	0)
 	Update_Shell

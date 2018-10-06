@@ -47,7 +47,7 @@ check_ver_comparison(){
 	if [[ ${pipes_now_ver} != "" ]]; then
 		if [[ ${pipes_now_ver} != ${pipes_new_ver} ]]; then
 			echo -e "${Info_font_prefix}[信息]${Font_suffix} 发现 PipeSocks 已有新版本 [v${pipes_new_ver}] !"
-			stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
+			read -e -p "是否更新 ? [Y/n] :" yn
 			[[ -z "${yn}" ]] && yn="y"
 			if [[ $yn == [Yy] ]]; then
 				PID=`ps -ef|grep "pipesocks"|grep -v "grep"|awk '{print $2}'` && [[ ! -z $PID ]] && kill -9 ${PID}
@@ -141,7 +141,7 @@ Set_user_pipes(){
 	while true
 		do
 		echo -e "请输入 PipeSocks 本地监听端口 [1-65535]"
-		stty erase '^H' && read -p "(默认: 2333):" pipes_port
+		read -e -p "(默认: 2333):" pipes_port
 		[[ -z "$pipes_port" ]] && pipes_port="2333"
 		echo $((${pipes_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -158,7 +158,7 @@ Set_user_pipes(){
 		fi
 	done
 	echo "请输入 PipeSocks 密码"
-	stty erase '^H' && read -p "(默认: doub.io):" pipes_passwd
+	read -e -p "(默认: doub.io):" pipes_passwd
 	[[ -z "${pipes_passwd}" ]] && pipes_passwd="doub.io"
 	echo && echo "————————————————————"
 	echo -e "	密码 : ${Info_font_prefix}${pipes_passwd}${Font_suffix}"
@@ -239,7 +239,7 @@ Log_pipes(){
 Uninstall_pipes(){
 	check_installed_status
 	echo "确定要卸载 PipeSocks ? [y/N]" && echo
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		PID=`ps -ef|grep "pipesocks"|grep -v "grep"|awk '{print $2}'`
@@ -284,7 +284,7 @@ else
 	echo -e " 当前状态: ${Error_font_prefix}未安装${Font_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [1-9]:" num
+read -e -p " 请输入数字 [1-9]:" num
 case "$num" in
 	1)
 	Install_pipes

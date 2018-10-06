@@ -88,7 +88,7 @@ setgogo(){
 	while true
 	do
 	echo -e "请输入GoGo Server 的 HTTP监听端口 [1-65535]:"
-	stty erase '^H' && read -p "(默认端口: 8080):" httpport
+	read -e -p "(默认端口: 8080):" httpport
 	[ -z "$httpport" ] && httpport="8080"
 	expr ${httpport} + 0 &>/dev/null
 	if [ $? -eq 0 ]; then
@@ -208,7 +208,7 @@ uninstallgogo(){
 	check_gogo
 	printf "确定要卸载 GoGo ? (y/N)"
 	printf "\n"
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		PID=`ps -ef | grep "gogo" | grep -v grep | grep -v "gogo.sh" | awk '{print $2}'`

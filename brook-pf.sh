@@ -70,7 +70,7 @@ check_pid(){
 check_new_ver(){
 	echo -e "请输入要下载安装的 Brook 版本号 ${Green_font_prefix}[ 格式是日期，例如: v20180909 ]${Font_color_suffix}
 版本列表请去这里获取：${Green_font_prefix}[ https://github.com/txthinking/brook/releases ]${Font_color_suffix}"
-	stty erase '^H' && read -p "直接回车即自动获取:" brook_new_ver
+	read -e -p "直接回车即自动获取:" brook_new_ver
 	if [[ -z ${brook_new_ver} ]]; then
 		brook_new_ver=$(wget -qO- https://api.github.com/repos/txthinking/brook/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
 		[[ -z ${brook_new_ver} ]] && echo -e "${Error} Brook 最新版本获取失败！" && exit 1
@@ -85,7 +85,7 @@ check_ver_comparison(){
 	brook_now_ver="v${brook_now_ver}"
 	if [[ "${brook_now_ver}" != "${brook_new_ver}" ]]; then
 		echo -e "${Info} 发现 Brook 已有新版本 [ ${brook_new_ver} ]，旧版本 [ ${brook_now_ver} ]"
-		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
+		read -e -p "是否更新 ? [Y/n] :" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ $yn == [Yy] ]]; then
 			check_pid
@@ -138,7 +138,7 @@ Read_config(){
 }
 Set_pf_Enabled(){
 	echo -e "立即启用该端口转发，还是禁用？ [Y/n]"
-	stty erase '^H' && read -p "(默认: Y 启用):" pf_Enabled_un
+	read -e -p "(默认: Y 启用):" pf_Enabled_un
 	[[ -z ${pf_Enabled_un} ]] && pf_Enabled_un="y"
 	if [[ ${pf_Enabled_un} == [Yy] ]]; then
 		bk_Enabled="1"
@@ -150,7 +150,7 @@ Set_port_Modify(){
 	while true
 		do
 		echo -e "请选择并输入要修改的 Brook 端口转发本地监听端口 [1-65535]"
-		stty erase '^H' && read -p "(默认取消):" bk_port_Modify
+		read -e -p "(默认取消):" bk_port_Modify
 		[[ -z "${bk_port_Modify}" ]] && echo "取消..." && exit 1
 		echo $((${bk_port_Modify}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -173,7 +173,7 @@ Set_port(){
 	while true
 		do
 		echo -e "请输入 Brook 本地监听端口 [1-65535]（端口不能重复，避免冲突）"
-		stty erase '^H' && read -p "(默认取消):" bk_port
+		read -e -p "(默认取消):" bk_port
 		[[ -z "${bk_port}" ]] && echo "已取消..." && exit 1
 		echo $((${bk_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -192,7 +192,7 @@ Set_port(){
 }
 Set_IP_pf(){
 	echo "请输入被转发的 IP :"
-	stty erase '^H' && read -p "(默认取消):" bk_ip_pf
+	read -e -p "(默认取消):" bk_ip_pf
 	[[ -z "${bk_ip_pf}" ]] && echo "已取消..." && exit 1
 	echo && echo "========================"
 	echo -e "	被转发IP : ${Red_background_prefix} ${bk_ip_pf} ${Font_color_suffix}"
@@ -202,7 +202,7 @@ Set_port_pf(){
 	while true
 		do
 		echo -e "请输入 Brook 被转发的端口 [1-65535]"
-		stty erase '^H' && read -p "(默认取消):" bk_port_pf
+		read -e -p "(默认取消):" bk_port_pf
 		[[ -z "${bk_port_pf}" ]] && echo "已取消..." && exit 1
 		echo $((${bk_port_pf}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -228,7 +228,7 @@ Set_brook(){
  ${Green_font_prefix}4.${Font_color_suffix}  启用/禁用 端口转发
  
  ${Tip} 本地监听端口不能重复，被转发的IP或端口可重复!" && echo
-	stty erase '^H' && read -p "(默认: 取消):" bk_modify
+	read -e -p "(默认: 取消):" bk_modify
 	[[ -z "${bk_modify}" ]] && echo "已取消..." && exit 1
 	if [[ ${bk_modify} == "1" ]]; then
 		Add_pf
@@ -312,7 +312,7 @@ Add_pf(){
 			Add_iptables
 			Save_iptables
 			echo -e "${Info} 端口转发 添加成功 ${Green_font_prefix}[端口: ${bk_port} 被转发IP和端口: ${bk_ip_pf}:${bk_port_pf}]${Font_color_suffix}\n"
-			stty erase '^H' && read -p "是否继续 添加端口转发配置？[Y/n]:" addyn
+			read -e -p "是否继续 添加端口转发配置？[Y/n]:" addyn
 			[[ -z ${addyn} ]] && addyn="y"
 			if [[ ${addyn} == [Nn] ]]; then
 				Restart_brook
@@ -350,7 +350,7 @@ Del_pf(){
 				fi
 				break
 			else
-				stty erase '^H' && read -p "是否继续 删除端口转发配置？[Y/n]:" delyn
+				read -e -p "是否继续 删除端口转发配置？[Y/n]:" delyn
 				[[ -z ${delyn} ]] && delyn="y"
 				if [[ ${delyn} == [Nn] ]]; then
 					Restart_brook
@@ -398,7 +398,7 @@ Modify_Enabled_pf(){
 	user_Enabled_pf_text=$(echo ${user_pf_text}|awk '{print $4}')
 	if [[ ${user_Enabled_pf_text} == "0" ]]; then
 		echo -e "该端口转发已${Red_font_prefix}禁用${Font_color_suffix}，是否${Green_font_prefix}启用${Font_color_suffix}？ [Y/n]"
-		stty erase '^H' && read -p "(默认: Y 启用):" user_Enabled_pf_text_un
+		read -e -p "(默认: Y 启用):" user_Enabled_pf_text_un
 		[[ -z ${user_Enabled_pf_text_un} ]] && user_Enabled_pf_text_un="y"
 		if [[ ${user_Enabled_pf_text_un} == [Yy] ]]; then
 			user_Enabled_pf_text_1="1"
@@ -417,7 +417,7 @@ Modify_Enabled_pf(){
 		fi
 	else
 		echo -e "该端口转发已${Green_font_prefix}启用${Font_color_suffix}，是否${Red_font_prefix}禁用${Font_color_suffix}？ [Y/n]"
-		stty erase '^H' && read -p "(默认: Y 禁用):" user_Enabled_pf_text_un
+		read -e -p "(默认: Y 禁用):" user_Enabled_pf_text_un
 		[[ -z ${user_Enabled_pf_text_un} ]] && user_Enabled_pf_text_un="y"
 		if [[ ${user_Enabled_pf_text_un} == [Yy] ]]; then
 			user_Enabled_pf_text_1="0"
@@ -478,7 +478,7 @@ Update_brook(){
  ${Green_font_prefix}2.${Font_color_suffix}  国外服务器(Github)
  
  ${Tip} 因为国内对 Github 限速，这会导致国内服务器下载速度极慢，所以选择 国内服务器 选项就会从我的 逗比云 下载!" && echo
-	stty erase '^H' && read -p "(默认: 2 国外服务器):" bk_Download
+	read -e -p "(默认: 2 国外服务器):" bk_Download
 	[[ -z "${bk_Download}" ]] && bk_Download="2"
 	if [[ ${bk_Download} == "1" ]]; then
 		Download_type="1"
@@ -491,7 +491,7 @@ Update_brook(){
 Uninstall_brook(){
 	check_installed_status
 	echo -e "确定要卸载 Brook ? [y/N]\n"
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
@@ -535,7 +535,7 @@ Set_crontab_monitor_brook(){
 	if [[ -z "${crontab_monitor_brook_status}" ]]; then
 		echo && echo -e "当前监控模式: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
 		echo -e "确定要开启 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Brook 服务端)[Y/n]"
-		stty erase '^H' && read -p "(默认: y):" crontab_monitor_brook_status_ny
+		read -e -p "(默认: y):" crontab_monitor_brook_status_ny
 		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="y"
 		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
 			crontab_monitor_brook_cron_start
@@ -545,7 +545,7 @@ Set_crontab_monitor_brook(){
 	else
 		echo && echo -e "当前监控模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
 		echo -e "确定要关闭 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Brook 服务端)[y/N]"
-		stty erase '^H' && read -p "(默认: n):" crontab_monitor_brook_status_ny
+		read -e -p "(默认: n):" crontab_monitor_brook_status_ny
 		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="n"
 		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
 			crontab_monitor_brook_cron_stop
@@ -666,7 +666,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-10]:" num
+read -e -p " 请输入数字 [0-10]:" num
 case "$num" in
 	0)
 	Update_Shell

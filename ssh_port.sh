@@ -67,7 +67,7 @@ Set_port(){
 		do
 		echo -e "\n旧SSH端口：${Green_font_prefix}[${port}]${Font_color_suffix}"
 		echo -e "请输入新的SSH端口 [1-65535]"
-		stty erase '^H' && read -p "(输入为空则取消):" new_port
+		read -e -p "(输入为空则取消):" new_port
 		[[ -z "${new_port}" ]] && echo "取消..." && exit 1
 		echo $((${new_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -95,7 +95,7 @@ choose_the_way(){
  一般来说修改SSH端口不会出现什么问题，但保守起见，我做了两个修改方式。
  如果不懂请选 ${Green_font_prefix}[2. 保守修改]${Font_color_suffix}，避免因为未知问题而导致修改后无法通过 新端口和旧端口 链接服务器！\n
  ${over_text}\n"
-	stty erase '^H' && read -p "(默认: 2. 保守修改):" choose_the_way_num
+	read -e -p "(默认: 2. 保守修改):" choose_the_way_num
 	[[ -z "${choose_the_way_num}" ]] && choose_the_way_num="2"
 	if [[ ${choose_the_way_num} == "1" ]]; then
 		cp -f "${CONF}" "/etc/ssh/sshd_config.bak"

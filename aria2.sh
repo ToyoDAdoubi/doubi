@@ -72,7 +72,7 @@ check_new_ver(){
 	aria2_new_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/q3aql/aria2-static-builds/releases | grep -o '"tag_name": ".*"' |head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
 	if [[ -z ${aria2_new_ver} ]]; then
 		echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/q3aql/aria2-static-builds/releases ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式如 1.34.0 ] :" aria2_new_ver
+		read -e -p "请输入版本号 [ 格式如 1.34.0 ] :" aria2_new_ver
 		[[ -z "${aria2_new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 Aria2 最新版本为 [ ${aria2_new_ver} ]"
@@ -83,7 +83,7 @@ check_ver_comparison(){
 	[[ -z ${aria2_now_ver} ]] && echo -e "${Error} Brook 当前版本获取失败 !" && exit 1
 	if [[ "${aria2_now_ver}" != "${aria2_new_ver}" ]]; then
 		echo -e "${Info} 发现 Aria2 已有新版本 [ ${aria2_new_ver} ](当前版本：${aria2_now_ver})"
-		stty erase '^H' && read -p "是否更新(会中断当前下载任务，请注意) ? [Y/n] :" yn
+		read -e -p "是否更新(会中断当前下载任务，请注意) ? [Y/n] :" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ $yn == [Yy] ]]; then
 			check_pid
@@ -211,7 +211,7 @@ Set_aria2(){
  ${Green_font_prefix}3.${Font_color_suffix}  修改 Aria2 文件下载位置
  ${Green_font_prefix}4.${Font_color_suffix}  修改 Aria2 密码+端口+文件下载位置
  ${Green_font_prefix}5.${Font_color_suffix}  手动 打开配置文件修改" && echo
-	stty erase '^H' && read -p "(默认: 取消):" aria2_modify
+	read -e -p "(默认: 取消):" aria2_modify
 	[[ -z "${aria2_modify}" ]] && echo "已取消..." && exit 1
 	if [[ ${aria2_modify} == "1" ]]; then
 		Set_aria2_RPC_passwd
@@ -238,7 +238,7 @@ Set_aria2_RPC_passwd(){
 		aria2_passwd_1=${aria2_passwd}
 	fi
 	echo -e "请输入要设置的 Aria2 RPC密码(旧密码为：${Green_font_prefix}${aria2_passwd_1}${Font_color_suffix})"
-	stty erase '^H' && read -p "(默认密码: 随机生成 密码请不要包含等号 = 和井号 #):" aria2_RPC_passwd
+	read -e -p "(默认密码: 随机生成 密码请不要包含等号 = 和井号 #):" aria2_RPC_passwd
 	echo
 	[[ -z "${aria2_RPC_passwd}" ]] && aria2_RPC_passwd=$(date +%s%N | md5sum | head -c 20)
 	if [[ "${aria2_passwd}" != "${aria2_RPC_passwd}" ]]; then
@@ -278,7 +278,7 @@ Set_aria2_RPC_port(){
 		aria2_port_1=${aria2_port}
 	fi
 	echo -e "请输入要设置的 Aria2 RPC端口(旧端口为：${Green_font_prefix}${aria2_port_1}${Font_color_suffix})"
-	stty erase '^H' && read -p "(默认端口: 6800):" aria2_RPC_port
+	read -e -p "(默认端口: 6800):" aria2_RPC_port
 	echo
 	[[ -z "${aria2_RPC_port}" ]] && aria2_RPC_port="6800"
 	if [[ "${aria2_port}" != "${aria2_RPC_port}" ]]; then
@@ -324,7 +324,7 @@ Set_aria2_RPC_dir(){
 		aria2_dir_1=${aria2_dir}
 	fi
 	echo -e "请输入要设置的 Aria2 文件下载位置(旧位置为：${Green_font_prefix}${aria2_dir_1}${Font_color_suffix})"
-	stty erase '^H' && read -p "(默认位置: /usr/local/caddy/www/aria2/Download):" aria2_RPC_dir
+	read -e -p "(默认位置: /usr/local/caddy/www/aria2/Download):" aria2_RPC_dir
 	[[ -z "${aria2_RPC_dir}" ]] && aria2_RPC_dir="/usr/local/caddy/www/aria2/Download"
 	echo
 	if [[ -d "${aria2_RPC_dir}" ]]; then
@@ -375,7 +375,7 @@ ${Green_font_prefix}2.${Font_color_suffix} 一会自动打开配置文件后，�
 ${Green_font_prefix}3.${Font_color_suffix} 如果要退出并保存文件，那么按 ${Green_font_prefix}Ctrl+X键${Font_color_suffix} 后，输入 ${Green_font_prefix}y${Font_color_suffix} 后，再按一下 ${Green_font_prefix}回车键${Font_color_suffix} 即可。
 ${Green_font_prefix}4.${Font_color_suffix} 如果要退出并不保存文件，那么按 ${Green_font_prefix}Ctrl+X键${Font_color_suffix} 后，输入 ${Green_font_prefix}n${Font_color_suffix} 即可。
 ${Green_font_prefix}5.${Font_color_suffix} 如果你想在本地编辑配置文件，那么配置文件位置： ${Green_font_prefix}/root/.aria2/aria2.conf${Font_color_suffix} (注意是隐藏目录) 。" && echo
-	stty erase '^H' && read -p "如果已经理解 nano 使用方法，请按任意键继续，如要取消请使用 Ctrl+C 。" var
+	read -e -p "如果已经理解 nano 使用方法，请按任意键继续，如要取消请使用 Ctrl+C 。" var
 	nano "${aria2_conf}"
 	Read_config
 	if [[ ${aria2_port_old} != ${aria2_port} ]]; then
@@ -436,7 +436,7 @@ Update_bt_tracker(){
 	if [[ -z "${crontab_update_status}" ]]; then
 		echo && echo -e "当前自动更新模式: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
 		echo -e "确定要开启 ${Green_font_prefix}Aria2 自动更新 BT-Tracker服务器${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[Y/n]"
-		stty erase '^H' && read -p "注意：该功能会定时重启 Aria2！(默认: y):" crontab_update_status_ny
+		read -e -p "注意：该功能会定时重启 Aria2！(默认: y):" crontab_update_status_ny
 		[[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="y"
 		if [[ ${crontab_update_status_ny} == [Yy] ]]; then
 			crontab_update_start
@@ -446,7 +446,7 @@ Update_bt_tracker(){
 	else
 		echo && echo -e "当前自动更新模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
 		echo -e "确定要关闭 ${Red_font_prefix}Aria2 自动更新 BT-Tracker服务器${Font_color_suffix} 功能吗？(一般情况下会加强BT下载效果)[y/N]"
-		stty erase '^H' && read -p "注意：该功能会定时重启 Aria2！(默认: n):" crontab_update_status_ny
+		read -e -p "注意：该功能会定时重启 Aria2！(默认: n):" crontab_update_status_ny
 		[[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="n"
 		if [[ ${crontab_update_status_ny} == [Yy] ]]; then
 			crontab_update_stop
@@ -504,7 +504,7 @@ Uninstall_aria2(){
 	check_installed_status "un"
 	echo "确定要卸载 Aria2 ? (y/N)"
 	echo
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		crontab -l > "$file_1/crontab.bak"
@@ -601,7 +601,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-10]:" num
+read -e -p " 请输入数字 [0-10]:" num
 case "$num" in
 	0)
 	Update_Shell

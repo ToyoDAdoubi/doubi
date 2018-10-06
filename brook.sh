@@ -70,7 +70,7 @@ check_pid(){
 check_new_ver(){
 	echo -e "请输入要下载安装的 Brook 版本号 ${Green_font_prefix}[ 格式是日期，例如: v20180707 ]${Font_color_suffix}
 版本列表请去这里获取：${Green_font_prefix}[ https://github.com/txthinking/brook/releases ]${Font_color_suffix}"
-	stty erase '^H' && read -p "直接回车即自动获取:" brook_new_ver
+	read -e -p "直接回车即自动获取:" brook_new_ver
 	if [[ -z ${brook_new_ver} ]]; then
 		brook_new_ver=$(wget -qO- https://api.github.com/repos/txthinking/brook/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
 		[[ -z ${brook_new_ver} ]] && echo -e "${Error} Brook 最新版本获取失败！" && exit 1
@@ -85,7 +85,7 @@ check_ver_comparison(){
 	brook_now_ver="v${brook_now_ver}"
 	if [[ "${brook_now_ver}" != "${brook_new_ver}" ]]; then
 		echo -e "${Info} 发现 Brook 已有新版本 [ ${brook_new_ver} ]，旧版本 [ ${brook_now_ver} ]"
-		stty erase '^H' && read -p "是否更新 ? [Y/n] :" yn
+		read -e -p "是否更新 ? [Y/n] :" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ $yn == [Yy] ]]; then
 			check_pid
@@ -166,7 +166,7 @@ Set_port_Modify(){
 	while true
 		do
 		echo -e "请选择并输入要修改的 Brook 账号端口 [1-65535]"
-		stty erase '^H' && read -p "(默认取消):" bk_port_Modify
+		read -e -p "(默认取消):" bk_port_Modify
 		[[ -z "${bk_port_Modify}" ]] && echo "取消..." && exit 1
 		echo $((${bk_port_Modify}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -189,7 +189,7 @@ Set_port(){
 	while true
 		do
 		echo -e "请输入 Brook 端口 [1-65535]（端口不能重复，避免冲突）"
-		stty erase '^H' && read -p "(默认: 2333):" bk_port
+		read -e -p "(默认: 2333):" bk_port
 		[[ -z "${bk_port}" ]] && bk_port="2333"
 		echo $((${bk_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -208,7 +208,7 @@ Set_port(){
 }
 Set_passwd(){
 	echo "请输入 Brook 密码（因分享链接特性，密码请勿包含 % 符号）"
-	stty erase '^H' && read -p "(默认: doub.io):" bk_passwd
+	read -e -p "(默认: doub.io):" bk_passwd
 	[[ -z "${bk_passwd}" ]] && bk_passwd="doub.io"
 	echo && echo "========================"
 	echo -e "	密码 : ${Red_background_prefix} ${bk_passwd} ${Font_color_suffix}"
@@ -218,7 +218,7 @@ Set_protocol(){
 	echo -e "请选择 Brook 协议
  ${Green_font_prefix}1.${Font_color_suffix} Brook（新版协议，即 [servers]）
  ${Green_font_prefix}2.${Font_color_suffix} Brook Stream（旧版协议，即 [streamservers]，不推荐，除非使用新版协议速度慢）" && echo
-	stty erase '^H' && read -p "(默认: 1. Brook（新版协议）):" bk_protocol
+	read -e -p "(默认: 1. Brook（新版协议）):" bk_protocol
 	[[ -z "${bk_protocol}" ]] && bk_protocol="1"
 	if [[ ${bk_protocol} == "1" ]]; then
 		bk_protocol="servers"
@@ -242,7 +242,7 @@ Set_brook(){
  ${Green_font_prefix}5.${Font_color_suffix}  监控 运行状态
  
  ${Tip} 用户的端口是不能重复的，密码可以重复 !" && echo
-	stty erase '^H' && read -p "(默认: 取消):" bk_modify
+	read -e -p "(默认: 取消):" bk_modify
 	[[ -z "${bk_modify}" ]] && echo "已取消..." && exit 1
 	if [[ ${bk_modify} == "1" ]]; then
 		Add_port_user
@@ -393,7 +393,7 @@ Uninstall_brook(){
 	check_installed_status
 	echo "确定要卸载 Brook ? (y/N)"
 	echo
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
@@ -539,7 +539,7 @@ View_user_connection_info(){
 	echo && echo -e "请选择要显示的格式：
  ${Green_font_prefix}1.${Font_color_suffix} 显示 IP 格式
  ${Green_font_prefix}2.${Font_color_suffix} 显示 IP+IP归属地 格式" && echo
-	stty erase '^H' && read -p "(默认: 1):" brook_connection_info
+	read -e -p "(默认: 1):" brook_connection_info
 	[[ -z "${brook_connection_info}" ]] && brook_connection_info="1"
 	if [[ "${brook_connection_info}" == "1" ]]; then
 		View_user_connection_info_1 ""
@@ -586,7 +586,7 @@ Set_crontab_monitor_brook(){
 	if [[ -z "${crontab_monitor_brook_status}" ]]; then
 		echo && echo -e "当前监控模式: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
 		echo -e "确定要开启 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Brook 服务端)[Y/n]"
-		stty erase '^H' && read -p "(默认: y):" crontab_monitor_brook_status_ny
+		read -e -p "(默认: y):" crontab_monitor_brook_status_ny
 		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="y"
 		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
 			crontab_monitor_brook_cron_start
@@ -596,7 +596,7 @@ Set_crontab_monitor_brook(){
 	else
 		echo && echo -e "当前监控模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
 		echo -e "确定要关闭 ${Green_font_prefix}Brook 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 Brook 服务端)[y/N]"
-		stty erase '^H' && read -p "(默认: n):" crontab_monitor_brook_status_ny
+		read -e -p "(默认: n):" crontab_monitor_brook_status_ny
 		[[ -z "${crontab_monitor_brook_status_ny}" ]] && crontab_monitor_brook_status_ny="n"
 		if [[ ${crontab_monitor_brook_status_ny} == [Yy] ]]; then
 			crontab_monitor_brook_cron_stop
@@ -717,7 +717,7 @@ else
 		echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 	fi
 	echo
-	stty erase '^H' && read -p " 请输入数字 [0-10]:" num
+	read -e -p " 请输入数字 [0-10]:" num
 	case "$num" in
 		0)
 		Update_Shell

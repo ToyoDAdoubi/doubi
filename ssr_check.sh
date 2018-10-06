@@ -20,7 +20,7 @@ Info="${Green_font_prefix}[信息]${Font_color_suffix}" && Error="${Red_font_pre
 
 set_config_ip(){
 	echo "请输入 ShadowsocksR 账号服务器公网IP"
-	stty erase '^H' && read -p "(默认取消):" ip
+	read -e -p "(默认取消):" ip
 	[[ -z "${ip}" ]] && echo "已取消..." && exit 1
 	echo && echo -e "	I   P : ${Red_font_prefix}${ip}${Font_color_suffix}" && echo
 }
@@ -28,7 +28,7 @@ set_config_port(){
 	while true
 	do
 	echo -e "请输入 ShadowsocksR 账号端口"
-	stty erase '^H' && read -p "(默认: 2333):" port
+	read -e -p "(默认: 2333):" port
 	[[ -z "$port" ]] && port="2333"
 	echo $((${port}+0)) &>/dev/null
 	if [[ $? -eq 0 ]]; then
@@ -45,7 +45,7 @@ set_config_port(){
 }
 set_config_password(){
 	echo "请输入 ShadowsocksR 账号密码"
-	stty erase '^H' && read -p "(默认: doub.io):" passwd
+	read -e -p "(默认: doub.io):" passwd
 	[[ -z "${passwd}" ]] && passwd="doub.io"
 	echo && echo -e "	密码 : ${Red_font_prefix}${passwd}${Font_color_suffix}" && echo
 }
@@ -74,7 +74,7 @@ set_config_method(){
  ${Green_font_prefix}15.${Font_color_suffix} chacha20
  ${Green_font_prefix}16.${Font_color_suffix} chacha20-ietf
  ${Tip} salsa20/chacha20-*系列加密方式，需要额外安装依赖 libsodium ，否则会无法启动ShadowsocksR !" && echo
-	stty erase '^H' && read -p "(默认: 5. aes-128-ctr):" method
+	read -e -p "(默认: 5. aes-128-ctr):" method
 	[[ -z "${method}" ]] && method="5"
 	if [[ ${method} == "1" ]]; then
 		method="none"
@@ -121,7 +121,7 @@ set_config_protocol(){
  ${Green_font_prefix}4.${Font_color_suffix} auth_aes128_sha1
  ${Green_font_prefix}5.${Font_color_suffix} auth_chain_a
  ${Tip} 如果使用 auth_chain_a 协议，请加密方式选择 none，混淆随意(建议 plain)" && echo
-	stty erase '^H' && read -p "(默认: 2. auth_sha1_v4):" protocol
+	read -e -p "(默认: 2. auth_sha1_v4):" protocol
 	[[ -z "${protocol}" ]] && protocol="2"
 	if [[ ${protocol} == "1" ]]; then
 		protocol="origin"
@@ -146,7 +146,7 @@ set_config_obfs(){
  ${Green_font_prefix}4.${Font_color_suffix} random_head
  ${Green_font_prefix}5.${Font_color_suffix} tls1.2_ticket_auth
  ${Tip} 如果使用 ShadowsocksR 加速游戏，请选择 混淆兼容原版或 plain 混淆，然后客户端选择 plain，否则会增加延迟 !" && echo
-	stty erase '^H' && read -p "(默认: 5. tls1.2_ticket_auth):" obfs
+	read -e -p "(默认: 5. tls1.2_ticket_auth):" obfs
 	[[ -z "${obfs}" ]] && obfs="5"
 	if [[ ${obfs} == "1" ]]; then
 		obfs="plain"
@@ -165,7 +165,7 @@ set_config_obfs(){
 }
 set_config_like(){
 	echo "请输入 ShadowsocksR 的链接(SS/SSR链接皆可，如 ss://xxxx ssr://xxxx)"
-	stty erase '^H' && read -p "(默认回车取消):" Like
+	read -e -p "(默认回车取消):" Like
 	[[ -z "${Like}" ]] && echo "已取消..." && exit 1
 	echo && echo -e "	链接 : ${Red_font_prefix}${Like}${Font_color_suffix}" && echo
 }
@@ -173,7 +173,7 @@ set_config_user(){
 	echo -e "请输入选择输入方式
  ${Green_font_prefix}1.${Font_color_suffix} 输入ShadowsocksR账号全部信息(Shadowsocks原版也可以)
  ${Green_font_prefix}2.${Font_color_suffix} 输入ShadowsocksR账号的 SSR链接(Shadowsocks原版也可以)"
-	stty erase '^H' && read -p "(默认:2):" enter_type
+	read -e -p "(默认:2):" enter_type
 	[[ -z "${enter_type}" ]] && enter_type="2"
 	if [[ ${enter_type} == "1" ]]; then
 		echo -e "下面依次开始输入要检测可用性的 ShadowsocksR账号信息。" && echo

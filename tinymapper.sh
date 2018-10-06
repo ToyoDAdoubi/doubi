@@ -89,7 +89,7 @@ check_new_ver(){
 	tinymapper_new_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/wangyu-/tinyPortMapper/releases | grep -o '"tag_name": ".*"' |grep -v '20180620.0'|head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
 	if [[ -z ${tinymapper_new_ver} ]]; then
 		echo -e "${Error} tinyPortMapper 最新版本获取失败，请手动获取最新版本号[ https://github.com/wangyu-/tinyPortMapper/releases ]"
-		stty erase '^H' && read -p "请输入版本号 [ 格式是日期 , 如 20180224.0 ] :" tinymapper_new_ver
+		read -e -p "请输入版本号 [ 格式是日期 , 如 20180224.0 ] :" tinymapper_new_ver
 		[[ -z "${tinymapper_new_ver}" ]] && echo "取消..." && exit 1
 	else
 		echo -e "${Info} 检测到 tinyPortMapper 最新版本为 [ ${tinymapper_new_ver} ]"
@@ -124,7 +124,7 @@ Install_tinyPortMapper(){
 Uninstall_tinyPortMapper(){
 	check_tinyPortMapper
 	echo "确定要 卸载 tinyPortMapper？[y/N]" && echo
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		Uninstall_forwarding "Uninstall"
@@ -184,7 +184,7 @@ Add_forwarding(){
 	远程转发端口\t : ${Red_background_prefix} ${Mapper_Port} ${Font_color_suffix}
 	转发类型\t : ${Red_background_prefix} ${Mapper_Type_1} ${Font_color_suffix}
 ——————————————————————————————\n"
-	stty erase '^H' && read -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
+	read -e -p "请按任意键继续，如有配置错误请使用 Ctrl+C 退出。" var
 	Start_tinyPortMapper
 	Get_IP
 	clear
@@ -201,7 +201,7 @@ Set_local_Port(){
 	while true
 	do
 		echo -e "请输入 tinyPortMapper 的 本地监听端口 [1-65535]"
-		stty erase '^H' && read -p "(默认回车取消):" local_Port
+		read -e -p "(默认回车取消):" local_Port
 		[[ -z "${local_Port}" ]] && echo "已取消..." && exit 1
 		echo $((${local_Port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -224,7 +224,7 @@ Set_Mapper_Port(){
 	while true
 	do
 		echo -e "请输入 tinyPortMapper 远程被转发 端口 [1-65535](就是被中转服务器的端口)"
-		stty erase '^H' && read -p "(默认同本地监听端口: ${local_Port}):" Mapper_Port
+		read -e -p "(默认同本地监听端口: ${local_Port}):" Mapper_Port
 		[[ -z "${Mapper_Port}" ]] && Mapper_Port=${local_Port}
 		echo $((${Mapper_Port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -245,7 +245,7 @@ Set_Mapper_Port(){
 }
 Set_Mapper_IP(){
 	echo -e "请输入 tinyPortMapper 远程被转发 IP(就是被中转服务器的外网IP)"
-	stty erase '^H' && read -p "(默认回车取消):" Mapper_IP
+	read -e -p "(默认回车取消):" Mapper_IP
 	[[ -z "${Mapper_IP}" ]] && echo "已取消..." && exit 1
 	echo
 	echo "——————————————————————————————"
@@ -256,7 +256,7 @@ Set_Mapper_IP(){
 Set_Mapper_Type(){
 	echo -e "请输入数字 来选择 tinyPortMapper 转发类型:"
 	echo -e "	1. TCP\n	2. UDP\n	3. TCP+UDP(ALL)\n"
-	stty erase '^H' && read -p "(默认: TCP+UDP):" Mapper_Type_num
+	read -e -p "(默认: TCP+UDP):" Mapper_Type_num
 	[[ -z "${Mapper_Type_num}" ]] && Mapper_Type_num="3"
 	if [[ ${Mapper_Type_num} = "1" ]]; then
 		Mapper_Type="TCP"
@@ -331,7 +331,7 @@ Del_forwarding(){
 	while true
 	do
 		View_forwarding
-		stty erase '^H' && read -p "请输入你要终止的 tinyPortMapper 本地监听端口:" Del_forwarding_port
+		read -e -p "请输入你要终止的 tinyPortMapper 本地监听端口:" Del_forwarding_port
 		[[ -z "${Del_forwarding_port}" ]] && echo "已取消..." && exit 0
 		Del_port=$(echo -e "${tinymapper_list_all}"|grep ${Del_forwarding_port})
 		if [[ ! -z ${Del_port} ]]; then
@@ -392,7 +392,7 @@ echo && echo -e " tinyPortMapper 端口转发一键管理脚本 ${Red_font_prefi
  ${Green_font_prefix}6.${Font_color_suffix} 删除 tinyPortMapper 端口转发
 ————————————
  ${Green_font_prefix}7.${Font_color_suffix} 查看 tinyPortMapper 输出日志" && echo
-stty erase '^H' && read -p " 请输入数字 [0-7]:" num
+read -e -p " 请输入数字 [0-7]:" num
 case "$num" in
 	0)
 	Update_Shell

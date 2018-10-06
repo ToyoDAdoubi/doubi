@@ -153,7 +153,7 @@ Set_port(){
 	while true
 		do
 		echo -e "请输入 Peerflix Server 监听端口 [1-65535]（如果是绑定的域名，那么建议80端口）"
-		stty erase '^H' && read -p "(默认端口: 9000):" ps_port
+		read -e -p "(默认端口: 9000):" ps_port
 		[[ -z "${ps_port}" ]] && ps_port="9000"
 		echo $((${ps_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
@@ -230,7 +230,7 @@ Uninstall_ps(){
 	check_installed_status
 	echo "确定要卸载 Peerflix Server ? (y/N)"
 	echo
-	stty erase '^H' && read -p "(默认: n):" unyn
+	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
@@ -340,7 +340,7 @@ else
 	echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " 请输入数字 [0-8]:" num
+read -e -p " 请输入数字 [0-8]:" num
 case "$num" in
 	0)
 	Update_Shell
