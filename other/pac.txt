@@ -1,5 +1,5 @@
 /*
- * Last Updated:2018-09-22 02:10:01
+ * Last Updated:2018-10-09 02:10:01
  */
 var direct = "__DIRECT__";
 if (direct == "__DIR" + "ECT__") direct = "DIRECT;";
@@ -250,6 +250,7 @@ var rules = [
 	"||agro.hk",
 	"||apkmirror.com",
 	"||bird.so",
+	"||businessinsider.com",
 	"||boomssr.com",
 	"||castbox.fm",
 	"||cmcn.org",
@@ -263,6 +264,7 @@ var rules = [
 	"||glorystar.me",
 	"||hbo.com",
 	"||ipfs.io",
+	"||japantimes.co.jp",
 	"||jiji.com",
 	"||jinx.com",
 	"||line-scdn.net",
@@ -300,10 +302,12 @@ var rules = [
 	"||static.shemalez.com",
 	"||sosreader.com",
 	"||sulian.me",
+	"||supchina.com",
 	"||teddysun.com",
 	"||textnow.me",
 	"||tineye.com",
 	"||tubepornclassic.com",
+	"||twitch.tv",
 	"||uku.im",
 	"||unseen.is",
 	"||cn.uptodown.com",
@@ -614,6 +618,8 @@ var rules = [
 	"||fb.me",
 	"||fbcdn.net",
 	"||fbsbx.com",
+	"||fbaddins.com",
+	"||fbworkmail.com",
 	".instagram.com",
 	"||instagram.com",
 	"||m.me",
@@ -1548,6 +1554,8 @@ var rules = [
 	"a5.com.ru",
 	"|http://aamacau.com",
 	".abc.com",
+	".abc.net.au",
+	"||abc.net.au",
 	".abchinese.com",
 	"abclite.net",
 	"|https://www.abclite.net",
@@ -1609,6 +1617,7 @@ var rules = [
 	"||linear-abematv.akamaized.net",
 	"||vod-abematv.akamaized.net",
 	"|https://fbcdn*.akamaihd.net/",
+	"rthklive2-lh.akamaihd.net",
 	".akademiye.org/ug",
 	"|http://akademiye.org/ug",
 	"||akiba-online.com",
@@ -5329,6 +5338,8 @@ var rules = [
 	".secretsline.biz",
 	"||secretsline.biz",
 	"||securetunnel.com",
+	"securityinabox.org",
+	"|https://securityinabox.org",
 	".securitykiss.com",
 	"||securitykiss.com",
 	"||seed4.me",
@@ -6763,6 +6774,7 @@ var rules = [
 	".wsj.com",
 	"||wsj.com",
 	".wsj.net",
+	"||wsj.net",
 	".wsjhk.com",
 	".wtbn.org",
 	".wtfpeople.com",
