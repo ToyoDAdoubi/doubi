@@ -46,10 +46,10 @@ install_iptables(){
 		echo -e "${Info} 检测到未安装 iptables，开始安装..."
 		if [[ ${release}  == "centos" ]]; then
 			yum update
-			yum install -y vim iptables
+			yum install -y iptables
 		else
 			apt-get update
-			apt-get install -y vim iptables
+			apt-get install -y iptables
 		fi
 		iptables_exist=$(iptables -V)
 		if [[ ${iptables_exist} = "" ]]; then
