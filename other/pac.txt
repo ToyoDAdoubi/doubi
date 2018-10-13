@@ -1,5 +1,5 @@
 /*
- * Last Updated:2018-10-09 02:10:01
+ * Last Updated:2018-10-13 02:10:01
  */
 var direct = "__DIRECT__";
 if (direct == "__DIR" + "ECT__") direct = "DIRECT;";
