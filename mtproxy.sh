@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy
-#	Version: 1.0.5
+#	Version: 1.0.6
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc7/
 #=================================================
 
-sh_ver="1.0.5"
+sh_ver="1.0.6"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy"
@@ -197,7 +197,7 @@ Set_passwd(){
 	done
 }
 Set_tag(){
-	echo "请输入 MTProxy 的 TAG标签（TAG标签只有在通过官方机器人 @MTProxybot 分享代理账号后才会获得，不清楚请留空回车）"
+	echo "请输入 MTProxy 的 TAG标签（TAG标签必须是32位，TAG标签只有在通过官方机器人 @MTProxybot 分享代理账号后才会获得，不清楚请留空回车）"
 	read -e -p "(默认：回车跳过):" mtp_tag
 	if [[ ! -z "${mtp_tag}" ]]; then
 		echo && echo "========================"
@@ -229,37 +229,40 @@ Set_mtproxy(){
  ${Green_font_prefix}4.${Font_color_suffix}  修改 NAT 配置
  ${Green_font_prefix}5.${Font_color_suffix}  修改 全部配置
 ————————————————
- ${Green_font_prefix}6.${Font_color_suffix}  定时 更新 Telegram IP段
- ${Green_font_prefix}7.${Font_color_suffix}  监控 运行状态" && echo
+ ${Green_font_prefix}6.${Font_color_suffix}  更新 Telegram IP段(无需频繁更新)
+ ${Green_font_prefix}7.${Font_color_suffix}  更新 Telegram 密匙(一般不用管)
+————————————————
+ ${Green_font_prefix}8.${Font_color_suffix}  定时 更新 Telegram IP段
+ ${Green_font_prefix}9.${Font_color_suffix}  监控 运行状态" && echo
 	read -e -p "(默认: 取消):" mtp_modify
 	[[ -z "${mtp_modify}" ]] && echo "已取消..." && exit 1
-	if [[ ${mtp_modify} == "1" ]]; then
+	if [[ "${mtp_modify}" == "1" ]]; then
 		Read_config
 		Set_port
 		mtp_passwd=${passwd}
 		mtp_tag=${tag}
-		mtp_nat=${nag}
+		mtp_nat=${nat}
 		Write_config
 		Del_iptables
 		Add_iptables
 		Restart_mtproxy
-	elif [[ ${mtp_modify} == "2" ]]; then
+	elif [[ "${mtp_modify}" == "2" ]]; then
 		Read_config
 		Set_passwd
 		mtp_port=${port}
 		mtp_tag=${tag}
-		mtp_nat=${nag}
+		mtp_nat=${nat}
 		Write_config
 		Restart_mtproxy
-	elif [[ ${mtp_modify} == "3" ]]; then
+	elif [[ "${mtp_modify}" == "3" ]]; then
 		Read_config
 		Set_tag
 		mtp_port=${port}
 		mtp_passwd=${passwd}
-		mtp_nat=${nag}
+		mtp_nat=${nat}
 		Write_config
 		Restart_mtproxy
-	elif [[ ${mtp_modify} == "4" ]]; then
+	elif [[ "${mtp_modify}" == "4" ]]; then
 		Read_config
 		Set_nat
 		mtp_port=${port}
@@ -267,7 +270,7 @@ Set_mtproxy(){
 		mtp_tag=${tag}
 		Write_config
 		Restart_mtproxy
-	elif [[ ${mtp_modify} == "5" ]]; then
+	elif [[ "${mtp_modify}" == "5" ]]; then
 		Read_config
 		Set_port
 		Set_passwd
@@ -275,9 +278,13 @@ Set_mtproxy(){
 		Set_nat
 		Write_config
 		Restart_mtproxy
-	elif [[ ${mtp_modify} == "6" ]]; then
-		Set_crontab_update_mtproxy
-	elif [[ ${mtp_modify} == "7" ]]; then
+	elif [[ "${mtp_modify}" == "6" ]]; then
+		Update_multi
+	elif [[ "${mtp_modify}" == "7" ]]; then
+		Update_secret
+	elif [[ "${mtp_modify}" == "8" ]]; then
+		Set_crontab_update_multi
+	elif [[ "${mtp_modify}" == "9" ]]; then
 		Set_crontab_monitor_mtproxy
 	else
 		echo -e "${Error} 请输入正确的数字(1-7)" && exit 1
@@ -414,6 +421,16 @@ View_Log(){
 	[[ ! -e ${mtproxy_log} ]] && echo -e "${Error} MTProxy 日志文件不存在 !" && exit 1
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${mtproxy_log}${Font_color_suffix} 命令。" && echo
 	tail -f ${mtproxy_log}
+}
+Update_secret(){
+	rm -rf "${mtproxy_secret}"
+	Download_secret
+	Restart_mtproxy
+}
+Update_multi(){
+	rm -rf "${mtproxy_multi}"
+	Download_multi
+	Restart_mtproxy
 }
 # 显示 连接信息
 debian_View_user_connection_info(){
@@ -564,7 +581,7 @@ crontab_monitor_mtproxy(){
 		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] MTProxy服务端 进程运行正常..." | tee -a ${mtproxy_log}
 	fi
 }
-Set_crontab_update_mtproxy(){
+Set_crontab_update_multi(){
 	check_crontab_installed_status
 	crontab_update_mtproxy_status=$(crontab -l|grep "mtproxy.sh update")
 	if [[ -z "${crontab_update_mtproxy_status}" ]]; then
