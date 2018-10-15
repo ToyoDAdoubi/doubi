@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: DowsDNS
-#	Version: 1.0.8
+#	Version: 1.0.9
 #	Author: Toyo
 #	Blog: https://doub.io/dowsdns-jc3/
 #=================================================
 
-sh_ver="1.0.8"
+sh_ver="1.0.9"
 file="/usr/local/dowsDNS"
 dowsdns_conf="/usr/local/dowsDNS/conf/config.json"
 dowsdns_data="/usr/local/dowsDNS/conf/hosts_repository_config.json"
@@ -56,9 +56,7 @@ Download_dowsdns(){
 	wget -N --no-check-certificate "https://github.com/dowsnature/dowsDNS/releases/download/v${new_ver}/dowsDNS.zip"
 	[[ ! -e "dowsDNS.zip" ]] && echo -e "${Error} DowsDNS 下载失败 !" && exit 1
 	unzip dowsDNS.zip && rm -rf dowsDNS.zip
-	[[ ! -e "dowsDNS-master" ]] && echo -e "${Error} DowsDNS 解压失败 !" && exit 1
-	mv dowsDNS-master dowsDNS
-	[[ ! -e "dowsDNS" ]] && echo -e "${Error} DowsDNS 文件夹重命名失败 !" && rm -rf dowsDNS-master && exit 1
+	[[ ! -e "dowsDNS" ]] && echo -e "${Error} DowsDNS 解压失败 !" && exit 1
 }
 Service_dowsdns(){
 	if [[ ${release} = "centos" ]]; then
