@@ -4,13 +4,13 @@ export PATH
 
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
-#	Description: DowsDNS
-#	Version: 1.0.9
+#	Description: dowsDNS
+#	Version: 1.0.10
 #	Author: Toyo
 #	Blog: https://doub.io/dowsdns-jc3/
 #=================================================
 
-sh_ver="1.0.9"
+sh_ver="1.0.10"
 file="/usr/local/dowsDNS"
 dowsdns_conf="/usr/local/dowsDNS/conf/config.json"
 dowsdns_data="/usr/local/dowsDNS/conf/hosts_repository_config.json"
@@ -44,54 +44,58 @@ check_sys(){
 	bit=`uname -m`
 }
 check_installed_status(){
-	[[ ! -e ${file} ]] && echo -e "${Error} DowsDNS 没有安装，请检查 !" && exit 1
+	[[ ! -e ${file} ]] && echo -e "${Error} dowsDNS 没有安装，请检查 !" && exit 1
 }
 check_pid(){
 	PID=`ps -ef| grep "python start.py"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
 }
 Download_dowsdns(){
 	cd "/usr/local"
-	new_ver=$(wget --no-check-certificate -qO- -t1 -T3 https://api.github.com/repos/dowsnature/dowsDNS/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g;s/v//g')
-	[[ -z "${new_ver}" ]] && echo -e "${Error} DowsDNS 最新版本号获取失败 !" && exit 1
-	wget -N --no-check-certificate "https://github.com/dowsnature/dowsDNS/releases/download/v${new_ver}/dowsDNS.zip"
-	[[ ! -e "dowsDNS.zip" ]] && echo -e "${Error} DowsDNS 下载失败 !" && exit 1
+	#new_ver=$(wget --no-check-certificate -qO- -t1 -T3 https://api.github.com/repos/dowsnature/dowsDNS/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g;s/v//g')
+	#[[ -z "${new_ver}" ]] && echo -e "${Error} dowsDNS 最新版本号获取失败 !" && exit 1
+	[[ -e "dowsDNS.zip" ]] && rm -rf "dowsDNS.zip"
+	wget --no-check-certificate -O "dowsDNS.zip" "https://github.com/dowsnature/dowsDNS/archive/master.zip"
+	[[ ! -e "dowsDNS.zip" ]] && echo -e "${Error} dowsDNS 下载失败 !" && exit 1
 	unzip dowsDNS.zip && rm -rf dowsDNS.zip
-	[[ ! -e "dowsDNS" ]] && echo -e "${Error} DowsDNS 解压失败 !" && exit 1
+	[[ ! -e "dowsDNS-master" ]] && echo -e "${Error} dowsDNS 解压失败 !" && exit 1
+ 	mv dowsDNS-master dowsDNS
+ 	[[ ! -e "dowsDNS" ]] && echo -e "${Error} dowsDNS 文件夹重命名失败 !" && rm -rf dowsDNS-master && exit 1
 }
 Service_dowsdns(){
 	if [[ ${release} = "centos" ]]; then
 		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/dowsdns_centos" -O /etc/init.d/dowsdns; then
-			echo -e "${Error} DowsDNS 服务管理脚本下载失败 !" && exit 1
+			echo -e "${Error} dowsDNS 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/dowsdns
 		chkconfig --add dowsdns
 		chkconfig dowsdns on
 	else
 		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/dowsdns_debian" -O /etc/init.d/dowsdns; then
-			echo -e "${Error} DowsDNS 服务管理脚本下载失败 !" && exit 1
+			echo -e "${Error} dowsDNS 服务管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/dowsdns
 		update-rc.d -f dowsdns defaults
 	fi
-	echo -e "${Info} DowsDNS 服务管理脚本下载完成 !"
+	echo -e "${Info} dowsDNS 服务管理脚本下载完成 !"
 }
 Installation_dependency(){
 	python_status=$(python --help)
 	if [[ ${release} == "centos" ]]; then
 		yum update
 		if [[ -z ${python_status} ]]; then
-			yum install -y python unzip
+			yum install -y python python-pip unzip
 		else
-			yum install -y unzip
+			yum install -y python-pip unzip
 		fi
 	else
 		apt-get update
 		if [[ -z ${python_status} ]]; then
-			apt-get install -y python unzip
+			apt-get install -y python python-pip unzip
 		else
-			apt-get install -y unzip
+			apt-get install -y python-pip unzip
 		fi
 	fi
+	pip install requests
 }
 Write_config(){
 	cat > ${dowsdns_conf}<<-EOF
@@ -109,7 +113,7 @@ EOF
 
 }
 Read_config(){
-	[[ ! -e ${dowsdns_conf} ]] && echo -e "${Error} DowsDNS 配置文件不存在 !" && exit 1
+	[[ ! -e ${dowsdns_conf} ]] && echo -e "${Error} dowsDNS 配置文件不存在 !" && exit 1
 	remote_dns_server=`cat ${dowsdns_conf}|grep "Remote_dns_server"|awk -F ":" '{print $NF}'|sed -r 's/.*\"(.+)\".*/\1/'`
 	remote_dns_port=`cat ${dowsdns_conf}|grep "Remote_dns_port"|sed -r 's/.*:(.+),.*/\1/'`
 	local_dns_server=`cat ${dowsdns_conf}|grep "Local_dns_server"|awk -F ":" '{print $NF}'|sed -r 's/.*\"(.+)\".*/\1/'`
@@ -117,15 +121,15 @@ Read_config(){
 	sni_proxy_ip=`cat ${dowsdns_conf}|grep "sni_proxy_ip"|awk -F ":" '{print $NF}'|sed -r 's/.*\"(.+)\".*/\1/'`
 }
 Read_wrcd(){
-	[[ ! -e ${dowsdns_wrcd} ]] && echo -e "${Error} DowsDNS 泛域名解析 配置文件不存在 !" && exit 1
+	[[ ! -e ${dowsdns_wrcd} ]] && echo -e "${Error} dowsDNS 泛域名解析 配置文件不存在 !" && exit 1
 	wrcd_json=$(cat -n ${dowsdns_wrcd}|sed '$d;1d;s/\"//g;s/,//g')
 	wrcd_json_num=$(echo -e "${wrcd_json}"|wc -l)
 	wrcd_json_num=$(echo $((${wrcd_json_num}+1)))
-	echo -e "当前DowsDNS 泛域名解析配置(不要问我为什么是从 2 开始)：\n"
+	echo -e "当前 dowsDNS 泛域名解析配置(不要问我为什么是从 2 开始)：\n"
 	echo -e "${wrcd_json}\n"
 }
 Set_remote_dns_server(){
-	echo "请输入 DowsDNS 远程(上游)DNS解析服务器IP"
+	echo "请输入 dowsDNS 远程(上游)DNS解析服务器IP"
 	read -e -p "(默认: 114.114.114.114):" dd_remote_dns_server
 	[[ -z "${dd_remote_dns_server}" ]] && dd_remote_dns_server="114.114.114.114"
 	echo
@@ -133,7 +137,7 @@ Set_remote_dns_server(){
 Set_remote_dns_port(){
 	while true
 		do
-		echo -e "请输入 DowsDNS 远程(上游)DNS解析服务器端口 [1-65535]"
+		echo -e "请输入 dowsDNS 远程(上游)DNS解析服务器端口 [1-65535]"
 		read -e -p "(默认: 53):" dd_remote_dns_port
 		[[ -z "$dd_remote_dns_port" ]] && dd_remote_dns_port="53"
 		echo $((${dd_remote_dns_port}+0)) &>/dev/null
@@ -150,8 +154,8 @@ Set_remote_dns_port(){
 	done
 }
 Set_remote_dns(){
-	echo -e "请选择并输入 DowsDNS 的远程(上游)DNS解析服务器
- 说明：即一些DowsDNS没有指定的域名都由上游DNS解析，比如百度啥的。
+	echo -e "请选择并输入 dowsDNS 的远程(上游)DNS解析服务器
+ 说明：即一些dowsDNS没有指定的域名都由上游DNS解析，比如百度啥的。
  
  ${Green_font_prefix}1.${Font_color_suffix} 114.114.114.114 53
  ${Green_font_prefix}2.${Font_color_suffix} 8.8.8.8 53
@@ -186,7 +190,7 @@ Set_remote_dns(){
 	echo "	================================================" && echo
 }
 Set_local_dns_server(){
-	echo -e "请选择并输入 DowsDNS 的本地监听方式
+	echo -e "请选择并输入 dowsDNS 的本地监听方式
  ${Green_font_prefix}1.${Font_color_suffix} 127.0.0.1 (只允许本地和局域网设备访问)
  ${Green_font_prefix}2.${Font_color_suffix} 0.0.0.0 (允许外网访问)" && echo
 	read -e -p "(默认: 2. 0.0.0.0):" dd_local_dns_server
@@ -208,7 +212,7 @@ Set_local_dns_server(){
 Set_local_dns_port(){
 	while true
 		do
-		echo -e "请输入 DowsDNS 监听端口 [1-65535]
+		echo -e "请输入 dowsDNS 监听端口 [1-65535]
  注意：大部分设备是不支持设置 非53端口的DNS服务器的，所以非必须请直接回车默认使用 53端口。" && echo
 		read -e -p "(默认: 53):" dd_local_dns_port
 		[[ -z "$dd_local_dns_port" ]] && dd_local_dns_port="53"
@@ -228,8 +232,8 @@ Set_local_dns_port(){
 		done
 }
 Set_sni_proxy_on(){
-	echo "是否开启 DowsDNS SNI代理功能？[y/N]
- 注意：开启此功能后，任何自定义设置的 hosts或泛域名解析(包括DowsDNS自带的)，都指向设置的SNI代理IP，如果你没有SNI代理IP，请输入 N !"
+	echo "是否开启 dowsDNS SNI代理功能？[y/N]
+ 注意：开启此功能后，任何自定义设置的 hosts或泛域名解析(包括dowsDNS自带的)，都指向设置的SNI代理IP，如果你没有SNI代理IP，请输入 N !"
 	read -e -p "(默认: N 关闭):" dd_sni_proxy_on
 	[[ -z "${dd_sni_proxy_on}" ]] && dd_sni_proxy_on="n"
 	if [[ ${dd_sni_proxy_on} == [Yy] ]]; then
@@ -244,7 +248,7 @@ Set_sni_proxy_on(){
 Set_sni_proxy_ip(){
 	ddd_sni_proxy_ip=$(wget --no-check-certificate -t2 -T4 -qO- "https://raw.githubusercontent.com/dowsnature/dowsDNS/master/conf/config.json"|grep "sni_proxy_ip"|awk -F ":" '{print $NF}'|sed -r 's/.*\"(.+)\".*/\1/')
 	[[ -z ${ddd_sni_proxy_ip} ]] && ddd_sni_proxy_ip="219.76.4.3"
-	echo "请输入 DowsDNS SNI代理 IP（如果没有就直接回车）"
+	echo "请输入 dowsDNS SNI代理 IP（如果没有就直接回车）"
 	read -e -p "(默认: ${ddd_sni_proxy_ip}):" dd_sni_proxy_ip
 	[[ -z "${dd_sni_proxy_ip}" ]] && dd_sni_proxy_ip="${ddd_sni_proxy_ip}"
 	echo && echo "	================================================"
@@ -269,7 +273,7 @@ Set_dowsdns_basis(){
 	Restart_dowsdns
 }
 Set_wrcd_name(){
-	echo "请输入 DowsDNS 要添加/修改的域名(子域名或泛域名)
+	echo "请输入 dowsDNS 要添加/修改的域名(子域名或泛域名)
  注意：假如你想要 youtube.com 及其二级域名全部指向 指定的IP，那么你需要添加 *.youtube.com 和 youtube.com 这两个域名解析才有效。
  这意味着 *.youtube.com 仅代表如 www.youtube.com xxx.youtube.com 这样的二级域名，而不能代表一级域名(顶级域名) youtube.com ！"
 	read -e -p "(默认回车取消):" wrcd_name
@@ -290,7 +294,7 @@ Set_wrcd_name_1(){
 	echo
 }
 Set_wrcd_ip(){
-	echo "请输入 DowsDNS 刚才添加/修改的域名要指向的IP
+	echo "请输入 dowsDNS 刚才添加/修改的域名要指向的IP
  注意：如果你开启了 SNI代理功能(config.json)，那么你这里设置的自定义泛域名解析都会被 SNI代理功能的SNI代理IP设置所覆盖，也就是统一指向 SNI代理的IP，这里的IP设置就没意义了。"
 	read -e -p "(默认回车取消):" wrcd_ip
 	[[ -z "${wrcd_ip}" ]] && echo "已取消..." && exit 0
@@ -428,7 +432,7 @@ Modify_wrcd(){
 }
 Install_dowsdns(){
 	check_root
-	[[ -e ${file} ]] && echo -e "${Error} 检测到 DowsDNS 已安装 !" && exit 1
+	[[ -e ${file} ]] && echo -e "${Error} 检测到 dowsDNS 已安装 !" && exit 1
 	check_sys
 	echo -e "${Info} 开始设置 用户配置..."
 	Set_conf
@@ -452,13 +456,13 @@ Install_dowsdns(){
 Start_dowsdns(){
 	check_installed_status
 	check_pid
-	[[ ! -z ${PID} ]] && echo -e "${Error} DowsDNS 正在运行，请检查 !" && exit 1
+	[[ ! -z ${PID} ]] && echo -e "${Error} dowsDNS 正在运行，请检查 !" && exit 1
 	/etc/init.d/dowsdns start
 }
 Stop_dowsdns(){
 	check_installed_status
 	check_pid
-	[[ -z ${PID} ]] && echo -e "${Error} DowsDNS 没有运行，请检查 !" && exit 1
+	[[ -z ${PID} ]] && echo -e "${Error} dowsDNS 没有运行，请检查 !" && exit 1
 	/etc/init.d/dowsdns stop
 }
 Restart_dowsdns(){
@@ -475,7 +479,7 @@ Update_dowsdns(){
 }
 Uninstall_dowsdns(){
 	check_installed_status
-	echo "确定要卸载 DowsDNS ? (y/N)"
+	echo "确定要卸载 dowsDNS ? (y/N)"
 	echo
 	read -e -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
@@ -490,7 +494,7 @@ Uninstall_dowsdns(){
 		else
 			update-rc.d -f dowsdns remove
 		fi
-		echo && echo "DowsDNS 卸载完成 !" && echo
+		echo && echo "dowsDNS 卸载完成 !" && echo
 	else
 		echo && echo "卸载已取消..." && echo
 	fi
@@ -551,23 +555,23 @@ Update_Shell(){
 		wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/dowsdns.sh" && chmod +x dowsdns.sh
 	echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
-echo && echo -e "  DowsDNS 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+echo && echo -e "  dowsDNS 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   -- Toyo | doub.io/dowsdns-jc3 --
   
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
  ————————————
- ${Green_font_prefix} 1.${Font_color_suffix} 安装 DowsDNS
- ${Green_font_prefix} 2.${Font_color_suffix} 升级 DowsDNS
- ${Green_font_prefix} 3.${Font_color_suffix} 卸载 DowsDNS
+ ${Green_font_prefix} 1.${Font_color_suffix} 安装 dowsDNS
+ ${Green_font_prefix} 2.${Font_color_suffix} 升级 dowsDNS
+ ${Green_font_prefix} 3.${Font_color_suffix} 卸载 dowsDNS
 ————————————
- ${Green_font_prefix} 4.${Font_color_suffix} 启动 DowsDNS
- ${Green_font_prefix} 5.${Font_color_suffix} 停止 DowsDNS
- ${Green_font_prefix} 6.${Font_color_suffix} 重启 DowsDNS
+ ${Green_font_prefix} 4.${Font_color_suffix} 启动 dowsDNS
+ ${Green_font_prefix} 5.${Font_color_suffix} 停止 dowsDNS
+ ${Green_font_prefix} 6.${Font_color_suffix} 重启 dowsDNS
 ————————————
- ${Green_font_prefix} 7.${Font_color_suffix} 设置 DowsDNS 基础配置
- ${Green_font_prefix} 8.${Font_color_suffix} 设置 DowsDNS 泛域名解析配置
- ${Green_font_prefix} 9.${Font_color_suffix} 查看 DowsDNS 信息
- ${Green_font_prefix}10.${Font_color_suffix} 查看 DowsDNS 日志
+ ${Green_font_prefix} 7.${Font_color_suffix} 设置 dowsDNS 基础配置
+ ${Green_font_prefix} 8.${Font_color_suffix} 设置 dowsDNS 泛域名解析配置
+ ${Green_font_prefix} 9.${Font_color_suffix} 查看 dowsDNS 信息
+ ${Green_font_prefix}10.${Font_color_suffix} 查看 dowsDNS 日志
 ————————————" && echo
 if [[ -e ${file} ]]; then
 	check_pid
