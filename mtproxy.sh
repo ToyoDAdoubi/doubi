@@ -163,8 +163,8 @@ Set_port(){
 	while true
 		do
 		echo -e "请输入 MTProxy 端口 [1-65535]"
-		read -e -p "(默认: 7000):" mtp_port
-		[[ -z "${mtp_port}" ]] && mtp_port="7000"
+		read -e -p "(默认: 443):" mtp_port
+		[[ -z "${mtp_port}" ]] && mtp_port="443"
 		echo $((${mtp_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${mtp_port} -ge 1 ]] && [[ ${mtp_port} -le 65535 ]]; then
