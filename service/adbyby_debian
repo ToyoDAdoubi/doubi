@@ -20,7 +20,7 @@ Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 RETVAL=0
 
 check_running(){
-	PID=`ps -ef |grep "${NAME_BIN}" |grep -v "grep" | grep -v ".sh"| grep -v "init.d" |grep -v "service" |awk '{print $2}'`
+	PID=`ps -ef |grep "${NAME_BIN}" |grep -v "grep" | grep -v "adbyby.sh"| grep -v "init.d" |grep -v "service" |awk '{print $2}'`
 	if [[ ! -z ${PID} ]]; then
 		return 0
 	else
