@@ -7,6 +7,7 @@
   * [ssrmu.sh](#ssrmush)
   * [brook.sh](#brooksh)
   * [goflyway.sh](#goflywaysh)
+  * [daze.sh](#dazesh)
   * [lightsocks.sh](#lightsockssh)
   * [mtproxy.sh](#mtproxysh)
 * [***中转相关***](#中转相关)
@@ -126,6 +127,18 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 #### 下载安装:
 ``` bash
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/lightsocks.sh && chmod +x lightsocks.sh && bash lightsocks.sh
+```
+
+---
+## daze.sh
+
+- 脚本说明: DAZE 一键安装脚本
+- 系统支持: CentOS6+ / Debian7+ / Ubuntu14+
+- 使用方法: https://doub.io/daze-jc3/
+
+#### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/daze.sh && chmod +x daze.sh && bash daze.sh
 ```
 
 ---
