@@ -133,6 +133,7 @@ Service(){
 	echo -e "${Info} DAZE 服务管理脚本下载完成 !"
 }
 Installation_dependency(){
+	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	mkdir ${Folder}
 }
 Write_config(){
