@@ -5,11 +5,11 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Aria2
-#	Version: 1.1.9
+#	Version: 1.1.10
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc4/
 #=================================================
-sh_ver="1.1.9"
+sh_ver="1.1.10"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/root/.aria2"
@@ -69,13 +69,19 @@ check_pid(){
 	PID=`ps -ef| grep "aria2c"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
 }
 check_new_ver(){
-	aria2_new_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/q3aql/aria2-static-builds/releases | grep -o '"tag_name": ".*"' |head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
+	echo -e "${Info} 请输入 Aria2 版本号，格式如：[ 1.34.0 ]，获取地址：[ https://github.com/q3aql/aria2-static-builds/releases ]"
+	read -e -p "默认回车自动获取最新版本号:" aria2_new_ver
 	if [[ -z ${aria2_new_ver} ]]; then
-		echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/q3aql/aria2-static-builds/releases ]"
-		read -e -p "请输入版本号 [ 格式如 1.34.0 ] :" aria2_new_ver
-		[[ -z "${aria2_new_ver}" ]] && echo "取消..." && exit 1
+		aria2_new_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/q3aql/aria2-static-builds/releases | grep -o '"tag_name": ".*"' |head -n 1| sed 's/"//g;s/v//g' | sed 's/tag_name: //g')
+		if [[ -z ${aria2_new_ver} ]]; then
+			echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/q3aql/aria2-static-builds/releases ]"
+			read -e -p "请输入版本号 [ 格式如 1.34.0 ] :" aria2_new_ver
+			[[ -z "${aria2_new_ver}" ]] && echo "取消..." && exit 1
+		else
+			echo -e "${Info} 检测到 Aria2 最新版本为 [ ${aria2_new_ver} ]"
+		fi
 	else
-		echo -e "${Info} 检测到 Aria2 最新版本为 [ ${aria2_new_ver} ]"
+		echo -e "${Info} 即将准备下载 Aria2 版本为 [ ${aria2_new_ver} ]"
 	fi
 }
 check_ver_comparison(){
