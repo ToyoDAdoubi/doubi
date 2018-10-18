@@ -105,19 +105,16 @@ Download_aria2(){
 	update_dl=$1
 	cd "/usr/local"
 	#echo -e "${bit}"
-	if [[ ${bit} == "armv7l" ]]; then
-		wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-arm-rbpi-build1.tar.bz2"
-		Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-arm-rbpi-build1"
-	elif [[ ${bit} == "aarch64" ]]; then
-		wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-arm-rbpi-build1.tar.bz2"
-		Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-arm-rbpi-build1"
-	elif [[ ${bit} == "x86_64" ]]; then
-		wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-64bit-build1.tar.bz2"
-		Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-64bit-build1"
+	if [[ ${bit} == "x86_64" ]]; then
+		bit="64bit"
+	elif [[ ${bit} == "i386" || ${bit} == "i686" ]]; then
+		bit="32bit"
 	else
-		wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-32bit-build1.tar.bz2"
-		Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-32bit-build1"
+		bit="arm-rbpi"
 	fi
+	wget -N --no-check-certificate "https://github.com/q3aql/aria2-static-builds/releases/download/v${aria2_new_ver}/aria2-${aria2_new_ver}-linux-gnu-${bit}-build1.tar.bz2"
+	Aria2_Name="aria2-${aria2_new_ver}-linux-gnu-${bit}-build1"
+	
 	[[ ! -s "${Aria2_Name}.tar.bz2" ]] && echo -e "${Error} Aria2 压缩包下载失败 !" && exit 1
 	tar jxvf "${Aria2_Name}.tar.bz2"
 	[[ ! -e "/usr/local/${Aria2_Name}" ]] && echo -e "${Error} Aria2 解压失败 !" && rm -rf "${Aria2_Name}.tar.bz2" && exit 1
