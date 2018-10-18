@@ -65,7 +65,7 @@ check_crontab_installed_status(){
 	fi
 }
 check_pid(){
-	PID=`ps -ef| grep "lightsocks"| grep -v "grep" | grep -v ".sh"| grep -v "init.d" |grep -v "service" |awk '{print $2}'`
+	PID=`ps -ef| grep "lightsocks"| grep -v "grep" | grep -v "lightsocks.sh"| grep -v "init.d" |grep -v "service" |awk '{print $2}'`
 }
 check_new_ver(){
 	lightsocks_new_ver=$(wget --no-check-certificate -qO- https://github.com/gwuhaolin/lightsocks/releases/latest | grep "<title>" | sed -r 's/.*Release (.+) · gwuhaolin.*/\1/')

@@ -66,7 +66,7 @@ check_crontab_installed_status(){
 	fi
 }
 check_pid(){
-	PID=$(ps -ef| grep "goflyway"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}')
+	PID=$(ps -ef| grep "goflyway"| grep -v grep| grep -v "goflyway.sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}')
 }
 check_new_ver(){
 	new_ver=$(wget --no-check-certificate -qO- -t1 -T3 https://api.github.com/repos/coyove/goflyway/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')

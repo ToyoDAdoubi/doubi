@@ -42,7 +42,7 @@ check_installed_status(){
 	[[ ! -e ${adbyby_file} ]] && echo -e "${Error} ADbyby 没有安装，请检查 !" && exit 1
 }
 check_pid(){
-	PID=`ps -ef| grep "adbyby"| grep -v grep| grep -v ".sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
+	PID=`ps -ef| grep "adbyby"| grep -v grep| grep -v "adbyby.sh"| grep -v "init.d"| grep -v "service"| awk '{print $2}'`
 }
 Download_adbyby(){
 	cd ${file}
