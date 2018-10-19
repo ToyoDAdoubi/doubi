@@ -641,11 +641,11 @@ crontab_update_mtproxy(){
 }
 Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${mtp_port} -j ACCEPT
-	iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${mtp_port} -j ACCEPT
+	#iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${mtp_port} -j ACCEPT
 }
 Del_iptables(){
 	iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${port} -j ACCEPT
-	iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${port} -j ACCEPT
+	#iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${port} -j ACCEPT
 }
 Save_iptables(){
 	if [[ ${release} == "centos" ]]; then
