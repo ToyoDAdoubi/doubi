@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: DAZE
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/daze-jc3/
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 Folder="/usr/local/daze"
@@ -420,7 +420,7 @@ View_daze(){
 		fi
 	fi
 	[[ -z ${obfs_url} ]] && obfs_url="无"
-	#link_qr
+	link_qr
 	clear && echo "————————————————" && echo
 	echo -e " DAZE 账号信息 :" && echo
 	echo -e " 地址\t: ${Green_font_prefix}${ip}${Font_color_suffix}"
@@ -429,8 +429,8 @@ View_daze(){
 	echo -e " 加密\t: ${Green_font_prefix}${method}${Font_color_suffix}"
 	echo -e " 伪装\t: ${Green_font_prefix}${obfs_url}${Font_color_suffix}"
 	echo -e " DNS \t: ${Green_font_prefix}${dns}${Font_color_suffix}"
-	#echo -e "${link}"
-	#echo -e "${Tip} 链接仅适用于Windows系统的 DAZE Tools 客户端（https://doub.io/dbrj-17/）。"
+	echo -e "${link}"
+	echo -e "${Tip} 链接仅适用于Windows系统的 DAZE Tools 客户端（https://doub.io/dbrj-17/）。"
 	echo && echo "————————————————"
 }
 urlsafe_base64(){
