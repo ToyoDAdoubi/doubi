@@ -800,6 +800,7 @@ Uninstall_ServerStatus_server(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config_server
 		Del_iptables "${server_port}"
+		Save_iptables
 		if [[ -e "${client_file}/status-client.py" ]]; then
 			rm -rf "${server_file}"
 			rm -rf "${web_file}"
@@ -853,6 +854,7 @@ Uninstall_ServerStatus_client(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config_client
 		Del_iptables_OUT "${client_port}"
+		Save_iptables
 		if [[ -e "${server_file}/sergate" ]]; then
 			rm -rf "${client_file}"
 		else

@@ -408,6 +408,7 @@ Uninstall_brook(){
 					port=$(echo "${user_text}"|awk '{print $1}')
 					Del_iptables
 				done
+				Save_iptables
 			fi
 		fi
 		if [[ ! -z $(crontab -l | grep "brook.sh monitor") ]]; then

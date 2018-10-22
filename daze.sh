@@ -394,6 +394,7 @@ Uninstall(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config
 		Del_iptables
+		Save_iptables
 		rm -rf ${Folder}
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del daze

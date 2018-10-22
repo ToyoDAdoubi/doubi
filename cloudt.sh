@@ -273,6 +273,7 @@ Uninstall_ct(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config
 		Del_iptables
+		Save_iptables
 		rm -rf ${file} && rm -rf /etc/init.d/cloudt
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del cloudt

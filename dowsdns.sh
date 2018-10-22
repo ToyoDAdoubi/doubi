@@ -488,6 +488,7 @@ Uninstall_dowsdns(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		Read_config
 		Del_iptables
+		Save_iptables
 		rm -rf ${file} && rm -rf /etc/init.d/dowsdns
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del dowsdns

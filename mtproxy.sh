@@ -366,8 +366,9 @@ Uninstall_mtproxy(){
 		check_pid
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		if [[ -e ${mtproxy_conf} ]]; then
-			port=$(cat ${mtproxy_conf}|sed -n "1p")
+			port=$(cat ${mtproxy_conf}|grep 'PORT = '|awk -F 'PORT = ' '{print $NF}')
 			Del_iptables
+			Save_iptables
 		fi
 		if [[ ! -z $(crontab -l | grep "mtproxy.sh monitor") ]]; then
 			crontab_monitor_mtproxy_cron_stop

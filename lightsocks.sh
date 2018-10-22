@@ -299,6 +299,7 @@ Uninstall_lightsocks(){
 		if [[ -e ${lightsocks_conf} ]]; then
 			Read_config
 			Del_iptables
+			Save_iptables
 			rm -rf "${lightsocks_conf}"
 		fi
 		rm -rf "${file}"

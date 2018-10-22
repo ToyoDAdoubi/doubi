@@ -237,6 +237,7 @@ Uninstall_ps(){
 		[[ ! -z $PID ]] && kill -9 ${PID}
 		port=`cat ${ps_conf}|grep "port = "|awk -F "port = " '{print $NF}'`
 		Del_iptables
+		
 		rm -rf /usr/local/bin/node
 		rm -rf /usr/local/bin/npm
 		rm -rf ${node_file}

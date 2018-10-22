@@ -978,6 +978,7 @@ Uninstall_SSR(){
 				port=$(echo "${user_info}"|sed -n "${integer}p"|awk '{print $4}')
 				Del_iptables
 			done
+			Save_iptables
 		fi
 		if [[ ! -z $(crontab -l | grep "ssrmu.sh") ]]; then
 			crontab_monitor_ssr_cron_stop
