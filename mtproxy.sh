@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy
-#	Version: 1.0.6
+#	Version: 1.0.7
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc7/
 #=================================================
 
-sh_ver="1.0.6"
+sh_ver="1.0.7"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy"
@@ -129,7 +129,7 @@ Centos_yum(){
 	cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
 	yum update
 	if [[ $? = 0 ]]; then
-		yum install -y openssl-devel zlib-devel git net-tools
+		yum install -y openssl-devel zlib-devel git
 	else
 		yum install -y openssl-devel zlib-devel git
 	fi
@@ -139,7 +139,7 @@ Debian_apt(){
 	cat /etc/issue |grep 9\..*>/dev/null
 	apt-get update
 	if [[ $? = 0 ]]; then
-		apt-get install -y build-essential libssl-dev zlib1g-dev git net-tools
+		apt-get install -y build-essential libssl-dev zlib1g-dev git
 	else
 		apt-get install -y build-essential libssl-dev zlib1g-dev git
 	fi
@@ -206,9 +206,15 @@ Set_tag(){
 	fi
 }
 Set_nat(){
-	echo -e "\n${Green_font_prefix}当前服务器所有网卡信息：${Font_color_suffix}\n"
-	ifconfig
-	echo "如果本机是NAT服务器（谷歌云、微软云、阿里云等，网卡绑定的IP为 10.xx.xx.xx 开头的），则请输入你的服务器内网IP，否则会导致无法使用。如果不是请直接回车！"
+	echo -e "\n=== 当前服务器所有网卡信息：\n"
+	if [[ -e "/sbin/ip" ]]; then
+		ip addr show
+	else
+		ifconfig
+	fi
+	echo -e "\n== 解释：网卡名 lo 指的是本机，请无视。
+== 解释：一般情况下，主网卡名为 eth0，Debian9系统为 ens3，CentOS Ubuntu最新系统可能为 enpXsX(X代表数字或字母)。OpenVZ 虚拟化为 venet0\n"
+	echo -e "如果本机是NAT服务器（谷歌云、微软云、阿里云等，网卡绑定的IP为 10.xx.xx.xx 开头的），则请输入你的服务器内网IP，否则会导致无法使用。如果不是请直接回车！"
 	read -e -p "(默认：回车跳过):" mtp_nat
 	if [[ -z "${mtp_nat}" ]]; then
 		mtp_nat=""
