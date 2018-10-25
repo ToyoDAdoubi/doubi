@@ -230,9 +230,11 @@ Test(){
 		UA_num=$(rand 1 12)
 		UA=$(echo "${Test_UA}"|sed -n "${UA_num}p")
 		now_URL=$(echo "${Test_link}"|sed -n "${integer}p")
-		Return_text=$(wget --spider -nv -t2 -T5 -U "${UA}" "${now_URL}" -o .http_code)
-		Return_status=$(cat ".http_code"|awk '{print $NF}')
-		rm -rf ".http_code"
+		wget --spider -nv -t2 -T5 -U "${UA}" "${now_URL}" -o "http_code.tmp"
+		#cat "http_code.tmp"
+		Return_status=$(cat "http_code.tmp"|awk '{print $NF}')
+		#echo "${Return_status}"
+		rm -rf "http_code.tmp"
 		if [[ "${Return_status}" == "OK" ]]; then
 			status_num="1"
 			[[ "${Detailed_output}" == "1" ]] && echo -e "${Info} 正常连接至 [${now_URL}] 。"
