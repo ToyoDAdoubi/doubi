@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: 监测IP是否被墙并推送消息至Telegram
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc8/
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 Crontab_file="/usr/bin/crontab"
@@ -51,7 +51,8 @@ check_crontab_name(){
 	fi
 }
 check_crontab_monitor_status(){
-	crontab -l &> .crontab_tmp
+	crontab -l &> ".crontab_tmp"
+	sed -i '1d' ".crontab_tmp"
 	cron_config=$(cat ".crontab_tmp" | grep "gfw_push.sh monitor")
 	rm -rf ".crontab_tmp"
 	if [[ -z ${cron_config} ]]; then
@@ -93,7 +94,7 @@ Install_crontab(){
 	fi
 }
 Set_Name(){
-	echo "请输入该服务器的 [别名]
+	echo "请输入该服务器的 [别名]（可选）
 用于推送消息时，使你快速分辨服务器。支持中文，但请勿包含一些特殊符号，否则可能导致推送出错。"
 	read -e -p "(默认为空):" new_name
 	echo && echo "========================"
@@ -164,6 +165,7 @@ Get_IP(){
 }
 Add_Crontab(){
 	crontab -l &> "$file_1/crontab.bak"
+	sed -i '1d' "$file_1/crontab.bak"
 	sed -i "/gfw_push.sh monitor/d" "$file_1/crontab.bak"
 	echo -e "\n* * * * * /bin/bash $file_1/gfw_push.sh monitor" >> "$file_1/crontab.bak"
 	crontab "$file_1/crontab.bak"
@@ -177,6 +179,7 @@ Add_Crontab(){
 }
 Del_Crontab(){
 	crontab -l &> "$file_1/crontab.bak"
+	sed -i '1d' "$file_1/crontab.bak"
 	sed -i "/gfw_push.sh monitor/d" "$file_1/crontab.bak"
 	crontab "$file_1/crontab.bak"
 	rm -r "$file_1/crontab.bak"
