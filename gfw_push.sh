@@ -52,7 +52,7 @@ check_crontab_name(){
 }
 check_crontab_monitor_status(){
 	crontab -l &> ".crontab_tmp"
-	sed -i '1d' ".crontab_tmp"
+	sed -i "/no crontab for/d" ".crontab_tmp"
 	cron_config=$(cat ".crontab_tmp" | grep "gfw_push.sh monitor")
 	rm -rf ".crontab_tmp"
 	if [[ -z ${cron_config} ]]; then
@@ -165,7 +165,7 @@ Get_IP(){
 }
 Add_Crontab(){
 	crontab -l &> "$file_1/crontab.bak"
-	sed -i '1d' "$file_1/crontab.bak"
+	sed -i "/no crontab for/d" "$file_1/crontab.bak"
 	sed -i "/gfw_push.sh monitor/d" "$file_1/crontab.bak"
 	echo -e "\n* * * * * /bin/bash $file_1/gfw_push.sh monitor" >> "$file_1/crontab.bak"
 	crontab "$file_1/crontab.bak"
@@ -179,7 +179,7 @@ Add_Crontab(){
 }
 Del_Crontab(){
 	crontab -l &> "$file_1/crontab.bak"
-	sed -i '1d' "$file_1/crontab.bak"
+	sed -i "/no crontab for/d" "$file_1/crontab.bak"
 	sed -i "/gfw_push.sh monitor/d" "$file_1/crontab.bak"
 	crontab "$file_1/crontab.bak"
 	rm -r "$file_1/crontab.bak"
