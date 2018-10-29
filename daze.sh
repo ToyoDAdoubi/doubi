@@ -109,23 +109,23 @@ Download(){
 		bit="arm"
 	fi
 	wget --no-check-certificate -N "https://github.com/mohanson/daze/releases/download/${new_ver}/daze_linux_${bit}"
-	[[ ! -e "daze_linux_${bit}" ]] && echo -e "${Error} DAZE 下载失败 !" && rm -f "${Folder}" && exit 1
+	[[ ! -e "daze_linux_${bit}" ]] && echo -e "${Error} DAZE 下载失败 !" && rm -rf "${Folder}" && exit 1
 	mv "daze_linux_${bit}" "daze"
-	[[ ! -e "daze" ]] && echo -e "${Error} DAZE 重命名失败 !" && rm -f "${Folder}" && exit 1
+	[[ ! -e "daze" ]] && echo -e "${Error} DAZE 重命名失败 !" && rm -rf "${Folder}" && exit 1
 	chmod +x daze
 	echo "${new_ver}" > ${Now_ver_File}
 }
 Service(){
 	if [[ ${release} = "centos" ]]; then
 		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/daze_centos -O /etc/init.d/daze; then
-			echo -e "${Error} DAZE 服务管理脚本下载失败 !" && exit 1
+			echo -e "${Error} DAZE 服务管理脚本下载失败 !" && rm -rf "${Folder}" && exit 1
 		fi
 		chmod +x /etc/init.d/daze
 		chkconfig --add daze
 		chkconfig daze on
 	else
 		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/daze_debian -O /etc/init.d/daze; then
-			echo -e "${Error} DAZE 服务管理脚本下载失败 !" && exit 1
+			echo -e "${Error} DAZE 服务管理脚本下载失败 !" && rm -rf "${Folder}" && exit 1
 		fi
 		chmod +x /etc/init.d/daze
 		update-rc.d -f daze defaults
