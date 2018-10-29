@@ -12,6 +12,7 @@
   * [daze.sh](#dazesh)
   * [lightsocks.sh](#lightsockssh)
   * [mtproxy.sh](#mtproxysh)
+  * [mtproxy_go.sh](#mtproxy_gosh)
 * [***中转相关***](#中转相关)
   * [iptables-pf.sh](#iptables-pfsh)
   * [brook-pf.sh](#brook-pfsh)
@@ -154,6 +155,18 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 #### 下载安装:
 ``` bash
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/mtproxy.sh && chmod +x mtproxy.sh && bash mtproxy.sh
+```
+
+---
+## mtproxy_go.sh
+
+- 脚本说明: Mtproto Proxy Go版 一键安装管理脚本
+- 系统支持: CentOS6+ / Debian7+ / Ubuntu14+
+- 使用方法: https://doub.io/shell-jc9/
+
+#### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/mtproxy_go.sh && chmod +x mtproxy_go.sh && bash mtproxy_go.sh
 ```
 
 ---
