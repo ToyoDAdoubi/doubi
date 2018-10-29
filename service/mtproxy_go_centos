@@ -13,7 +13,7 @@
 ### END INIT INFO
 
 NAME="MTProxy"
-NAME_BIN="./mtp "
+NAME_BIN="./mtg "
 FILE="/usr/local/mtproxy-go"
 CONF="/usr/local/mtproxy-go/mtproxy.conf"
 LOG="/usr/local/mtproxy-go/mtproxy.log"
@@ -56,7 +56,7 @@ do_start(){
 		cd ${FILE}
 		echo -e "${Info} $NAME 启动中..."
 		ulimit -n 51200
-		eval nohup ./mtp -b 0.0.0.0 -p ${port} $(echo ${nat_ipv4}) $(echo ${nat_ipv6}) -q 65436 $(echo ${secure}) "${password}" "${tag}" >> "${LOG}" 2>&1 &
+		eval nohup ./mtg -b 0.0.0.0 -p ${port} $(echo ${nat_ipv4}) $(echo ${nat_ipv6}) -q 65436 $(echo ${secure}) "${password}" "${tag}" >> "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
