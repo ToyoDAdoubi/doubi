@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: 监测IP是否被墙并推送消息至Telegram
-#	Version: 1.0.2
+#	Version: 1.0.3
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc8/
 #=================================================
 
-sh_ver="1.0.2"
+sh_ver="1.0.3"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 Crontab_file="/usr/bin/crontab"
@@ -157,11 +157,11 @@ Read_config(){
 POST_TG(){
 	Get_IP
 	if [[ -z "${NAME}" ]]; then
-		wget -qO- --post-data="text=\`[疑似被墙警告]\`  —  \[\`${IP}\`]&parse_mode=Markdown&disable_notification=false"  "https://tgbot.lbyczf.com/sendMessage/${TOKEN}" >> ${LOG_file}
+		wget -qO- --post-data="text=\`[疑似被墙警告]\`  —  \[\`${IP}\`]&parse_mode=Markdown&disable_notification=false"  "https://tgbot.lbyczf.com/sendMessage/${TOKEN}" &> /dev/null
 	else
-		wget -qO- --post-data="text=\`[疑似被墙警告]\`  —  \[${NAME}] (\`${IP}\`)&parse_mode=Markdown&disable_notification=false"  "https://tgbot.lbyczf.com/sendMessage/${TOKEN}" >> ${LOG_file}
+		wget -qO- --post-data="text=\`[疑似被墙警告]\`  —  \[${NAME}] (\`${IP}\`)&parse_mode=Markdown&disable_notification=false"  "https://tgbot.lbyczf.com/sendMessage/${TOKEN}" &> /dev/null
 	fi
-	echo "" >> ${LOG_file}
+	#echo "" >> ${LOG_file}
 }
 Get_IP(){
 	IP=$(wget -qO- -t1 -T2 ipinfo.io/ip)
@@ -224,6 +224,9 @@ Test_SILL(){
 }
 Test(){
 	Detailed_output="${1}"
+	all_status_num="0"
+	Return_status_debug=""
+	status_num_debug=""
 	Test_total=$(echo "${Test_link}"|wc -l)
 	for((integer = 1; integer <= ${Test_total}; integer++))
 	do
@@ -231,15 +234,22 @@ Test(){
 		UA=$(echo "${Test_UA}"|sed -n "${UA_num}p")
 		now_URL=$(echo "${Test_link}"|sed -n "${integer}p")
 		wget --spider -nv -t2 -T5 -U "${UA}" "${now_URL}" -o "http_code.tmp"
+		#wget --spider -nv -t2 -T5 -U "${UA}" "${now_URL}" &> /dev/null
+		return_code=$(echo $?)
 		#cat "http_code.tmp"
-		Return_status=$(cat "http_code.tmp"|awk '{print $NF}')
+		#Return_status=$(cat "http_code.tmp"|sed -n '$p'|awk '{print $NF}')
+		Return_status_debug="${Return_status_debug} | $(cat "http_code.tmp")"
+		return_code_debug="${return_code_debug} | ${return_code}"
+		#Return_status_debug="${Return_status_debug} | ${return_code}"
 		#echo "${Return_status}"
 		rm -rf "http_code.tmp"
-		if [[ "${Return_status}" == "OK" ]]; then
+		if [[ "${return_code}" == "0" ]]; then
 			status_num="1"
+			status_num_debug="${status_num_debug} | ${status_num}"
 			[[ "${Detailed_output}" == "1" ]] && echo -e "${Info} 正常连接至 [${now_URL}] 。"
 		else
 			status_num="0"
+			status_num_debug="${status_num_debug} | ${status_num}"
 			[[ "${Detailed_output}" == "1" ]] && echo -e "${Error} 无法连接至 [${now_URL}] 。"
 		fi
 		all_status_num=$(echo $((${all_status_num}+${status_num})))
@@ -255,8 +265,12 @@ crontab_monitor(){
 	elif [[ "${all_status_num}" == "0" ]]; then
 		sill_new=$(echo $((${SILL_NOW}+1)))
 		Write_config_now_sill
-		echo -e "${Error} ${DATE} 全部 URL 测试失败！该服务器可能被墙，推送中..."| tee -a ${LOG_file}
-		POST_TG
+		echo "${Return_status_debug} / ${return_code_debug} / ${status_num_debug} / ${all_status_num}" >> ${LOG_file}
+		echo -e "${Error} ${DATE} 全部 URL 测试失败！该服务器可能被墙，累计次数中..."| tee -a ${LOG_file}
+		if [[ "${sill_new}" == "3" ]]; then
+			echo -e "${Error} ${DATE} 疑似被墙次数累计超过 ${Test_total} 次，开始推送..."| tee -a ${LOG_file}
+			POST_TG
+		fi
 	else
 		sill_new="0"
 		Write_config_now_sill
