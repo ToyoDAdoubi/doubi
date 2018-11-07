@@ -7,7 +7,7 @@ export PATH
 #	Description: Shadowsocks Golang
 #	Version: 1.0.0
 #	Author: Toyo
-#	Blog: https://doub.io/shell-jc10/
+#	Blog: https://doub.io/ss-jc67/
 #=================================================
 
 sh_ver="1.0.0"
@@ -643,7 +643,7 @@ if [[ "${action}" == "monitor" ]]; then
 	crontab_monitor
 else
 	echo && echo -e "  Shadowsocks-Go 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  ---- Toyo | doub.io/shell-jc10 ----
+  ---- Toyo | doub.io/ss-jc67 ----
   
  ${Green_font_prefix} 0.${Font_color_suffix} 升级脚本
 ————————————
