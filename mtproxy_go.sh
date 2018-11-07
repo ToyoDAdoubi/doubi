@@ -560,64 +560,6 @@ crontab_monitor(){
 		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] MTProxy服务端 进程运行正常..." | tee -a ${mtproxy_log}
 	fi
 }
-Set_crontab_update_multi(){
-	check_crontab_installed_status
-	crontab_update_status=$(crontab -l|grep "mtproxy_go.sh update")
-	if [[ -z "${crontab_update_status}" ]]; then
-		echo && echo -e "当前自动更新 Telegram IP段功能: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
-		echo -e "确定要开启 ${Green_font_prefix}MTProxy 自动更新 Telegram IP段${Font_color_suffix} 功能吗？[Y/n]"
-		read -e -p "(默认: y):" crontab_update_status_ny
-		[[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="y"
-		if [[ ${crontab_update_status_ny} == [Yy] ]]; then
-			crontab_update_cron_start
-		else
-			echo && echo "	已取消..." && echo
-		fi
-	else
-		echo && echo -e "当前自动更新 Telegram IP段功能: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
-		echo -e "确定要关闭 ${Red_font_prefix}MTProxy 自动更新 Telegram IP段${Font_color_suffix} 功能吗？[y/N]"
-		read -e -p "(默认: n):" crontab_update_status_ny
-		[[ -z "${crontab_update_status_ny}" ]] && crontab_update_status_ny="n"
-		if [[ ${crontab_update_status_ny} == [Yy] ]]; then
-			crontab_update_cron_stop
-		else
-			echo && echo "	已取消..." && echo
-		fi
-	fi
-}
-crontab_update_cron_start(){
-	crontab -l > "$file_1/crontab.bak"
-	sed -i "/mtproxy_go.sh update/d" "$file_1/crontab.bak"
-	echo -e "\n10 3 * * * /bin/bash $file_1/mtproxy_go.sh update" >> "$file_1/crontab.bak"
-	crontab "$file_1/crontab.bak"
-	rm -r "$file_1/crontab.bak"
-	cron_config=$(crontab -l | grep "mtproxy_go.sh update")
-	if [[ -z ${cron_config} ]]; then
-		echo -e "${Error} MTProxy 自动更新 Telegram IP段功能 启动失败 !" && exit 1
-	else
-		echo -e "${Info} MTProxy 自动更新 Telegram IP段功能 启动成功 !"
-	fi
-}
-crontab_update_cron_stop(){
-	crontab -l > "$file_1/crontab.bak"
-	sed -i "/mtproxy_go.sh update/d" "$file_1/crontab.bak"
-	crontab "$file_1/crontab.bak"
-	rm -r "$file_1/crontab.bak"
-	cron_config=$(crontab -l | grep "mtproxy_go.sh update")
-	if [[ ! -z ${cron_config} ]]; then
-		echo -e "${Error} MTProxy 自动更新 Telegram IP段功能 停止失败 !" && exit 1
-	else
-		echo -e "${Info} MTProxy 自动更新 Telegram IP段功能 停止成功 !"
-	fi
-}
-crontab_update(){
-	check_installed_status
-	check_pid
-	rm -rf "${mtproxy_multi}"
-	Download_multi
-	echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] Telegram IP段自动更新完成..." | tee -a ${mtproxy_log}
-	/etc/init.d/mtproxy-go restart
-}
 Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${mtp_port} -j ACCEPT
 	ip6tables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${mtp_port} -j ACCEPT
