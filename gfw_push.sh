@@ -157,11 +157,11 @@ Read_config(){
 POST_TG(){
 	Get_IP
 	if [[ -z "${NAME}" ]]; then
-		wget -qO- --post-data="text=\`[疑似被墙警告]\`  —  \[\`${IP}\`]&parse_mode=Markdown&disable_notification=false"  "https://tgbot.lbyczf.com/sendMessage/${TOKEN}" &> /dev/null
+		wget -qO- --post-data="text=\`[疑似被墙警告]\`  —  \[\`${IP}\`]&parse_mode=Markdown&disable_notification=false"  "https://tgbot.lbyczf.com/sendMessage/${TOKEN}" >> ${LOG_file}
 	else
-		wget -qO- --post-data="text=\`[疑似被墙警告]\`  —  \[${NAME}] (\`${IP}\`)&parse_mode=Markdown&disable_notification=false"  "https://tgbot.lbyczf.com/sendMessage/${TOKEN}" &> /dev/null
+		wget -qO- --post-data="text=\`[疑似被墙警告]\`  —  \[${NAME}] (\`${IP}\`)&parse_mode=Markdown&disable_notification=false"  "https://tgbot.lbyczf.com/sendMessage/${TOKEN}" >> ${LOG_file}
 	fi
-	#echo "" >> ${LOG_file}
+	echo "" >> ${LOG_file}
 }
 Get_IP(){
 	IP=$(wget -qO- -t1 -T2 ipinfo.io/ip)
