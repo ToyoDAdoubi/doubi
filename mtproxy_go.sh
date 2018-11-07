@@ -18,6 +18,7 @@ mtproxy_file="/usr/local/mtproxy-go/mtg"
 mtproxy_conf="/usr/local/mtproxy-go/mtproxy.conf"
 mtproxy_log="/usr/local/mtproxy-go/mtproxy.log"
 Now_ver_File="/usr/local/mtproxy-go/ver.txt"
+Crontab_file="/usr/bin/crontab"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -49,8 +50,23 @@ check_sys(){
 check_installed_status(){
 	[[ ! -e ${mtproxy_file} ]] && echo -e "${Error} MTProxy 没有安装，请检查 !" && exit 1
 }
+check_crontab_installed_status(){
+	if [[ ! -e ${Crontab_file} ]]; then
+		echo -e "${Error} Crontab 没有安装，开始安装..."
+		if [[ ${release} == "centos" ]]; then
+			yum install crond -y
+		else
+			apt-get install cron -y
+		fi
+		if [[ ! -e ${Crontab_file} ]]; then
+			echo -e "${Error} Crontab 安装失败，请检查！" && exit 1
+		else
+			echo -e "${Info} Crontab 安装成功！"
+		fi
+	fi
+}
 check_pid(){
-	PID=`ps -ef| grep "./mtg "| grep -v "grep" | grep -v "init.d" |grep -v "service" |awk '{print $2}'`
+	PID=$(ps -ef| grep "./mtg "| grep -v "grep" | grep -v "init.d" |grep -v "service" |awk '{print $2}')
 }
 check_new_ver(){
 	new_ver=$(wget -qO- https://api.github.com/repos/9seconds/mtg/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g')
