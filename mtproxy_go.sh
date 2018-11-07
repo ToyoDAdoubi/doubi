@@ -440,16 +440,6 @@ View_Log(){
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${mtproxy_log}${Font_color_suffix} 命令。" && echo
 	tail -f ${mtproxy_log}
 }
-Update_secret(){
-	rm -rf "${mtproxy_secret}"
-	Download_secret
-	Restart
-}
-Update_multi(){
-	rm -rf "${mtproxy_multi}"
-	Download_multi
-	Restart
-}
 # 显示 连接信息
 debian_View_user_connection_info(){
 	format_1=$1
@@ -467,26 +457,6 @@ debian_View_user_connection_info(){
 		else
 			user_IP=$(echo -e "\n${user_IP}")
 			echo -e "端口: ${Green_font_prefix}"${user_port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: ${Green_font_prefix}${user_IP}${Font_color_suffix}\n"
-		fi
-	fi
-	user_IP=""
-}
-centos_View_user_connection_info(){
-	format_1=$1
-	Read_config
-	user_IP=$(ss state connected sport = :${port} -tn|sed '1d'|awk '{print $NF}'|awk -F ':' '{print $(NF-1)}'|sort -u)
-	if [[ -z ${user_IP} ]]; then
-		user_IP_total="0"
-		echo -e "端口: ${Green_font_prefix}"${port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: "
-	else
-		user_IP_total=$(echo -e "${user_IP}"|wc -l)
-		if [[ ${format_1} == "IP_address" ]]; then
-			echo -e "端口: ${Green_font_prefix}"${port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: "
-			get_IP_address
-			echo
-		else
-			user_IP=$(echo -e "\n${user_IP}")
-			echo -e "端口: ${Green_font_prefix}"${port}"${Font_color_suffix}\t 链接IP总数: ${Green_font_prefix}"${user_IP_total}"${Font_color_suffix}\t 当前链接IP: ${Green_font_prefix}${user_IP}${Font_color_suffix}\n"
 		fi
 	fi
 	user_IP=""
