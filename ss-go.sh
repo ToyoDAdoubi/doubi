@@ -207,7 +207,7 @@ Set_cipher(){
  ${Green_font_prefix}12.${Font_color_suffix} chacha20-ietf-poly1305 (AEAD)
 
  ${Tip} chacha20 系列加密方式无需额外安装 libsodium，Shadowsocks Go版默认集成 !" && echo
-	read -e -p "(默认: 12. aead_chacha20_poly1305):" ss_cipher
+	read -e -p "(默认: 12. chacha20-ietf-poly1305):" ss_cipher
 	[[ -z "${ss_cipher}" ]] && ss_cipher="12"
 	if [[ ${ss_cipher} == "1" ]]; then
 		ss_cipher="aes-128-cfb"
