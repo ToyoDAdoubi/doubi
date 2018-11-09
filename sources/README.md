@@ -13,7 +13,7 @@
 假设你的服务器是美国，例如选择镜像源： `us.sources.list` 。  
 如果是其他地区，请更换下面代码中的 `us.sources.list` 中的 `us` 。
 ```
-mv /etc/apt/sources.list /etc/apt/sources.list.bak && wget -N --no-check-certificate -O "/etc/apt/sources.list" "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/sources/us.sources.list"`
+mv /etc/apt/sources.list /etc/apt/sources.list.bak && wget -N --no-check-certificate -O "/etc/apt/sources.list" "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/sources/us.sources.list"
 ```
 上面代码的意思是，把原源文件重命名为 `sources.list.bak` ，然后下载新的源文件。  
 如果下载失败，或者新的源文件使用有问题，可以通过这个命令恢复：
