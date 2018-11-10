@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: MTProxy Golang
-#	Version: 1.0.0
+#	Version: 1.0.1
 #	Author: Toyo
 #	Blog: https://doub.io/shell-jc9/
 #=================================================
 
-sh_ver="1.0.0"
+sh_ver="1.0.1"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file_1=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 file="/usr/local/mtproxy-go"
@@ -256,7 +256,8 @@ Set(){
  ${Green_font_prefix}5.${Font_color_suffix}  修改 强制安全模式 配置
  ${Green_font_prefix}6.${Font_color_suffix}  修改 全部配置
 ————————————————
- ${Green_font_prefix}7.${Font_color_suffix}  监控 运行状态" && echo
+ ${Green_font_prefix}7.${Font_color_suffix}  监控 运行状态
+ ${Green_font_prefix}8.${Font_color_suffix}  监控 外网IP变更" && echo
 	read -e -p "(默认: 取消):" mtp_modify
 	[[ -z "${mtp_modify}" ]] && echo "已取消..." && exit 1
 	if [[ "${mtp_modify}" == "1" ]]; then
@@ -321,8 +322,10 @@ Set(){
 		Restart
 	elif [[ "${mtp_modify}" == "7" ]]; then
 		Set_crontab_monitor
+	elif [[ "${mtp_modify}" == "8" ]]; then
+		Set_crontab_monitorip
 	else
-		echo -e "${Error} 请输入正确的数字(1-7)" && exit 1
+		echo -e "${Error} 请输入正确的数字(1-8)" && exit 1
 	fi
 }
 Install(){
@@ -512,7 +515,7 @@ Set_crontab_monitor(){
 	check_crontab_installed_status
 	crontab_monitor_status=$(crontab -l|grep "mtproxy_go.sh monitor")
 	if [[ -z "${crontab_monitor_status}" ]]; then
-		echo && echo -e "当前监控模式: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
+		echo && echo -e "当前监控运行状态模式: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
 		echo -e "确定要开启 ${Green_font_prefix}MTProxy 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 MTProxy 服务端)[Y/n]"
 		read -e -p "(默认: y):" crontab_monitor_status_ny
 		[[ -z "${crontab_monitor_status_ny}" ]] && crontab_monitor_status_ny="y"
@@ -522,7 +525,7 @@ Set_crontab_monitor(){
 			echo && echo "	已取消..." && echo
 		fi
 	else
-		echo && echo -e "当前监控模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
+		echo && echo -e "当前监控运行状态模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
 		echo -e "确定要关闭 ${Red_font_prefix}MTProxy 服务端运行状态监控${Font_color_suffix} 功能吗？(当进程关闭则自动启动 MTProxy 服务端)[y/N]"
 		read -e -p "(默认: n):" crontab_monitor_status_ny
 		[[ -z "${crontab_monitor_status_ny}" ]] && crontab_monitor_status_ny="n"
@@ -576,6 +579,91 @@ crontab_monitor(){
 		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] MTProxy服务端 进程运行正常..." | tee -a ${mtproxy_log}
 	fi
 }
+Set_crontab_monitorip(){
+	check_crontab_installed_status
+	crontab_monitor_status=$(crontab -l|grep "mtproxy_go.sh monitorip")
+	if [[ -z "${crontab_monitor_status}" ]]; then
+		echo && echo -e "当前监控外网IP模式: ${Red_font_prefix}未开启${Font_color_suffix}" && echo
+		echo -e "确定要开启 ${Green_font_prefix}服务器外网IP变更监控${Font_color_suffix} 功能吗？(当服务器外网IP变化后，自动重新配置并重启服务端)[Y/n]"
+		read -e -p "(默认: y):" crontab_monitor_status_ny
+		[[ -z "${crontab_monitor_status_ny}" ]] && crontab_monitor_status_ny="y"
+		if [[ ${crontab_monitor_status_ny} == [Yy] ]]; then
+			crontab_monitor_cron_start2
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo && echo -e "当前监控外网IP模式: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
+		echo -e "确定要关闭 ${Red_font_prefix}服务器外网IP变更监控${Font_color_suffix} 功能吗？(当服务器外网IP变化后，自动重新配置并重启服务端)[Y/n]"
+		read -e -p "(默认: n):" crontab_monitor_status_ny
+		[[ -z "${crontab_monitor_status_ny}" ]] && crontab_monitor_status_ny="n"
+		if [[ ${crontab_monitor_status_ny} == [Yy] ]]; then
+			crontab_monitor_cron_stop2
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	fi
+}
+crontab_monitor_cron_start2(){
+	crontab -l > "$file_1/crontab.bak"
+	sed -i "/mtproxy_go.sh monitorip/d" "$file_1/crontab.bak"
+	echo -e "\n* * * * * /bin/bash $file_1/mtproxy_go.sh monitorip" >> "$file_1/crontab.bak"
+	crontab "$file_1/crontab.bak"
+	rm -r "$file_1/crontab.bak"
+	cron_config=$(crontab -l | grep "mtproxy_go.sh monitorip")
+	if [[ -z ${cron_config} ]]; then
+		echo -e "${Error} 服务器外网IP变更监控功能 启动失败 !" && exit 1
+	else
+		echo -e "${Info} 服务器外网IP变更监控功能 启动成功 !"
+	fi
+}
+crontab_monitor_cron_stop2(){
+	crontab -l > "$file_1/crontab.bak"
+	sed -i "/mtproxy_go.sh monitorip/d" "$file_1/crontab.bak"
+	crontab "$file_1/crontab.bak"
+	rm -r "$file_1/crontab.bak"
+	cron_config=$(crontab -l | grep "mtproxy_go.sh monitorip")
+	if [[ ! -z ${cron_config} ]]; then
+		echo -e "${Error} 服务器外网IP变更监控功能 停止失败 !" && exit 1
+	else
+		echo -e "${Info} 服务器外网IP变更监控功能 停止成功 !"
+	fi
+}
+crontab_monitorip(){
+	check_installed_status
+	Read_config
+	getipv4
+	getipv6
+	monitorip_yn="NO"
+	if [[ "${ipv4}" != "IPv4_Error" ]]; then
+		if [[ "${ipv4}" != "${nat_ipv4}" ]]; then
+			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 服务器外网IPv4变更[旧: ${nat_ipv4}，新: ${ipv4}], 开始重新配置并准备重启服务端..." | tee -a ${mtproxy_log}
+			monitorip_yn="YES"
+			mtp_nat_ipv4=${ipv4}
+		fi
+	else
+		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 服务器外网IPv4获取失败..." | tee -a ${mtproxy_log}
+		mtp_nat_ipv4=${nat_ipv4}
+	fi
+	if [[ "${ipv6}" != "IPv6_Error" ]]; then
+		if [[ "${ipv6}" != "${nat_ipv6}" ]]; then
+			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 服务器外网IPv6变更[旧: ${nat_ipv6}，新: ${ipv6}], 开始重新配置并准备重启服务端..." | tee -a ${mtproxy_log}
+			monitorip_yn="YES"
+			mtp_nat_ipv6=${ipv6}
+		fi
+	else
+		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 服务器外网IPv6获取失败..." | tee -a ${mtproxy_log}
+		mtp_nat_ipv6=${nat_ipv6}
+	fi
+	if [[ ${monitorip_yn} == "YES" ]]; then
+		mtp_port=${port}
+		mtp_passwd=${passwd}
+		mtp_tag=${tag}
+		mtp_secure=${secure}
+		Write_config
+		Restart
+	fi
+}
 Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${mtp_port} -j ACCEPT
 	ip6tables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${mtp_port} -j ACCEPT
@@ -620,6 +708,8 @@ check_sys
 action=$1
 if [[ "${action}" == "monitor" ]]; then
 	crontab_monitor
+elif [[ "${action}" == "monitorip" ]]; then
+	crontab_monitorip
 else
 	echo && echo -e "  MTProxy-Go 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   ---- Toyo | doub.io/shell-jc9 ----
