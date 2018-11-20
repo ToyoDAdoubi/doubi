@@ -1,0 +1,10 @@
+deb http://ftp.jp.debian.org/debian/ jessie main
+deb-src http://ftp.jp.debian.org/debian/ jessie main
+deb http://ftp.jp.debian.org/debian jessie-backports main
+
+deb http://security.debian.org/ jessie/updates main contrib
+deb-src http://security.debian.org/ jessie/updates main contrib
+
+# jessie-updates, previously known as 'volatile'
+deb http://ftp.jp.debian.org/debian/ jessie-updates main contrib
+deb-src http://ftp.jp.debian.org/debian/ jessie-updates main contrib
