@@ -18,6 +18,7 @@
 * [***中转相关***](#中转相关)
   * [iptables-pf.sh](#iptables-pfsh)
   * [brook-pf.sh](#brook-pfsh)
+  * [brook-pf-mod.sh](#brook-pf-modsh)
   * [haproxy.sh](#haproxysh)
   * [socat.sh](#socatsh)
   * [tinymapper.sh](#tinymappersh)
@@ -212,6 +213,17 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/dou
 #### 下载安装:
 ``` bash
 wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/brook-pf.sh && chmod +x brook-pf.sh && bash brook-pf.sh
+```
+---
+## brook-pf-mod.sh
+
+- 脚本说明: 在Brook 端口转发基础上增加域名转发 一键安装管理脚本
+- 系统支持: CentOS6+ / Debian6+ / Ubuntu14+
+- 使用方法: https://doub.io/wlzy-37/
+
+#### 下载安装:
+``` bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/DWRex/doubi/master/brook-pf-mod.sh && chmod +x brook-pf-mod.sh && bash brook-pf-mod.sh
 ```
 
 ---
